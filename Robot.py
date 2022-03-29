@@ -40,6 +40,8 @@ class Robot():
         return False
 
 
+
+
     def calculateRoute(self, targetCell : Cell):
         """returns a list of Cells the robot must go to to get to its objective. """
         if (targetCell.getCellType() != "storage"):
@@ -92,7 +94,7 @@ class Robot():
         print("__________PRINTING ROUTE ROBOT IS TAKING______________")
         for i in fullRoute:
             print(i.getCoordinates())
-        return pointsOnRoute
+        return fullRoute
 
         
     def getFullRouteFromPointsOnRoute(self, pointsOnRoute : list):
@@ -130,6 +132,12 @@ class Robot():
         return routeList
 
                 
+    def goToCell(self, cell : Cell):
+        if (self.isLegalMove(cell)):
+            self.currentCell = cell
+            return True
+        print("Could not go to cell with coordinates: ", cell.getCoordinates())
+        return False
 
 
     def findVerticalCell(self, startCell : Cell, targetCell : Cell):
@@ -178,8 +186,8 @@ class Robot():
         elif (currentCellType == "moveDown" and direction == "up"):
             print("can't move up on down arrow")
             return None
-        elif (currentCellType == "blank" and (direction == "up" or direction == "down")):
-            print("can only move sideways on blank spaces")
+        elif (currentCellType == "load" and (direction == "up" or direction == "down")):
+            print("can only move sideways on load spaces")
             return None
         return True
 

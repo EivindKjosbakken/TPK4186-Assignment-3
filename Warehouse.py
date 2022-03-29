@@ -2,6 +2,9 @@
 from tracemalloc import start
 from turtle import st
 from Cell import Cell
+from Product import Product
+
+import math
 
 class Warehouse():
     def __init__(self, robots : list):
@@ -11,6 +14,13 @@ class Warehouse():
     
     def getCells(self):
         return self.cells
+    def getCells1D(self):
+        """returns a 1D array of the cells (instead of 2D)"""
+        allCells = []
+        for row in self.cells:
+            for cell in row:
+                allCells.append(cell)
+        return allCells
     def getVerticalCells(self):
         """get all cells with vertical arrows, used by robot to calculate route"""
         verticalCells = []
@@ -45,6 +55,76 @@ class Warehouse():
         return False
 
 
+    def insertIntoShelves(self, product : Product, amount : int):
+        """sets of space in each cell to have product and the amount, returns list of the cells where robot needs to go to put of the product"""
+        if product.getWeight() > 40 or product.getWeight() < 2:
+            print("can't have a product with more than 40 in weight, or less than 2 in weight when calculation warehouse operations")
+            return None
+        cellsAndShelves = self.findCellsAndShelves(product, amount)
+        cellsToGoTo = set() #set so it only contains unique cells
+
+        for (cell, shelf, amount) in cellsAndShelves:
+            cellsToGoTo.add(cell)
+            if (shelf==1):
+                cell.setShelf1(product, amount)
+            elif (shelf==2):
+                cell.setShelf2(product, amount)
+            else:
+                print("Something wrong with adding to shelf in warehouse")
+                return None
+            
+
+    def findCellsAndShelves(self, product : Product, amount : int):
+        """find an available cells for the product to go to (returns a list of cells you have to go to, to get rid of all the product. List has contains of elements (cell, shelf, amount to put into shelf) where shelf is either 1 or 2 """
+        cellsAndShelves = []
+        allCells = self.getCells1D()
+        currentAmount = amount
+        #first check if there are any cells that already have the same kind of product -> if so I want to go there first
+        for cell in allCells:
+            amountShelf1, amountShelf2 = self.getAmountYouCanPutIntoEachShelfOfCell(product, cell)
+            if (amountShelf1 > 0): #amount you can put into shelf1
+                currentAmount -= amountShelf1
+                if (currentAmount <= 0):
+                    cellsAndShelves.append( (cell, 1, amountShelf1+currentAmount) ) #+currentAmount so that I only put in the products that is supposed to get put in (not more than I have)
+                    return cellsAndShelves
+                cellsAndShelves.append( (cell, 1, amountShelf1) ) 
+
+            if (amountShelf2 > 0):
+                currentAmount -= amountShelf2
+                if (currentAmount <= 0):
+                    cellsAndShelves.append( (cell, 2, amountShelf2+currentAmount) )
+                    return cellsAndShelves
+                cellsAndShelves.append( (cell, 2, amountShelf2) )
+
+        print("Could not find cell for item")
+        return None
+
+    def getAmountYouCanPutIntoEachShelfOfCell(self, product : Product, cell : Cell):
+        """returns amountShelf1, amountShelf2, the amounts each shelf of a shelf, can fit of a specific product. Does not set the state of the shelves"""
+        shelf1, shelf2 = cell.getShelf1(), cell.getShelf2()
+        productWeight = product.getWeight()
+        amountShelf1 = 0
+        amountShelf2 = 0
+        productShelf1 = cell.getProductFromShelf(shelf1)
+        productShelf2 = cell.getProductFromShelf(shelf2)
+        if (productShelf1 == None): #if so, no product is in the shelf
+            amountShelf1 =  math.floor(100/productWeight)  #since 100 kg is the amount of weight a shelf can carry
+            #cell.setShelf1(product, amountShelf1)
+        elif (productShelf1 == product): #if the same product is in the shelf, we can still fill the shelf up to 100 kg
+            amountShelf1 = cell.getAmountFromShelf(shelf1)
+            weightShelf1 = productWeight*amountShelf1
+            amountShelf1 = math.floor( (100-weightShelf1)/productWeight ) 
+            #cell.setShelf1(product, amountShelf1)
+            
+        if (productShelf2 == None):
+            amountShelf2 = math.floor(100/productWeight)
+        elif (productShelf2 == product): #if the same product is in the shelf, we can still fill the shelf up to 100 kg
+            amountShelf2 = cell.getAmountFromShelf(shelf2)
+            weightShelf2 = productWeight*amountShelf2
+            amountShelf2= math.floor( (100-weightShelf2)/productWeight ) 
+
+        return amountShelf1, amountShelf2
+
 
 
     def createWarehouse(self, xSize, ySize):
@@ -75,7 +155,7 @@ class Warehouse():
                     cell = Cell("storage", x, y)
                     row.append(cell)
                 elif (x%3==2) or (x%6==0 or x%6==1) or (x>=xSize-1):
-                    cell = Cell("blank", x, y)
+                    cell = Cell("load", x, y)
                     row.append(cell)
                 elif (x%3==0) and (y<ySize//2): #it is a move cell
                     cell = Cell("moveDown", x, y)
@@ -94,19 +174,18 @@ class Warehouse():
                     return None
             self.cells.append(row)
 
-
         
     def printWarehouse(self):
         """printing warehouse to terminal, to make sure it looks as expected"""
         for row in self.cells:
             rowString = "  "
             if (row[0].getCellType() == "start" or row[0].getCellType() == "end"): #to visualize start/end
-                rowString = "o "
+                rowString = "O "
             
             for cell in row:
                 cellType = cell.getCellType()
                 if (cellType == "storage"):
-                    rowString+="s "
+                    rowString+="S "
                 elif (cellType == "moveDown"):
                     rowString+="v "
                 elif (cellType == "moveUp"):
@@ -115,10 +194,10 @@ class Warehouse():
                     rowString+="<-"
                 elif (cellType == "moveRight"):
                     rowString+="->"
-                elif (cellType == "blank"):
-                    rowString+="b "
+                elif (cellType == "load"):
+                    rowString+="L "
             print(rowString)
-            #print("\n")
+           
                 
 
 
