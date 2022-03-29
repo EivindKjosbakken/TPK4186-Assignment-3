@@ -1,6 +1,5 @@
 
 
-from http import client
 
 
 class CustomerOrder():
