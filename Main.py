@@ -5,23 +5,26 @@ from Parameters import *
 
 
 #"""#create warehouse and visualize it
+
+
+"""#testing several robots at once"""
 wh = Warehouse([])
 wh.createWarehouse(24, 16)
 wh.printWarehouse()
 
-robot = Robot("robot", wh)
-robots = [robot]
-wh.robots = robots
+robot1 = Robot("robot1", wh)
+robot2 = Robot("robot2", wh)
+robots = [robot1, robot2]
+
 cheese = Product("cheese", 10)
+truckload = Truckload("t", 1000)
+truckload.load = {cheese : 50}
 
 
+wh.simulateWarehouse(truckload, robots, 100)
 
-
-
-
-
-
-
+#for ele in robot2.route:
+ #   print(ele.getCoordinates())
 
 
 
@@ -43,9 +46,9 @@ cell1 = wh.getCellByCoordinates(1,1)
 
 robot.activateRobot(cell1, load)
 
-for i in range(38):
+for i in range(53):
     wh.nextTimeStep()
-    print(robot.currentCell.getCoordinates())
+ 
 
 cell1= wh.getCellByCoordinates(1,1)
 print(cell1.shelf1[0].getName(), cell1.shelf1[1])

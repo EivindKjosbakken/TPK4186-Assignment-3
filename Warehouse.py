@@ -1,8 +1,10 @@
 
 from tracemalloc import start
 from turtle import st
+from zoneinfo import available_timezones
 from Cell import Cell
 from Product import Product
+from Truckload import Truckload
 
 import math
 
@@ -57,22 +59,48 @@ class Warehouse():
         return False
 
 
-        
+    def simulateWarehouse(self, truckload : Truckload, robots : list, maxTimeStep : int):
+        self.robots = robots
 
-    def nextTimeStep(self):
+        for i in range(maxTimeStep):
+            print("___TIMESTEP: ", i, " ____")
+            self.nextTimeStep(truckload)
+
+    def nextTimeStep(self, truckload : Truckload):
         """go to next timestep, that means new truckload can come, all robots move once (or wait), 1 timestep = 10 sec (so a robot unloading will take 12 timeSteps for example"""
-        
+        self.loadNextRobot(truckload) #if available robot, activate
         for robot in self.robots:
             robot.move()
+            print(robot.getName(), "is in coordinate: ", robot.getCurrentCell().getCoordinates())
         
-        
-        #FIX TRUCKLOADS HERE
+    def loadNextRobot(self, truckload : Truckload):
+        """find out if available robots, if so, load them and activate"""
+        availableRobots = self.getAvailableRobots()
+        #loadRobot
+        print("avail robots: ", availableRobots)
+        if (len(availableRobots) > 0):
+            robot = availableRobots[0]
+            load = truckload.get40Weight()
+            product, amount = load
+            cell = self.findCell(product, amount)
+            robot.activateRobot(cell, load)
+            print("going to cell: ", cell.getCoordinates())
+            print("load is: ", load[0].getName(), load[1])
 
+
+    def getAvailableRobots(self):
+        """returns all available robots, aka those that are in endCell, and ready for loading"""
+        availableRobots = []
+        for robot in self.robots:
+
+            if robot.getCurrentCell() == self.getEndCell():
+                availableRobots.append(robot)
+        return availableRobots
 
 
 #functions handling the shelves of the warehouse and where to put products
+    """
     def insertIntoShelves(self, product : Product, amount : int):
-        """sets of space in each cell to have product and the amount, returns list of the cells where robot needs to go to put of the product"""
         if product.getWeight() > 40 or product.getWeight() < 2:
             print("can't have a product with more than 40 in weight, or less than 2 in weight when calculation warehouse operations")
             return None
@@ -88,10 +116,11 @@ class Warehouse():
             else:
                 print("Something wrong with adding to shelf in warehouse")
                 return None
-            
-    def findCellsAndShelves(self, product : Product, amount : int):
-        """find an available cells for the product to go to (returns a list of cells you have to go to, to get rid of all the product. List has contains of elements (cell, shelf, amount to put into shelf) where shelf is either 1 or 2 """
-        cellsAndShelves = []
+    """   
+         
+    def findCell(self, product : Product, amount : int):
+        """find an available cell for the product to go to return that cell"""
+        cellsToGoTo = []
         allCells = self.getCells1D()
         currentAmount = amount
         #first check if there are any cells that already have the same kind of product -> if so I want to go there first
@@ -100,16 +129,16 @@ class Warehouse():
             if (amountShelf1 > 0): #amount you can put into shelf1
                 currentAmount -= amountShelf1
                 if (currentAmount <= 0):
-                    cellsAndShelves.append( (cell, 1, amountShelf1+currentAmount) ) #+currentAmount so that I only put in the products that is supposed to get put in (not more than I have)
-                    return cellsAndShelves
-                cellsAndShelves.append( (cell, 1, amountShelf1) ) 
+                    cellsToGoTo.append(cell)
+                    return cellsToGoTo[0]
+                cellsToGoTo.append(cell) 
 
             if (amountShelf2 > 0):
                 currentAmount -= amountShelf2
                 if (currentAmount <= 0):
-                    cellsAndShelves.append( (cell, 2, amountShelf2+currentAmount) )
-                    return cellsAndShelves
-                cellsAndShelves.append( (cell, 2, amountShelf2) )
+                    cellsToGoTo.append(cell)
+                    return cellsToGoTo[0]
+                cellsToGoTo.append(cell)
 
         print("Could not find cell for item")
         return None
