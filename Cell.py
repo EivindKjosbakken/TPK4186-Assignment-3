@@ -1,5 +1,7 @@
 
 
+from inspect import iscoroutinefunction
+import math
 from numpy import isin
 from Product import Product
 
@@ -46,8 +48,80 @@ class Cell():
             return True
         print("Shelf2 was None or did not have length 2")
         return False        
+    def getIsOccupied(self):
+        return self.isOccupied
+    def getIsPlannedOccupied(self):
+        return self.isPlannedOccupied
+    def flipIsOccupied(self):
+        self.isOccupied = (not self.isOccupied)
+    def flipIsPlannedOccupied(self):
+        self.isPlannedOccupied = (not self.isPlannedOccupied)
 
 
 
+#methods to add a product, and an amount of it, to a shelf
+    def addToCell(self, product : Product, amount : int):
+        """add a product with an amount to a cell. Returns amount it put in"""
+        currentAmount = amount
+        amountPutInShelf1 = self.availableInShelf(product, currentAmount, 1)
+        if (amountPutInShelf1>0):
+            currentAmount -= amountPutInShelf1
+            self.addToShelf(1, product, amountPutInShelf1)
+            if (currentAmount<=0):
+                print(f"put amount: {amount} of product: {product} in shelf1")
+                return amount
+        amountPutInShelf2 = self.availableInShelf(product, currentAmount, 2)
+        if (amountPutInShelf2>0):
+            currentAmount -= amountPutInShelf2
+            self.addToShelf(2, product, amountPutInShelf2)
+            if (currentAmount==0):
+                print(f"put amount: {amountPutInShelf1} in shelf1, and {amountPutInShelf2} in shelf2 of product: {product} ")
+                return amount
+            elif (currentAmount<=0):
+                print("something wrong with addToCell")
+                return None
+        putIn = amountPutInShelf1+amountPutInShelf2
+        print(f"put in {putIn} of product: {product}")
+        return putIn
+
+    def addToShelf(self, shelfNumber : int, product : Product, amount : int):
+        """adds a product to a shelf on current cell"""
+        if (shelfNumber==1):
+            shelf = self.shelf1
+        elif (shelfNumber==2):
+            shelf = self.shelf2
+        else:
+            print("something wrong with addToShelf")
+            return None
+        amountInShelf = self.getAmountFromShelf(shelf)
+        productInShelf = self.getProductFromShelf(shelf)
+        if (productInShelf!=product and productInShelf!=None):
+            print("something wrong in addToShelf")
+            return None
+        totalAmount = amountInShelf+amount
+        if (shelfNumber==1):
+            self.setShelf1(product, totalAmount)
+        elif (shelfNumber==2):
+            self.setShelf2(product, totalAmount)
+
+    def availableInShelf(self, product : Product, amount : int, shelf : int):
+        """returns how much amount you can put into a shelf"""
+        totalWeight = 0
+        if (shelf == 1):
+            shelf = self.shelf1
+        elif (shelf == 2):
+            shelf = self.shelf2
+        
+        if (self.getProductFromShelf(shelf) == product): #if there is a product in the shelf from before
+            totalWeight = (self.shelf1[1]*product.getWeight()) #calc how much weight is there already
+        elif (self.getProductFromShelf(shelf) == None): #if there is no product there from before
+            totalWeight = 0
+        elif (self.getAmountFromShelf(shelf) != product): #if there is a different product in the shelf (then it's full)
+            totalWeight = 100 
+        canPutIn = math.floor( (100-totalWeight)/ product.getWeight() )
+        if (canPutIn>=amount): #if there is enough room in shelf
+            return amount
+        return canPutIn #else return the maximum you can put in
+
+        
     
-    #check coordinates are within warehouse

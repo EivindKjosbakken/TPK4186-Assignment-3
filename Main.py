@@ -10,19 +10,82 @@ wh.createWarehouse(24, 16)
 wh.printWarehouse()
 
 robot = Robot("robot", wh)
-#targetCell = wh.getCellByCoordinates(13,14)
-#pointsOnRoute = robot.calculateRoute(targetCell)
+robots = [robot]
+wh.robots = robots
+cheese = Product("cheese", 10)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+""" #tests for sending robot to a storage place, making it unload, and so on
+wh = Warehouse([])
+wh.createWarehouse(24, 16)
+wh.printWarehouse()
+
+robot = Robot("robot", wh)
+robots = [robot]
+wh.robots = robots
+cheese = Product("cheese", 10)
+load = [(cheese, 15)]
+cell1 = wh.getCellByCoordinates(1,1)
+
+robot.activateRobot(cell1, load)
+
+for i in range(38):
+    wh.nextTimeStep()
+    print(robot.currentCell.getCoordinates())
+
+cell1= wh.getCellByCoordinates(1,1)
+print(cell1.shelf1[0].getName(), cell1.shelf1[1])
+print(cell1.shelf2[0], cell1.shelf2[1])
+
+"""
+
+"""#testing moving of robot: 
+wh = Warehouse([])
+wh.createWarehouse(24, 16)
+wh.printWarehouse()
+
+robot = Robot("robot", wh)
+robot2 = Robot("robot2", wh)
+#trying to add a blockade for robot
+newCell = wh.getCellByCoordinates(5, 9) 
+newCell.flipIsOccupied()
+
+wh.robots = [robot]
+targetCell = wh.getCellByCoordinates(6,11)
+route = robot.calculateRoute(targetCell)
+
+robot.setRoute(route)
+for i in range(len(route)):
+    wh.nextTimeStep()
+
+print("currentPos: ", robot.getCurrentCell().getCoordinates())
+
+a = wh.getCellByCoordinates(3, 9)
+
+"""
+ 
+
+
+""" #testing inserting product into shelf,
 product = Product("cheese", 25)
-
-#a = (wh.findCellsAndShelves(product, 9))
-
 wh.insertIntoShelves(product,  17)
-
 cells = wh.getCells1D()
+"""
 
-for cell in cells[:3]:
-    print(cell.getShelf1(), cell.getShelf2(), cell.getCoordinates())
 
 #"""
 

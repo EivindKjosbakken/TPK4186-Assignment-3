@@ -6,11 +6,13 @@ from Product import Product
 
 import math
 
+
+
 class Warehouse():
     def __init__(self, robots : list):
         self.cells = [] # a list of cell objects with all cells in the warehouse, will be 2d (one list in cells for each row of the warehouse)
         self.robots = robots # a list of robot objects
-        
+        self.currentLoad = [] #a list with elements (product, amount), that comes from truck loads, the load is to be picked up by robots and put in shelves
     
     def getCells(self):
         return self.cells
@@ -55,6 +57,20 @@ class Warehouse():
         return False
 
 
+        
+
+    def nextTimeStep(self):
+        """go to next timestep, that means new truckload can come, all robots move once (or wait), 1 timestep = 10 sec (so a robot unloading will take 12 timeSteps for example"""
+        
+        for robot in self.robots:
+            robot.move()
+        
+        
+        #FIX TRUCKLOADS HERE
+
+
+
+#functions handling the shelves of the warehouse and where to put products
     def insertIntoShelves(self, product : Product, amount : int):
         """sets of space in each cell to have product and the amount, returns list of the cells where robot needs to go to put of the product"""
         if product.getWeight() > 40 or product.getWeight() < 2:
@@ -73,7 +89,6 @@ class Warehouse():
                 print("Something wrong with adding to shelf in warehouse")
                 return None
             
-
     def findCellsAndShelves(self, product : Product, amount : int):
         """find an available cells for the product to go to (returns a list of cells you have to go to, to get rid of all the product. List has contains of elements (cell, shelf, amount to put into shelf) where shelf is either 1 or 2 """
         cellsAndShelves = []
@@ -127,6 +142,8 @@ class Warehouse():
 
 
 
+
+#creating and printing warehouse
     def createWarehouse(self, xSize, ySize):
         """makes a warehouse with cells"""
         if (xSize < 6 or ySize < 6):
@@ -174,7 +191,6 @@ class Warehouse():
                     return None
             self.cells.append(row)
 
-        
     def printWarehouse(self):
         """printing warehouse to terminal, to make sure it looks as expected"""
         for row in self.cells:
