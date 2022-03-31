@@ -1,6 +1,7 @@
 
 from tracemalloc import start
 from Cell import Cell
+from Product import Product
 from Warehouse import Warehouse
 
 class Robot():
@@ -13,6 +14,7 @@ class Robot():
         self.route = []
         self.waitTime = 0 #if robot is loading/unloading, it has to wait 12 timeSteps
         self.wasInStorageCell = False
+        self.isPickingUpProduct = False
 
 #getters and setters:
     def getName(self):
@@ -61,6 +63,8 @@ class Robot():
 
     def move(self):
         """when a new timestep, a robot must move, it wants to move to the next cell in its trajectory, but if it collides with another robot, it must wait"""
+
+        
         if (self.route==None):
             return None
         elif (len(self.route) == 0): #robot does not need to move
@@ -89,6 +93,13 @@ class Robot():
             self.route.pop(0) 
             if (currentCell!=self.warehouse.getStartCell() and currentCell!=self.warehouse.getEndCell()):
                 currentCell.flipIsOccupied() #if robot moves on, then previous cell is not occupied anymore
+            
+            if (self.currentCell == self.warehouse.getEndCell() and self.currentLoad[0] != None and self.currentLoad[1]>0 and self.isPickingUpProduct==False): #if robot still has load when at endCell, return the load
+                (product, amount) = self.currentLoad
+                self.warehouse.addBackToTruckload(product, amount)
+                self.currentLoad = (None, 0)
+                self.waitTime = 12 #have to wait when unloading product
+
             return True
         print(f"Robot: {self.name} had to wait at coordinates: ", self.currentCell.getCoordinates())
         return False
@@ -127,11 +138,21 @@ class Robot():
         storageCell.flipRobotIsOnWay()
         if (self.currentLoad != None and storageCell!=None):
             product, amount = self.currentLoad
-            storageCell.addToCell(product, amount)
-            self.currentLoad = None
+            amountPutIn = storageCell.addToCell(product, amount)
+            self.removeCurrentLoad(product, amountPutIn)
+            
         else:
             print("something is wrong in unloadRobot")
             return None
+
+    def removeCurrentLoad(self, product : Product,  amount : int):
+        """removes an amount from current load"""
+        currentAmount = self.currentLoad[1]
+        if (amount>currentAmount):
+            print("Something wrong in removeCurrentLoad")
+            return None
+        newAmount = currentAmount-amount
+        self.currentLoad = (product, newAmount)
 
     def loadRobot(self, load):
         print("loading", self.getName())

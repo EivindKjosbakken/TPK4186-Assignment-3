@@ -28,16 +28,20 @@ class Truckload():
         print("maxCapacity must be bigger than 1")
         return False
 
-    def get40Weight(self):
-        """returns first product it finds, and an amount so its less than or equal to 40"""
+    def getMax40Weight(self):
+        """returns first product it finds, and an amount so its less than or equal to 40"""        
         for product, amount in self.load.items():
+            if (amount==0):
+                continue
             amountToGet = math.floor(40/product.getWeight())
             if amount>= amountToGet: #if truckload has enough
                 self.removeProducts(product, amountToGet)
                 return (product, amountToGet)
+
             self.removeProducts(product, amount)
             return (product, amount)
-
+        print("No more products left")
+        return (None, 0)
     def getTotalWeight(self):
         totalWeight = 0
         for productObject, amount in self.load.items():

@@ -78,7 +78,14 @@ class Cell():
     def flipIsPlannedOccupied(self):
         self.isPlannedOccupied = (not self.isPlannedOccupied)
 
-
+    def printCell(self):
+        """print out info about cell"""
+        prodShelf1Name, prodShelf2Name = "None", "None"
+        if (self.shelf1[0] != None):
+            prodShelf1Name = self.shelf1[0].getName()
+        if (self.shelf2[0] != None):
+            prodShelf2Name = self.shelf2[0].getName()
+        print(f"Coordinates: {self.coordinates} | shelf 1: ({prodShelf1Name} : {self.shelf1[1]}) | shelf2: ({prodShelf2Name} : {self.shelf2[1]})")
 
 #methods to add a product, and an amount of it, to a shelf
     def addToCell(self, product : Product, amount : int):
@@ -94,7 +101,6 @@ class Cell():
                 print(f"put amount: {amount} of product: {product.getName()} in shelf1")
                 return amount
         amountPutInShelf2 = self.availableInShelf(product, currentAmount, 2)
-        print("er s2", amountPutInShelf2)
         if (amountPutInShelf2>0):
             currentAmount -= amountPutInShelf2
             self.addToShelf(2, product, amountPutInShelf2)
@@ -105,7 +111,7 @@ class Cell():
                 print("something wrong with addToCell")
                 return None
         putIn = amountPutInShelf1+amountPutInShelf2
-        print(f"put in {putIn} of product: {product}")
+        #print(f"put in {putIn} of product: {product}")
         return putIn
 
     def addToShelf(self, shelfNumber : int, product : Product, amount : int):

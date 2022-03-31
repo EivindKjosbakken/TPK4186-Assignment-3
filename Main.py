@@ -25,27 +25,27 @@ robots = [robot1, robot2]
 #robots = [robot1]
 
 cheese = Product("cheese", 10)
-truckload = Truckload("t", 1000)
-truckload.load = {cheese : 50}
+chair = Product("chair", 10)
+table = Product("table", 19)
+pen = Product("pen", 3)
+truckload = Truckload("t", 2000)
+truckload.load = {cheese : 45, table : 16, chair : 13, pen : 12}
 
 
-wh.simulateWarehouse(truckload, robots, 50)
-cell1 = wh.getCellByCoordinates(1,1)
-print("truckload remaning is: ", truckload.load)
+wh.simulateWarehouse(truckload, robots, 1000)
 
-print("robot 1 position: ", robot1.currentCell.getCoordinates())
-print("robot 2 position: ", robot2.currentCell.getCoordinates())
-print("ROBOTLOAD 1: ", robot1.currentLoad)
-print("ROBOTLOAD 2: ", robot2.currentLoad)
+print("truckload remaning is: ")
+for (product, amount) in truckload.load.items():
+    print(product.getName(), amount)
+
+#print("robot 1 position: ", robot1.currentCell.getCoordinates())
+#print("robot 2 position: ", robot2.currentCell.getCoordinates())
+if (robot1.currentLoad!=None and robot1.currentLoad[0]!= None):
+    print("ROBOTLOAD 1: ", robot1.currentLoad[0].getName(), robot1.currentLoad[1])
+if (robot2.currentLoad!=None and robot2.currentLoad[0]!= None):
+    print("ROBOTLOAD 2: ", robot2.currentLoad[0].getName(), robot2.currentLoad[1])
 route1 = robot1.route
 route2 = robot2.route
-print("ROUTE 1:")
-for i in route1:
-    print(i.getCoordinates(), end=", ")
-print()
-print("ROUTE 2")
-for i in route2:
-    print(i.getCoordinates(), end= ", ")
 
 
 all = wh.getAllProductsAndAmountsInWarehouse()
@@ -54,10 +54,18 @@ print("ALL IS: ", all)
 
 cell1 = wh.getCellByCoordinates(1,1)
 cell2 = wh.getCellByCoordinates(6,1)
-print("CELL 1: ", cell1.shelf1, cell1.shelf2)
-print("CELL 2: ", cell2.shelf1, cell2.shelf2)
-cell3 = wh.getCellByCoordinates(12, 1)
-print("CELL 3: ", cell3.shelf1, cell3.shelf2)
+cell3 = wh.getCellByCoordinates(7, 1)
+cell4 = wh.getCellByCoordinates(12, 1)
+cell5 = wh.getCellByCoordinates(13, 1)
+cell6 = wh.getCellByCoordinates(18, 1)
+cell7 = wh.getCellByCoordinates(19, 1)
+cell1.printCell()
+cell2.printCell()
+cell3.printCell()
+cell4.printCell()
+cell5.printCell()
+cell6.printCell()
+cell7.printCell()
 
 
 #for ele in robot2.route:

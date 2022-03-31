@@ -15,7 +15,8 @@ class Warehouse():
         self.cells = [] # a list of cell objects with all cells in the warehouse, will be 2d (one list in cells for each row of the warehouse)
         self.robots = robots # a list of robot objects
         self.currentLoad = [] #a list with elements (product, amount), that comes from truck loads, the load is to be picked up by robots and put in shelves
-    
+        self.truckload = None
+#getters and setters:
     def getCells(self):
         return self.cells
     def getCells1D(self):
@@ -83,37 +84,46 @@ class Warehouse():
                     allProducts[product] = amount
         return allProducts
 
+    def addBackToTruckload(self, product : Product, amount : int):
+        """to add back to current truckload, happens if a robot returns with stock after trying to place it in a storage cell"""
+        for i in range(amount):
+            self.truckload.addProduct(product)
+        print("added to truckload, truckload is now: ", self.truckload.getLoad())
+
 
     def simulateWarehouse(self, truckload : Truckload, robots : list, maxTimeStep : int):
         self.robots = robots
-
+        self.truckload = truckload
         for i in range(maxTimeStep):
+            print()
             print("___TIMESTEP: ", i, " ____")
-            self.nextTimeStep(truckload)
+            self.nextTimeStep()
 
-    def nextTimeStep(self, truckload : Truckload):
+    def nextTimeStep(self):
         """go to next timestep, that means new truckload can come, all robots move once (or wait), 1 timestep = 10 sec (so a robot unloading will take 12 timeSteps for example"""
-        self.loadNextRobot(truckload) #if available robot, activate
+        self.loadNextRobot() #if available robot, activate
         for robot in self.robots:
             robot.move()
-            print(robot.getName(), "is in coordinate: ", robot.getCurrentCell().getCoordinates())
+            prodName = "None"
+            if robot.getCurrentLoad()[0] != None:
+                prodName = robot.getCurrentLoad()[0].getName()
+            print(robot.getName(), "is in coordinate: ", robot.getCurrentCell().getCoordinates(), "with load: ", prodName, robot.getCurrentLoad()[1])
         
-    def loadNextRobot(self, truckload : Truckload):
+    def loadNextRobot(self):
         """find out if available robots, if so, load them and activate"""
         availableRobots = self.getAvailableRobots()
-        #loadRobot
-        print("avail robots: ", availableRobots)
         if (len(availableRobots) > 0):
             robot = availableRobots[0]
-            load = truckload.get40Weight()
+            load = self.truckload.getMax40Weight()
+            if (load[0] == None or load[1] == 0): #if there was no more load to get
+                return None
             product, amount = load
             cell = self.findCell(product, amount)
             if (cell==None):
                 print("did not find cell to go to")
                 return None
             robot.activateRobot(cell, load)
-            print("going to cell: ", cell.getCoordinates())
-            print("load is: ", load[0].getName(), load[1])
+            print("Robot: ", robot.getName(), "going to cell: ", cell.getCoordinates(), "going with load: ", load[0].getName(), "and amount: ", load[1])
 
 
     def getAvailableRobots(self):
@@ -127,25 +137,7 @@ class Warehouse():
 
 
 #functions handling the shelves of the warehouse and where to put products
-    """
-    def insertIntoShelves(self, product : Product, amount : int):
-        if product.getWeight() > 40 or product.getWeight() < 2:
-            print("can't have a product with more than 40 in weight, or less than 2 in weight when calculation warehouse operations")
-            return None
-        cellsAndShelves = self.findCellsAndShelves(product, amount)
-        cellsToGoTo = set() #set so it only contains unique cells
-
-        for (cell, shelf, amount) in cellsAndShelves:
-            cellsToGoTo.add(cell)
-            if (shelf==1):
-                cell.setShelf1(product, amount)
-            elif (shelf==2):
-                cell.setShelf2(product, amount)
-            else:
-                print("Something wrong with adding to shelf in warehouse")
-                return None
-    """   
-         
+  
     def findCell(self, product : Product, amount : int):
         """find an available storage cell for the product to go to return that cell"""
         
@@ -161,7 +153,6 @@ class Warehouse():
                 currentAmount -= amountShelf1
                 if (currentAmount <= 0):
                     cellsToGoTo.append(cell)
-                    print("CELLS TO GOT TO 1: ", cellsToGoTo[0].getCoordinates())
                     return cellsToGoTo[0]
                 cellsToGoTo.append(cell) 
 
@@ -169,7 +160,6 @@ class Warehouse():
                 currentAmount -= amountShelf2
                 if (currentAmount <= 0):
                     cellsToGoTo.append(cell)
-                    print("CELLS TO GOT TO 2: ", cellsToGoTo[0].getCoordinates())
                     return cellsToGoTo[0]
                 cellsToGoTo.append(cell)
 
