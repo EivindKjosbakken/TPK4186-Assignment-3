@@ -52,6 +52,23 @@ class Cell():
         return self.isOccupied
     def getIsPlannedOccupied(self):
         return self.isPlannedOccupied
+    def getProductsAndAmounts(self):
+        productsAndAmounts = dict()
+        prod1 = self.getProductFromShelf(self.shelf1)
+        if (prod1!=None):
+            amount1 = self.getAmountFromShelf(self.shelf1)
+            productsAndAmounts[prod1] = amount1
+        prod2 = self.getProductFromShelf(self.shelf2)
+        if (prod2!=None):
+            amount2 = self.getAmountFromShelf(self.shelf2)
+            if (prod1==prod2):
+                totalAmount = amount1+amount2
+                productsAndAmounts[prod2] = totalAmount
+            else:
+                productsAndAmounts[prod2] = amount2
+        return productsAndAmounts
+
+    
     def flipIsOccupied(self):
         self.isOccupied = (not self.isOccupied)
     def flipIsPlannedOccupied(self):

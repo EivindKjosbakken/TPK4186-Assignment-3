@@ -18,8 +18,6 @@ def generateCatalog():
         weight = random.randrange(2, 41)
         product = Product(name, weight)
         catalog.addProduct(product)
-    #for prod in products:
-    #print(prod.getName(), " ", prod.getWeight())
     return catalog
 
 def generateTruckLoad(catalog : Catalog, maxCapacity : int):
@@ -29,7 +27,7 @@ def generateTruckLoad(catalog : Catalog, maxCapacity : int):
 
     products = catalog.getProducts()
     maxDigit = len(products)
-    while totalWeight < maxCapacity: #setting max weight to 500 first
+    while totalWeight < maxCapacity: 
         digit = random.randrange(0, maxDigit)
         product = products[digit]
         isAdded = truckload.addProduct(product)

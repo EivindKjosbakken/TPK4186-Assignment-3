@@ -58,6 +58,31 @@ class Warehouse():
         print("end cell was not found")
         return False
 
+    def getAllStorageCells(self):
+        """returns list of all cells that are storage cells"""
+        storageCells = []
+        for row in self.cells:
+            for cell in row:
+                if (cell.getCellType()=="storage"):
+                    storageCells.append(cell)
+        #print("STOERAGE: ", storageCells)
+        return storageCells
+
+    def getAllProductsAndAmountsInWarehouse(self):
+        """returns dictionary of all products and amount in the warehouse in total, used to see if warehouse can fill a customer order"""
+        allProducts = dict()
+        storageCells = self.getAllStorageCells()
+        for storageCell in storageCells:
+            prodsAndAmounts = storageCell.getProductsAndAmounts()
+            for (product, amount) in prodsAndAmounts.items():
+                if (product in allProducts.keys()):
+                    currentAmount = allProducts[product]
+                    currentAmount+=amount
+                    allProducts[product] = currentAmount
+                else:
+                    allProducts[product] = amount
+        return allProducts
+
 
     def simulateWarehouse(self, truckload : Truckload, robots : list, maxTimeStep : int):
         self.robots = robots

@@ -3,6 +3,7 @@ import random
 
 
 
-a = [("b", 1), ("c", 3), ("d", 5)]
-if ("b" in a):
-    print("hi")
+a = {"a": 1, "b": 2}
+b = {"b" : 3, "c": 5}
+c = a.update(b)
+print(c)

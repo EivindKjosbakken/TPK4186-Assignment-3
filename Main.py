@@ -5,24 +5,37 @@ from Parameters import *
 
 
 #"""#create warehouse and visualize it
+"""
+catalog = generateCatalog()
+truckload = generateTruckLoad(catalog, 100)
+for key, value in (truckload.getLoad()).items():
+    print(key.getName(), "with weight: ", key.getWeight(), ":", value)
+"""
 
 
 """#testing several robots at once"""
+
 wh = Warehouse([])
 wh.createWarehouse(24, 16)
 wh.printWarehouse()
 
 robot1 = Robot("robot1", wh)
 robot2 = Robot("robot2", wh)
-robots = [robot1, robot2]
+#robots = [robot1, robot2]
+robots = [robot1]
 
 cheese = Product("cheese", 10)
 truckload = Truckload("t", 1000)
 truckload.load = {cheese : 50}
 
 
-wh.simulateWarehouse(truckload, robots, 100)
+wh.simulateWarehouse(truckload, robots, 600)
+cell1 = wh.getCellByCoordinates(1,1)
+print("load is: ", truckload.load)
 
+all = wh.getAllProductsAndAmountsInWarehouse()
+#print(all)
+print(cell1.shelf2)
 #for ele in robot2.route:
  #   print(ele.getCoordinates())
 
