@@ -17,6 +17,8 @@ class Truckload():
         return self.load
     def setProducts(self, products : list):
         self.load = products
+    def setLoad(self, truckload : dict):
+        self.load = truckload
     def setName(self, name : str):
         self.name = name
     def getMaxCapacity(self):

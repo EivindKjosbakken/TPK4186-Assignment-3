@@ -5,15 +5,17 @@ from zoneinfo import available_timezones
 from Cell import Cell
 from Product import Product
 from Truckload import Truckload
+from tkinter import * 
+
 
 import math
 
 
 
 class Warehouse():
-    def __init__(self, robots : list):
+    def __init__(self):
         self.cells = [] # a list of cell objects with all cells in the warehouse, will be 2d (one list in cells for each row of the warehouse)
-        self.robots = robots # a list of robot objects
+        self.robots = [] # a list of robot objects
         self.currentLoad = [] #a list with elements (product, amount), that comes from truck loads, the load is to be picked up by robots and put in shelves
         self.truckload = None
 #getters and setters:
@@ -58,7 +60,6 @@ class Warehouse():
                     return cell
         print("end cell was not found")
         return False
-
     def getAllStorageCells(self):
         """returns list of all cells that are storage cells"""
         storageCells = []
@@ -69,6 +70,14 @@ class Warehouse():
         #print("STOERAGE: ", storageCells)
         return storageCells
 
+    def getRobots(self):
+        return self.robots
+    def setRobots(self, robots : list):
+        self.robots = robots
+    def getTruckload(self):
+        return self.truckload
+    def setTruckload(self, truckload : Truckload):
+        self.truckload = truckload
     def getAllProductsAndAmountsInWarehouse(self):
         """returns dictionary of all products and amount in the warehouse in total, used to see if warehouse can fill a customer order"""
         allProducts = dict()
@@ -91,7 +100,10 @@ class Warehouse():
         print("added to truckload, truckload is now: ", self.truckload.getLoad())
 
 
-    def simulateWarehouse(self, truckload : Truckload, robots : list, maxTimeStep : int):
+    def simulateWarehouse(self, truckload : Truckload, robots : list, maxTimeStep : int, xSize : int, ySize : int):
+        self.createWarehouse(xSize, ySize)
+        #rootWindow, zones = self.makeWarehouseInTkinter(xSize)
+        self.printWarehouse()
         self.robots = robots
         self.truckload = truckload
         for i in range(maxTimeStep):
@@ -114,6 +126,7 @@ class Warehouse():
         availableRobots = self.getAvailableRobots()
         if (len(availableRobots) > 0):
             robot = availableRobots[0]
+            print("truckload is: ", self.truckload.getLoad())
             load = self.truckload.getMax40Weight()
             if (load[0] == None or load[1] == 0): #if there was no more load to get
                 return None
@@ -267,6 +280,101 @@ class Warehouse():
             print(rowString)
            
                 
-
-
+    def makeWarehouseInTkinter(self, xSize, ySize):
+        """Returns: (rootWindow, canvas, zones). makes a warehouse with cells and in tkinter so they can be used"""
+        rootWindow = Tk()
+        rootWindow.title("MAP OF WAREHOUSE")
+        zones = []
+        cellSize = 50
+        canvas = Canvas(rootWindow, width=xSize*cellSize+50, height=ySize*cellSize+50)
+        canvas.pack()
+        if (xSize < 6 or ySize < 6):
+            print("xSize must be atleast 6, ySize must be atleast 9")
+            return None
+        if not (xSize%6==0):
+            print("dimensioning xSize to be divisible by 6 (rounding downwards), so that all storages are accesible")
+            xSize -= (xSize%6)
+        for y in range(1, ySize+1):
+            row = []
+            tkinterRow = []
+            if (y == ySize//2): 
+                cell = Cell("start", 0, y) #start and end cell have x coordinate 0
+                row.append(cell)
+                xc = x*cellSize
+                yc = y*cellSize
+                #zone = canvas.create_rectangle(xc, yc, xc+cellSize, yc+cellSize, fill = "black")
+                #tkinterRow.append(zone)
+            elif (y== (ySize//2+1)):
+                cell = Cell("end", 0, y)
+                row.append(cell)
+                xc = x*cellSize
+                yc = y*cellSize
+                #zone = canvas.create_rectangle(xc, yc, xc+cellSize, yc+cellSize, fill = "black")
+                #tkinterRow.append(zone)
+            for x in range(1, xSize+1): 
+                if (y==ySize//2) and (x<(xSize-1)): #8 and 9 are only y coordinates where robot can move in x direction
+                    cell = Cell("moveRight", x, y)
+                    row.append(cell)
+                    xc = x*cellSize
+                    yc = y*cellSize
+                    zone = canvas.create_rectangle(xc, yc, xc+cellSize, yc+cellSize, fill = "green")
+                    tkinterRow.append(zone)
+                elif (y== (ySize//2 +1)) and (x<(xSize-1)):
+                    cell = Cell("moveLeft", x, y)
+                    row.append(cell)
+                    xc = x*cellSize
+                    yc = y*cellSize
+                    zone = canvas.create_rectangle(xc, yc, xc+cellSize, yc+cellSize, fill = "green")
+                    tkinterRow.append(zone)
+                elif (x==1 or x%6 == 0 or x%6 == 1) and ((y>(ySize//2 +2)) or (y<(ySize//2 -1))): #where I have storage cells
+                    cell = Cell("storage", x, y)
+                    row.append(cell)
+                    xc = x*cellSize
+                    yc = y*cellSize
+                    zone = canvas.create_rectangle(xc, yc, xc+cellSize, yc+cellSize, fill = "grey")
+                    tkinterRow.append(zone)
+                elif (x%3==2) or (x%6==0 or x%6==1) or (x>=xSize-1):
+                    cell = Cell("load", x, y)
+                    row.append(cell)
+                    xc = x*cellSize
+                    yc = y*cellSize
+                    zone = canvas.create_rectangle(xc, yc, xc+cellSize, yc+cellSize, fill = "white")
+                    tkinterRow.append(zone)
+                elif (x%3==0) and (y<ySize//2): #it is a move cell
+                    cell = Cell("moveDown", x, y)
+                    row.append(cell)
+                    xc = x*cellSize
+                    yc = y*cellSize
+                    zone = canvas.create_rectangle(xc, yc, xc+cellSize, yc+cellSize, fill = "green")
+                    tkinterRow.append(zone)
+                elif (x%3==1) and y<ySize//2:
+                    cell = Cell("moveUp", x, y)
+                    row.append(cell)
+                    xc = x*cellSize
+                    yc = y*cellSize
+                    zone = canvas.create_rectangle(xc, yc, xc+cellSize, yc+cellSize, fill = "green")
+                    tkinterRow.append(zone)
+                elif (x%3==0) and (y>ySize//2): #it is a move cell
+                    cell = Cell("moveDown", x, y)
+                    row.append(cell)
+                    xc = x*cellSize
+                    yc = y*cellSize
+                    zone = canvas.create_rectangle(xc, yc, xc+cellSize, yc+cellSize, fill = "green")
+                    tkinterRow.append(zone)
+                elif (x%3==1) and (y>ySize//2):
+                    cell = Cell("moveUp", x, y)
+                    row.append(cell)
+                    xc = x*cellSize
+                    yc = y*cellSize
+                    zone = canvas.create_rectangle(xc, yc, xc+cellSize, yc+cellSize, fill = "green")
+                    tkinterRow.append(zone)
+                else:
+                    print("did not find cell type, something is wrong")
+                    return None
+            self.cells.append(row)
+            zones.append(tkinterRow)
+        frame = Frame(rootWindow)
+        frame.pack()
+        return rootWindow, canvas, zones
+        #rootWindow.mainloop()
         

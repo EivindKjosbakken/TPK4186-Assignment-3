@@ -1,7 +1,7 @@
 from Robot import Robot
 from Warehouse import Warehouse
 from Parameters import * 
-
+from Simulator import * 
 
 
 #"""#create warehouse and visualize it
@@ -15,37 +15,31 @@ for key, value in (truckload.getLoad()).items():
 
 """#testing several robots at once"""
 
-wh = Warehouse([])
-wh.createWarehouse(24, 16)
-wh.printWarehouse()
+#wh = Warehouse([])
+#wh.createWarehouse(24, 16)
+#wh.makeWarehouseInTkinter(24, 16)
+#wh.printWarehouse()
 
-robot1 = Robot("robot1", wh)
-robot2 = Robot("robot2", wh)
-robots = [robot1, robot2]
-#robots = [robot1]
+#robot1 = Robot("robot1", wh)
+#robot2 = Robot("robot2", wh)
+#robots = [robot1, robot2]
 
-cheese = Product("cheese", 10)
-chair = Product("chair", 10)
-table = Product("table", 19)
-pen = Product("pen", 3)
-truckload = Truckload("t", 2000)
-truckload.load = {cheese : 45, table : 16, chair : 13, pen : 12}
+#cheese = Product("cheese", 10)
+#chair = Product("chair", 10)
+#table = Product("table", 19)
+#pen = Product("pen", 3)
+#truckload = Truckload("t", 2000)
+#truckload.load = {cheese : 45, table : 16, chair : 13, pen : 12}
+
+#__________
+#wh.simulateWarehouse(truckload, robots, 1000, 24, 16)
+wh = runSimulation(24, 16, 2, 1200)
+#___________
 
 
-wh.simulateWarehouse(truckload, robots, 1000)
-
-print("truckload remaning is: ")
-for (product, amount) in truckload.load.items():
-    print(product.getName(), amount)
-
-#print("robot 1 position: ", robot1.currentCell.getCoordinates())
-#print("robot 2 position: ", robot2.currentCell.getCoordinates())
-if (robot1.currentLoad!=None and robot1.currentLoad[0]!= None):
-    print("ROBOTLOAD 1: ", robot1.currentLoad[0].getName(), robot1.currentLoad[1])
-if (robot2.currentLoad!=None and robot2.currentLoad[0]!= None):
-    print("ROBOTLOAD 2: ", robot2.currentLoad[0].getName(), robot2.currentLoad[1])
-route1 = robot1.route
-route2 = robot2.route
+#print("truckload remaning is: ")
+#for (product, amount) in truckload.load.items():
+#    print(product.getName(), amount)
 
 
 all = wh.getAllProductsAndAmountsInWarehouse()
