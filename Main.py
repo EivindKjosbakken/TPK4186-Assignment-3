@@ -21,21 +21,45 @@ wh.printWarehouse()
 
 robot1 = Robot("robot1", wh)
 robot2 = Robot("robot2", wh)
-#robots = [robot1, robot2]
-robots = [robot1]
+robots = [robot1, robot2]
+#robots = [robot1]
 
 cheese = Product("cheese", 10)
 truckload = Truckload("t", 1000)
 truckload.load = {cheese : 50}
 
 
-wh.simulateWarehouse(truckload, robots, 600)
+wh.simulateWarehouse(truckload, robots, 50)
 cell1 = wh.getCellByCoordinates(1,1)
-print("load is: ", truckload.load)
+print("truckload remaning is: ", truckload.load)
+
+print("robot 1 position: ", robot1.currentCell.getCoordinates())
+print("robot 2 position: ", robot2.currentCell.getCoordinates())
+print("ROBOTLOAD 1: ", robot1.currentLoad)
+print("ROBOTLOAD 2: ", robot2.currentLoad)
+route1 = robot1.route
+route2 = robot2.route
+print("ROUTE 1:")
+for i in route1:
+    print(i.getCoordinates(), end=", ")
+print()
+print("ROUTE 2")
+for i in route2:
+    print(i.getCoordinates(), end= ", ")
+
 
 all = wh.getAllProductsAndAmountsInWarehouse()
-#print(all)
-print(cell1.shelf2)
+print()
+print("ALL IS: ", all)
+
+cell1 = wh.getCellByCoordinates(1,1)
+cell2 = wh.getCellByCoordinates(6,1)
+print("CELL 1: ", cell1.shelf1, cell1.shelf2)
+print("CELL 2: ", cell2.shelf1, cell2.shelf2)
+cell3 = wh.getCellByCoordinates(12, 1)
+print("CELL 3: ", cell3.shelf1, cell3.shelf2)
+
+
 #for ele in robot2.route:
  #   print(ele.getCoordinates())
 

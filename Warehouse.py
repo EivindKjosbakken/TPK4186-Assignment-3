@@ -108,6 +108,9 @@ class Warehouse():
             load = truckload.get40Weight()
             product, amount = load
             cell = self.findCell(product, amount)
+            if (cell==None):
+                print("did not find cell to go to")
+                return None
             robot.activateRobot(cell, load)
             print("going to cell: ", cell.getCoordinates())
             print("load is: ", load[0].getName(), load[1])
@@ -144,17 +147,21 @@ class Warehouse():
     """   
          
     def findCell(self, product : Product, amount : int):
-        """find an available cell for the product to go to return that cell"""
+        """find an available storage cell for the product to go to return that cell"""
+        
         cellsToGoTo = []
-        allCells = self.getCells1D()
+        allCells = self.getAllStorageCells()
         currentAmount = amount
         #first check if there are any cells that already have the same kind of product -> if so I want to go there first
         for cell in allCells:
+            if (cell.getRobotIsOnyWay()): #can not go to cell that another robot is going to
+                continue
             amountShelf1, amountShelf2 = self.getAmountYouCanPutIntoEachShelfOfCell(product, cell)
             if (amountShelf1 > 0): #amount you can put into shelf1
                 currentAmount -= amountShelf1
                 if (currentAmount <= 0):
                     cellsToGoTo.append(cell)
+                    print("CELLS TO GOT TO 1: ", cellsToGoTo[0].getCoordinates())
                     return cellsToGoTo[0]
                 cellsToGoTo.append(cell) 
 
@@ -162,6 +169,7 @@ class Warehouse():
                 currentAmount -= amountShelf2
                 if (currentAmount <= 0):
                     cellsToGoTo.append(cell)
+                    print("CELLS TO GOT TO 2: ", cellsToGoTo[0].getCoordinates())
                     return cellsToGoTo[0]
                 cellsToGoTo.append(cell)
 

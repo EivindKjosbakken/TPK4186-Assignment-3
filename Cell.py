@@ -14,7 +14,7 @@ class Cell():
         self.shelf2 = (None, 0) #two shelves. one shelf only contains 1 product, and has shape (product, amount) 
         self.isOccupied = False
         self.isPlannedOccupied = False #if planned occupied next timestep
-
+        self.robotIsOnWay = False 
 
     def getCoordinates(self):
         return self.coordinates
@@ -67,7 +67,11 @@ class Cell():
             else:
                 productsAndAmounts[prod2] = amount2
         return productsAndAmounts
-
+    def getRobotIsOnyWay(self):
+        return self.robotIsOnWay
+    def flipRobotIsOnWay(self):
+        """say that cell is occupied so no other robot will be assigned to go to this cell"""
+        self.robotIsOnWay = (not self.robotIsOnWay)
     
     def flipIsOccupied(self):
         self.isOccupied = (not self.isOccupied)
@@ -80,7 +84,9 @@ class Cell():
     def addToCell(self, product : Product, amount : int):
         """add a product with an amount to a cell. Returns amount it put in"""
         currentAmount = amount
+        
         amountPutInShelf1 = self.availableInShelf(product, currentAmount, 1)
+        
         if (amountPutInShelf1>0):
             currentAmount -= amountPutInShelf1
             self.addToShelf(1, product, amountPutInShelf1)
@@ -88,6 +94,7 @@ class Cell():
                 print(f"put amount: {amount} of product: {product.getName()} in shelf1")
                 return amount
         amountPutInShelf2 = self.availableInShelf(product, currentAmount, 2)
+        print("er s2", amountPutInShelf2)
         if (amountPutInShelf2>0):
             currentAmount -= amountPutInShelf2
             self.addToShelf(2, product, amountPutInShelf2)
@@ -121,16 +128,16 @@ class Cell():
         elif (shelfNumber==2):
             self.setShelf2(product, totalAmount)
 
-    def availableInShelf(self, product : Product, amount : int, shelf : int):
+    def availableInShelf(self, product : Product, amount : int, shelfNumber : int):
         """returns how much amount you can put into a shelf"""
         totalWeight = 0
-        if (shelf == 1):
+        if (shelfNumber == 1):
             shelf = self.shelf1
-        elif (shelf == 2):
+        elif (shelfNumber == 2):
             shelf = self.shelf2
-        
+      
         if (self.getProductFromShelf(shelf) == product): #if there is a product in the shelf from before
-            totalWeight = (self.shelf1[1]*product.getWeight()) #calc how much weight is there already
+            totalWeight = (shelf[1]*product.getWeight()) #calc how much weight is there already
         elif (self.getProductFromShelf(shelf) == None): #if there is no product there from before
             totalWeight = 0
         elif (self.getAmountFromShelf(shelf) != product): #if there is a different product in the shelf (then it's full)

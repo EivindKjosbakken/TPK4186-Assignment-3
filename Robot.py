@@ -10,7 +10,6 @@ class Robot():
         self.currentLoad = (None, 0) #current product and amount it is currently carrying is a tuple with(product, amount), total weight must be < 40 kg
         self.currentCell = warehouse.getEndCell() #starts at endCell of warehouse, then moved to startCell when loading 
         self.previousCell = None
-        self.targetCell = None #where the robot wants to go
         self.route = []
         self.waitTime = 0 #if robot is loading/unloading, it has to wait 12 timeSteps
         self.wasInStorageCell = False
@@ -58,15 +57,18 @@ class Robot():
         if (isLoaded == False or route == None):
             print(f"Could not activate robot {self.name}")
             return None
+        cellToGoTO.flipRobotIsOnWay() 
 
     def move(self):
         """when a new timestep, a robot must move, it wants to move to the next cell in its trajectory, but if it collides with another robot, it must wait"""
-        if (len(self.route) == 0): #robot does not need to move
+        if (self.route==None):
             return None
-        if (self.currentCell == self.warehouse.getEndCell()):
+        elif (len(self.route) == 0): #robot does not need to move
+            return None
+        elif (self.currentCell == self.warehouse.getEndCell()):
             self.route, self.previousCell = [], None
-            return 
-        if (self.waitTime>0): 
+            return True
+        elif (self.waitTime>0): 
             print(f"Robot: {self.name} is waiting at coordinates: ", self.currentCell.getCoordinates())
             self.waitTime -= 1
             return True
@@ -122,9 +124,11 @@ class Robot():
         print(f"unloading {self.name}")
         self.waitTime = 12 #must wait 12 timesteps when unloading
         storageCell = self.findStorageCell()
+        storageCell.flipRobotIsOnWay()
         if (self.currentLoad != None and storageCell!=None):
             product, amount = self.currentLoad
             storageCell.addToCell(product, amount)
+            self.currentLoad = None
         else:
             print("something is wrong in unloadRobot")
             return None
@@ -160,7 +164,6 @@ class Robot():
     def isInStorageCell(self):
         """robot is at storage cell if it same same cell appears twice after over 3 cells"""
         if (self.previousCell == self.route[0]) and (self.previousCell!=None) and (len(self.route)>0) and (self.currentCell!=self.warehouse.getStartCell()) and (self.currentCell!=self.warehouse.getEndCell()): #if previousCell is same as next cell, robot must be in a storage cell
-            print(self.name, "is hereerer")
             return True
         return False
 
