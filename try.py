@@ -21,9 +21,6 @@ for x in range(0, width):
     for y in range(0, height):
         xc = x*cellSize
         yc = y*cellSize
-        fill = "white"
-        #if (y == 2):
-            #fill = "yellow"
         zone = canvas.create_rectangle(xc, yc, xc+cellSize, yc+cellSize, fill = fill)
         row.append(zone)
     zones.append(row)
