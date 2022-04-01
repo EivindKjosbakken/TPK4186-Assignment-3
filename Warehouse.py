@@ -69,7 +69,6 @@ class Warehouse():
                     storageCells.append(cell)
         #print("STOERAGE: ", storageCells)
         return storageCells
-
     def getRobots(self):
         return self.robots
     def setRobots(self, robots : list):
@@ -93,6 +92,7 @@ class Warehouse():
                     allProducts[product] = amount
         return allProducts
 
+
     def addBackToTruckload(self, product : Product, amount : int):
         """to add back to current truckload, happens if a robot returns with stock after trying to place it in a storage cell"""
         for i in range(amount):
@@ -100,17 +100,7 @@ class Warehouse():
         print("added to truckload, truckload is now: ", self.truckload.getLoad())
 
 
-    def simulateWarehouse(self, truckload : Truckload, robots : list, maxTimeStep : int, xSize : int, ySize : int):
-        self.createWarehouse(xSize, ySize)
-        #rootWindow, zones = self.makeWarehouseInTkinter(xSize)
-        self.printWarehouse()
-        self.robots = robots
-        self.truckload = truckload
-        for i in range(maxTimeStep):
-            print()
-            print("___TIMESTEP: ", i, " ____")
-            self.nextTimeStep()
-
+#handle the next timeStep of the warehouse
     def nextTimeStep(self):
         """go to next timestep, that means new truckload can come, all robots move once (or wait), 1 timestep = 10 sec (so a robot unloading will take 12 timeSteps for example"""
         self.loadNextRobot() #if available robot, activate
@@ -138,7 +128,6 @@ class Warehouse():
             robot.activateRobot(cell, load)
             print("Robot: ", robot.getName(), "going to cell: ", cell.getCoordinates(), "going with load: ", load[0].getName(), "and amount: ", load[1])
 
-
     def getAvailableRobots(self):
         """returns all available robots, aka those that are in endCell, and ready for loading"""
         availableRobots = []
@@ -147,6 +136,9 @@ class Warehouse():
             if robot.getCurrentCell() == self.getEndCell():
                 availableRobots.append(robot)
         return availableRobots
+
+  
+
 
 
 #functions handling the shelves of the warehouse and where to put products
@@ -204,7 +196,6 @@ class Warehouse():
             amountShelf2= math.floor( (100-weightShelf2)/productWeight ) 
 
         return amountShelf1, amountShelf2
-
 
 
 
@@ -277,11 +268,11 @@ class Warehouse():
                     rowString+="->"
                 elif (cellType == "load"):
                     rowString+="L "
-            print(rowString)
-           
+            print(rowString)      
                 
     def makeWarehouseInTkinter(self, xSize, ySize):
         """Returns: (rootWindow, canvas, zones). makes a warehouse with cells and in tkinter so they can be used"""
+        #xSize, ySize = xSize+1, ySize+1
         rootWindow = Tk()
         rootWindow.title("MAP OF WAREHOUSE")
         zones = []
@@ -376,5 +367,4 @@ class Warehouse():
         frame = Frame(rootWindow)
         frame.pack()
         return rootWindow, canvas, zones
-        #rootWindow.mainloop()
         

@@ -85,7 +85,7 @@ class Cell():
             prodShelf1Name = self.shelf1[0].getName()
         if (self.shelf2[0] != None):
             prodShelf2Name = self.shelf2[0].getName()
-        print(f"Coordinates: {self.coordinates} | shelf 1: ({prodShelf1Name} : {self.shelf1[1]}) | shelf2: ({prodShelf2Name} : {self.shelf2[1]})")
+        print(f"Cell with coordinates: {self.coordinates} | shelf 1: ({prodShelf1Name} : {self.shelf1[1]}) | shelf2: ({prodShelf2Name} : {self.shelf2[1]})")
 
 #methods to add a product, and an amount of it, to a shelf
     def addToCell(self, product : Product, amount : int):

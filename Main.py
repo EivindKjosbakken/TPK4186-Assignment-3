@@ -33,19 +33,27 @@ for key, value in (truckload.getLoad()).items():
 
 #__________
 #wh.simulateWarehouse(truckload, robots, 1000, 24, 16)
-wh = runSimulation(24, 16, 2, 1200)
+wh = runSimulation(24, 16, 2, 500, True)
 #___________
 
-
-#print("truckload remaning is: ")
-#for (product, amount) in truckload.load.items():
-#    print(product.getName(), amount)
-
+def printProdDict(prods):
+    for key, value in prods.items():
+        print(key.getName(), ":", value, end= ", ")
 
 all = wh.getAllProductsAndAmountsInWarehouse()
 print()
-print("ALL IS: ", all)
+print("ALL PRODUCTS IN WAREHOUSE:")
+printProdDict(all)
+currentLoad = wh.getTruckload().getLoad()
+print("TRUCKLOAD IS:")
+printProdDict(currentLoad)
+print()
 
+#sc = wh.getAllStorageCells()
+#for cell in sc:
+#    cell.printCell()
+
+"""
 cell1 = wh.getCellByCoordinates(1,1)
 cell2 = wh.getCellByCoordinates(6,1)
 cell3 = wh.getCellByCoordinates(7, 1)
@@ -60,6 +68,9 @@ cell4.printCell()
 cell5.printCell()
 cell6.printCell()
 cell7.printCell()
+"""
+
+
 
 
 #for ele in robot2.route:

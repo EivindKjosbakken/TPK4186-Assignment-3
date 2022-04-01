@@ -24,3 +24,13 @@ class CustomerOrder():
             self.order[product] = currentAmount
             return True
         self.order[product] = 1
+
+    def hasOrder(self, warehouseStock : dict):
+        """checks if warehouse has the stock to fill the order"""
+        for product in self.order.keys():
+            if (product not in warehouseStock.keys()): #if product is not available in warehouse
+                print("Product: ", product.getName(), "not in warehouse")
+                return False
+            elif (warehouseStock[product] < self.order[product]): #if there is not enough of product in warehouse
+                return False
+        return True
