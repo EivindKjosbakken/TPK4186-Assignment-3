@@ -68,7 +68,7 @@ cheese = Product("cheese", 10)
 load = [(cheese, 15)]
 cell1 = wh.getCellByCoordinates(1,1)
 
-robot.activateRobot(cell1, load)
+robot.storeLoad(cell1, load)
 
 for i in range(53):
     wh.nextTimeStep()
@@ -82,7 +82,6 @@ print(cell1.shelf2[0], cell1.shelf2[1])
 
 """#testing moving of robot: 
 wh = Warehouse([])
-wh.createWarehouse(24, 16)
 wh.printWarehouse()
 
 robot = Robot("robot", wh)

@@ -51,7 +51,7 @@ print(wh.get40FromOrder(co))
 
 
 print(co.getOrder())
-wh.createWarehouse(24, 16)
+#wh.createWarehouse(24, 16)
 cell1 = wh.getCellByCoordinates(1,1)
 cell1.setShelf1(product, 2)
 print("cell1 is: ", cell1)
