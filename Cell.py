@@ -83,18 +83,32 @@ class Cell():
         productToGet, amountToGet = load
         productShelf1, amountShelf1 = self.shelf1
         productShelf2, amountShelf2 = self.shelf2
-        if (productToGet == productShelf1):
+        if (productToGet == productShelf1 and productShelf1 != None):
             if (amountToGet<=amountShelf1): #if shelf1 has enough of the product
-                self.setShelf1(productShelf1, amountShelf1-amountToGet)
+                newAmount = amountShelf1-amountToGet
+                if newAmount>0:
+                    self.shelf1 = (productShelf1, newAmount)
+                else:
+                    self.shelf1 = (None, 0) #if shelf is now empty
                 return True
-        elif (productToGet == productShelf2):
+        if (productToGet == productShelf2 and productShelf2 != None):
             if (amountToGet <= amountShelf2):
-                self.setShelf2(productShelf2, amountShelf2-amountToGet)
+                newAmount = amountShelf2-amountToGet
+                if (newAmount>0):
+                    self.shelf2 = (productShelf2, newAmount)
+                else:
+                    self.shelf2 = (None, 0)
                 return True
-        elif (productToGet == productShelf1 and productToGet == productShelf2):
+        if (productToGet == productShelf1 and productToGet == productShelf2 and productShelf2!=None):
             if (amountToGet<= amountShelf1 + amountShelf2):
-                self.setShelf1(None, 0) #emptying shelf1 
-                self.setShelf2(productShelf2, amountShelf1 + amountShelf2 - amountToGet)
+                self.shelf1 = (None, 0) #emptying shelf1 
+                newAmount = amountShelf1 + amountShelf2 - amountToGet
+                if (newAmount > 0):
+                    self.shelf2 = (productShelf2, amountShelf1 + amountShelf2 - amountToGet)
+                    return True
+                else:
+                    self.shelf2 = (None, 0)
+                    return True
         else:
             raise Exception("Error in removeLoadFromCell")
 

@@ -109,7 +109,7 @@ class Robot():
             self.warehouse.addBackToTruckload(product, amount)
             self.waitTime = 12
             self.route, self.previousCell, self.currentLoad = [], None, (None, 0)
-            return True    #TODO usikker på om denne skal være her
+            return True    
         elif (self.route==None):
             return None
         elif (len(self.route) == 0): #robot does not need to move
@@ -136,9 +136,6 @@ class Robot():
             self.route.pop(0) 
             if (currentCell!=self.warehouse.getStartCell() and currentCell!=self.warehouse.getEndCell()):
                 currentCell.flipIsOccupied() #if robot moves on, then previous cell is not occupied anymore
-            
-
-
             return True
         print(f"Robot: {self.name} had to wait at coordinates: ", self.currentCell.getCoordinates())
         return False

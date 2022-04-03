@@ -34,13 +34,14 @@ class Simulator():
         table = Product("table", 13)
         pen = Product("pen", 6)
         truckload = Truckload("t", 100000)
-        load = {cheese : 100, chair : 97, table : 34, pen : 121}
+        load = {chair : 23,cheese : 50, table : 12, pen : 0}
         truckload.setLoad(load)
         warehouse.addTruckload(truckload)
         customerOrder = CustomerOrder("customer1")
         for i in range(10):
             customerOrder.addToOrder(chair)
             customerOrder.addToOrder(cheese)
+            customerOrder.addToOrder(table)
         warehouse.addCustomerOrder(customerOrder)
  
 

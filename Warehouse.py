@@ -114,42 +114,49 @@ class Warehouse():
 #handle the next timeStep of the warehouse
     def nextTimeStep(self):
         """go to next timestep, that means new truckload can come, all robots move once (or wait), 1 timestep = 10 sec (so a robot unloading will take 12 timeSteps for example"""
+
         if (len(self.truckloads)>0):
             self.currentTruckload = self.truckloads[0] #current truckorder and customerorders are the first ones that came in
         if (len(self.customerOrders)>0):
             self.currentCustomerOrder = self.customerOrders[0]
+        
         if (len(self.customerOrders)==0 and len(self.truckloads)==0):
+            print("WAITING HERE")
             return True #just wait if nothing is happening
         
         if (len(self.currentTruckload.getLoad()) == 0): #if truckload is completed
             self.truckloads.pop(0)
-        if (len(self.currentCustomerOrder.getOrder()) == 0): #if customer order is completed
+
+        if (len(self.currentCustomerOrder.getOrder()) == 0 and len(self.customerOrders)>0): #if customer order is completed
             print("FILLED CUSTOMER ORDER!")
             self.customerOrders.pop(0)
+        
+        if (len(self.customerOrders) > 0 or len(self.truckloads) > 0):
+            isPickedUp = self.pickUpCustomerOrder() #try to pick up customer order first
+            if (not isPickedUp): #if an order could not be picked up
+                self.placeLoadInCell() 
 
-        self.placeLoadInCell() #if available robot, activate #TODO
-        #self.pickUpCustomerOrder()
 
-        print("CURRENTLY IN WAREHOUSE")
-        for key, value in self.getAllProductsAndAmountsInWarehouse().items():
-            print(key.getName(), ":", value)
-        print("STILL IN TRUCKLOAD")
-        for key, value in self.currentTruckload.getLoad().items():
-            print(key.getName(), ":", value)
-        print("ON ROBOT:")
-        if (self.robots[0].getCurrentLoad()[0] != None):
-            print(self.robots[0].getCurrentLoad()[0].getName(), self.robots[0].getCurrentLoad()[1])
-
+        print("CURR ORDER:")
+        self.currentCustomerOrder.printCustomerOrder()
+        print("CURRENTLY IN WAREHOUSE:")
+        a = (self.getAllProductsAndAmountsInWarehouse())
+        for key, value in a.items():
+            print(key.getName(), value)
+        print("CURRENTLY IN TRUCKLOAD")
+        self.currentTruckload.printTruckload()
 
         for robot in self.robots:
             robot.move()
+
             prodName = "None"
             if robot.getCurrentLoad()[0] != None:
                 prodName = robot.getCurrentLoad()[0].getName()
             print("After moving, ", robot.getName(), "is in coordinate: ", robot.getCurrentCell().getCoordinates(), "with load: ", prodName, robot.getCurrentLoad()[1])
         
+
     def placeLoadInCell(self):
-        """find out if available robots, if so, load them and activate"""
+        """find out if available robots, if so, load them and get robot to place order in cell, returns True if has available robot and can place a load in a cell, False if not"""
         availableRobots = self.getAvailableRobots()
         if (len(availableRobots) > 0):
             robot = availableRobots[0]
@@ -166,18 +173,23 @@ class Warehouse():
 
 
     def pickUpCustomerOrder(self):
+        """pick up a customer order, returns True if it found an order it can pick up, False if not"""
         availableRobots = self.getAvailableRobots()
-        if (len(availableRobots) > 0):
+        canCompleteOrder = self.currentCustomerOrder.hasOrder(self.getAllProductsAndAmountsInWarehouse())
+
+        if (len(availableRobots) > 0 and canCompleteOrder):
             robot = availableRobots[0]
             load = self.get40FromOrder(self.currentCustomerOrder)
             if (load == None):
                 print("was not product or amount of product in pickUpCustomerOrder")
-                return None
+                return False
             cellToGoTo = self.locateCellWithLoad(load)
             if (cellToGoTo == None):
                 print("did not find cell to go to in pickUpCustomerOrder")
-                return None
+                return False
             robot.retrieveLoad(cellToGoTo, load)
+            return True
+        return False
 
 
     def getAvailableRobots(self):

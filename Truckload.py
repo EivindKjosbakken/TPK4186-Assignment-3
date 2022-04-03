@@ -75,4 +75,4 @@ class Truckload():
         """print truckload out nicely"""
         print("The following products and amount are in the truckload")
         for product, amount in self.load.items():
-            print(product.getName(), "which weighs", product.getWeight(), ", there is", amount, "units of the porudct")
+            print(product.getName(), amount)

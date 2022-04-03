@@ -50,3 +50,7 @@ class CustomerOrder():
             elif (warehouseStock[product] < self.order[product]): #if there is not enough of product in warehouse
                 return False
         return True
+
+    def printCustomerOrder(self):
+        for key, value in self.order.items():
+            print(key.getName(), ":", value)
