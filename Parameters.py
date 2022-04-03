@@ -34,5 +34,7 @@ def generateTruckLoad(catalog : Catalog, maxCapacity : int):
         if (not isAdded): #if false, weight limit is reached
             return truckload
     return truckload
-
-
+    
+#TODO
+def generateCustomerOrder(): 
+    print()

@@ -2,7 +2,7 @@
 
 from inspect import iscoroutinefunction
 import math
-from numpy import isin
+from numpy import isin, product
 from Product import Product
 
 
@@ -77,6 +77,27 @@ class Cell():
         self.isOccupied = (not self.isOccupied)
     def flipIsPlannedOccupied(self):
         self.isPlannedOccupied = (not self.isPlannedOccupied)
+
+    def removeLoadFromCell(self, load):
+        """remove a cell from the shelves of the cell"""
+        productToGet, amountToGet = load
+        productShelf1, amountShelf1 = self.shelf1
+        productShelf2, amountShelf2 = self.shelf2
+        if (productToGet == productShelf1):
+            if (amountToGet<=amountShelf1): #if shelf1 has enough of the product
+                self.setShelf1(productShelf1, amountShelf1-amountToGet)
+                return True
+        elif (productToGet == productShelf2):
+            if (amountToGet <= amountShelf2):
+                self.setShelf2(productShelf2, amountShelf2-amountToGet)
+                return True
+        elif (productToGet == productShelf1 and productToGet == productShelf2):
+            if (amountToGet<= amountShelf1 + amountShelf2):
+                self.setShelf1(None, 0) #emptying shelf1 
+                self.setShelf2(productShelf2, amountShelf1 + amountShelf2 - amountToGet)
+        else:
+            raise Exception("Error in removeLoadFromCell")
+
 
     def printCell(self):
         """print out info about cell"""

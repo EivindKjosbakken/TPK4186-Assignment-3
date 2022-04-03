@@ -1,8 +1,5 @@
-
-
 import math
 from Product import Product
-
 
 class Truckload():
     def __init__(self, name : str, maxCapacity : int):

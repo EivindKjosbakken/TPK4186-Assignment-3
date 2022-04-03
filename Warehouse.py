@@ -3,6 +3,7 @@ from tracemalloc import start
 from turtle import st
 from zoneinfo import available_timezones
 from Cell import Cell
+from CustomerOrder import CustomerOrder
 from Product import Product
 from Truckload import Truckload
 from tkinter import * 
@@ -17,7 +18,12 @@ class Warehouse():
         self.cells = [] # a list of cell objects with all cells in the warehouse, will be 2d (one list in cells for each row of the warehouse)
         self.robots = [] # a list of robot objects
         self.currentLoad = [] #a list with elements (product, amount), that comes from truck loads, the load is to be picked up by robots and put in shelves
-        self.truckload = None
+        self.currentTruckload = None
+        self.currentCustomerOrder = None
+        self.truckloads = []
+        self.customerOrders = []
+
+
 #getters and setters:
     def getCells(self):
         return self.cells
@@ -73,10 +79,10 @@ class Warehouse():
         return self.robots
     def setRobots(self, robots : list):
         self.robots = robots
-    def getTruckload(self):
-        return self.truckload
-    def setTruckload(self, truckload : Truckload):
-        self.truckload = truckload
+    def getCurrentTruckload(self):
+        return self.currentTruckload
+    def setCurrentTruckload(self, truckload : Truckload):
+        self.currentTruckload = truckload
     def getAllProductsAndAmountsInWarehouse(self):
         """returns dictionary of all products and amount in the warehouse in total, used to see if warehouse can fill a customer order"""
         allProducts = dict()
@@ -96,28 +102,58 @@ class Warehouse():
     def addBackToTruckload(self, product : Product, amount : int):
         """to add back to current truckload, happens if a robot returns with stock after trying to place it in a storage cell"""
         for i in range(amount):
-            self.truckload.addProduct(product)
-        print("added to truckload, truckload is now: ", self.truckload.getLoad())
+            self.currentTruckload.addProduct(product)
+        print("added to truckload, truckload is now: ", self.currentTruckload.getLoad())
+
+    def addTruckload(self, truckload : Truckload):
+        self.truckloads.append(truckload)
+    def addCustomerOrder(self, customerOrder : CustomerOrder):
+        self.customerOrders.append(customerOrder)
 
 
 #handle the next timeStep of the warehouse
     def nextTimeStep(self):
         """go to next timestep, that means new truckload can come, all robots move once (or wait), 1 timestep = 10 sec (so a robot unloading will take 12 timeSteps for example"""
-        self.loadNextRobot() #if available robot, activate
+        if (len(self.truckloads)>0):
+            self.currentTruckload = self.truckloads[0] #current truckorder and customerorders are the first ones that came in
+        if (len(self.customerOrders)>0):
+            self.currentCustomerOrder = self.customerOrders[0]
+        if (len(self.customerOrders)==0 and len(self.truckloads)==0):
+            return True #just wait if nothing is happening
+        
+        if (len(self.currentTruckload.getLoad()) == 0): #if truckload is completed
+            self.truckloads.pop(0)
+        if (len(self.currentCustomerOrder.getOrder()) == 0): #if customer order is completed
+            print("FILLED CUSTOMER ORDER!")
+            self.customerOrders.pop(0)
+
+        self.placeLoadInCell() #if available robot, activate #TODO
+        #self.pickUpCustomerOrder()
+
+        print("CURRENTLY IN WAREHOUSE")
+        for key, value in self.getAllProductsAndAmountsInWarehouse().items():
+            print(key.getName(), ":", value)
+        print("STILL IN TRUCKLOAD")
+        for key, value in self.currentTruckload.getLoad().items():
+            print(key.getName(), ":", value)
+        print("ON ROBOT:")
+        if (self.robots[0].getCurrentLoad()[0] != None):
+            print(self.robots[0].getCurrentLoad()[0].getName(), self.robots[0].getCurrentLoad()[1])
+
+
         for robot in self.robots:
             robot.move()
             prodName = "None"
             if robot.getCurrentLoad()[0] != None:
                 prodName = robot.getCurrentLoad()[0].getName()
-            print(robot.getName(), "is in coordinate: ", robot.getCurrentCell().getCoordinates(), "with load: ", prodName, robot.getCurrentLoad()[1])
+            print("After moving, ", robot.getName(), "is in coordinate: ", robot.getCurrentCell().getCoordinates(), "with load: ", prodName, robot.getCurrentLoad()[1])
         
-    def loadNextRobot(self):
+    def placeLoadInCell(self):
         """find out if available robots, if so, load them and activate"""
         availableRobots = self.getAvailableRobots()
         if (len(availableRobots) > 0):
             robot = availableRobots[0]
-            print("truckload is: ", self.truckload.getLoad())
-            load = self.truckload.getMax40Weight()
+            load = self.currentTruckload.getMax40Weight()
             if (load[0] == None or load[1] == 0): #if there was no more load to get
                 return None
             product, amount = load
@@ -125,27 +161,76 @@ class Warehouse():
             if (cell==None):
                 print("did not find cell to go to")
                 return None
-            robot.activateRobot(cell, load)
+            robot.storeLoad(cell, load)
             print("Robot: ", robot.getName(), "going to cell: ", cell.getCoordinates(), "going with load: ", load[0].getName(), "and amount: ", load[1])
+
+
+    def pickUpCustomerOrder(self):
+        availableRobots = self.getAvailableRobots()
+        if (len(availableRobots) > 0):
+            robot = availableRobots[0]
+            load = self.get40FromOrder(self.currentCustomerOrder)
+            if (load == None):
+                print("was not product or amount of product in pickUpCustomerOrder")
+                return None
+            cellToGoTo = self.locateCellWithLoad(load)
+            if (cellToGoTo == None):
+                print("did not find cell to go to in pickUpCustomerOrder")
+                return None
+            robot.retrieveLoad(cellToGoTo, load)
+
 
     def getAvailableRobots(self):
         """returns all available robots, aka those that are in endCell, and ready for loading"""
         availableRobots = []
         for robot in self.robots:
-
-            if robot.getCurrentCell() == self.getEndCell():
+            if (robot.getCurrentCell() == self.getEndCell()) and (robot.getWaitTime()==0) and (robot.getCurrentLoad() == (None, 0)):
                 availableRobots.append(robot)
         return availableRobots
 
   
+#helper functions to pick up products from warehouse
+    def locateCellWithLoad(self, load):
+        """locates a cell which has the products that a robot is going to carry"""
+        product, amount = load
+        for storageCell in self.getAllStorageCells():
+            amountInCell = 0
+            product1, amount1 = storageCell.getShelf1()
+            product2, amount2 = storageCell.getShelf2()
+            if (product == product1):
+                amountInCell+=amount1
+            if (product == product2):
+                amountInCell += amount2
+            if (amountInCell >= amount): #if cell has enough of product I am searching for
+                return storageCell
+        return None
 
+    def get40FromOrder(self, customerOrder : CustomerOrder):
+        """returns a (product, amount) with product and the amount, where total weight <= 40 """
+        productToCarry = None
+        amountToCarry = 0
+        totalWeight = 0
+        for product, amount in customerOrder.getOrder().items():
+            productToCarry = product
+            productWeight = product.getWeight()
+            for i in range(amount):
+                if (totalWeight + productWeight > 40):
+                    return (productToCarry, amountToCarry)
+                totalWeight += productWeight
+                amountToCarry+=1
+            return (productToCarry, amountToCarry) #only want to run 1 iteration since robot can only carry one type of product at a time
+        return None
 
+    def fillOrderWithLoad(self, load):
+        """fill the current Customer order with load, just removes the load from the customer order"""
+        product, amount = load
+        for i in range(amount):
+            self.currentCustomerOrder.removeFromOrder(product)
 
 #functions handling the shelves of the warehouse and where to put products
   
     def findCell(self, product : Product, amount : int):
         """find an available storage cell for the product to go to return that cell"""
-        
         cellsToGoTo = []
         allCells = self.getAllStorageCells()
         currentAmount = amount

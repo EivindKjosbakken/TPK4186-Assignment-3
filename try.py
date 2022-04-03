@@ -1,10 +1,68 @@
 
 import random
 from textwrap import fill
-
+from CustomerOrder import CustomerOrder
+from Product import Product
 
 from tkinter import *
 
+from Warehouse import Warehouse
+
+co = CustomerOrder("order1")
+product = Product("chair", 10)
+prod2 = Product("armchair", 5)
+
+for i in range(10):
+    co.addToOrder(product)
+    co.addToOrder(prod2)
+
+#print(co.getOrder())
+
+
+def addToCarry(product : product, toCarry : dict):
+    if (product in toCarry.keys()):
+        currentAmount = toCarry[product]
+        currentAmount += 1
+        toCarry[product] = currentAmount
+    else:
+        toCarry[product] = 1
+
+def getFromOrder(customerOrder : CustomerOrder):
+    toCarry = dict()
+    totalWeight = 0
+    for product, amount in customerOrder.getOrder().items():
+        productWeight = product.getWeight()
+        for i in range(amount):
+            if (totalWeight + productWeight > 40):
+                return toCarry
+            addToCarry(product, toCarry)
+            totalWeight += productWeight
+            customerOrder.removeFromOrder(product)
+        return toCarry #only want to run 1 iterations since robot can only carry one type of product at a time
+
+
+wh = Warehouse()
+print(wh.get40FromOrder(co))
+print(wh.get40FromOrder(co))
+print(wh.get40FromOrder(co))
+print(wh.get40FromOrder(co))
+print(wh.get40FromOrder(co))
+print(wh.get40FromOrder(co))
+
+
+print(co.getOrder())
+wh.createWarehouse(24, 16)
+cell1 = wh.getCellByCoordinates(1,1)
+cell1.setShelf1(product, 2)
+print("cell1 is: ", cell1)
+product, amount = cell1.getShelf1()
+print(product, amount)
+
+
+
+a = dict()
+
+"""
 rootWindow = Tk()
 rootWindow.title("MAP")
 
@@ -45,4 +103,4 @@ button1 = Button(frame, text = "next timestep", command=sir.changeColor)
 button1.pack()
 
 rootWindow.mainloop()
-
+"""
