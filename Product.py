@@ -1,12 +1,12 @@
 
 
-from turtle import window_height
-from unicodedata import name
 
 
 class Product():
     def __init__(self, name : str, weight : float):
         self.name = name
+        if (weight>100):
+            print("Cant make product with more than 100 weight")
         self.weight = weight
 
 

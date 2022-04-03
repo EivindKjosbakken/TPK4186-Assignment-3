@@ -1,18 +1,56 @@
 
-
+from Product import Product
 
 
 class CustomerOrder():
-    def __init__(self, customerName : str, orderList : list):
+    def __init__(self, customerName : str):
         self.customerName = customerName
-        self.orderList = orderList #2d list, each element is: (product, amount)
+        self.order = dict()
 
-
+#getters and setters
     def getCustomerName(self):
         return self.customerName
-    def getOrderList(self):
-        return self.orderList
+    def getOrder(self):
+        return self.order
     def setCustomerName(self, name : str):
         self.name = name
-    def setOrderList(self, orderList : list):
-        self.orderList = orderList 
+    def setOrderList(self, order : list):
+        self.order = order 
+
+
+    def addToOrder(self, product : Product):
+        """adds a single product to customer order (amount = 1)"""
+        if (product in self.order.keys()):
+            currentAmount = self.order[product]
+            currentAmount+=1
+            self.order[product] = currentAmount
+            return True
+        self.order[product] = 1
+
+    def removeFromOrder(self, product : Product):
+        """remove 1 of a product from the CustomerOrder"""
+        if (product in self.order.keys()):
+            currentAmount = self.order[product]
+            if (currentAmount<=0):
+                raise Exception("Cant remove product there is noting from")
+            currentAmount-=1
+            self.order[product] = currentAmount
+            if (currentAmount == 0): #if the amount of a product is 0, delete it from dict
+                del self.order[product]
+        else:
+            raise Exception("product was not in dict")
+
+
+    def hasOrder(self, warehouseStock : dict):
+        """checks if warehouse has the stock to fill the order"""
+        for product in self.order.keys():
+            if (product not in warehouseStock.keys()): #if product is not available in warehouse
+                print("Product: ", product.getName(), "not in warehouse")
+                return False
+            elif (warehouseStock[product] < self.order[product]): #if there is not enough of product in warehouse
+                return False
+        return True
+
+    def printCustomerOrder(self):
+        for key, value in self.order.items():
+            print(key.getName(), ":", value)
