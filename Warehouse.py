@@ -24,7 +24,7 @@ class Warehouse():
         self.customerOrders = []
 
 
-#getters and setters:
+#getters and setters and some add functions:
     def getCells(self):
         return self.cells
     def getCells1D(self):
@@ -83,6 +83,19 @@ class Warehouse():
         return self.currentTruckload
     def setCurrentTruckload(self, truckload : Truckload):
         self.currentTruckload = truckload
+    def getCurrentCustomerOrder(self):
+        return self.currentCustomerOrder
+    def setCurrentCustomerOrder(self, customerOrder : CustomerOrder):
+        self.currentCustomerOrder = customerOrder
+    def getTruckloads(self):
+        return self.truckloads
+    def getCustomerOrders(self):
+        return self.customerOrders
+    def setTruckloads(self, truckloads : list):
+        self.truckloads = truckloads
+    def setCustomerOrders(self, customerOrders : list):
+        self.customerOrders = customerOrders
+    
     def getAllProductsAndAmountsInWarehouse(self):
         """returns dictionary of all products and amount in the warehouse in total, used to see if warehouse can fill a customer order"""
         allProducts = dict()
@@ -97,8 +110,6 @@ class Warehouse():
                 else:
                     allProducts[product] = amount
         return allProducts
-
-
     def addBackToTruckload(self, product : Product, amount : int):
         """to add back to current truckload, happens if a robot returns with stock after trying to place it in a storage cell"""
         for i in range(amount):
@@ -135,16 +146,6 @@ class Warehouse():
             isPickedUp = self.pickUpCustomerOrder() #try to pick up customer order first
             if (not isPickedUp): #if an order could not be picked up
                 self.placeLoadInCell() 
-
-
-        print("CURR ORDER:")
-        self.currentCustomerOrder.printCustomerOrder()
-        print("CURRENTLY IN WAREHOUSE:")
-        a = (self.getAllProductsAndAmountsInWarehouse())
-        for key, value in a.items():
-            print(key.getName(), value)
-        print("CURRENTLY IN TRUCKLOAD")
-        self.currentTruckload.printTruckload()
 
         for robot in self.robots:
             robot.move()
@@ -239,8 +240,8 @@ class Warehouse():
         for i in range(amount):
             self.currentCustomerOrder.removeFromOrder(product)
 
-#functions handling the shelves of the warehouse and where to put products
-  
+
+#helper functions for loading shelves into warehouse
     def findCell(self, product : Product, amount : int):
         """find an available storage cell for the product to go to return that cell"""
         cellsToGoTo = []
@@ -269,7 +270,7 @@ class Warehouse():
         return None
 
     def getAmountYouCanPutIntoEachShelfOfCell(self, product : Product, cell : Cell):
-        """returns amountShelf1, amountShelf2, the amounts each shelf of a shelf, can fit of a specific product. Does not set the state of the shelves"""
+        """returns (amountShelf1, amountShelf2), the amounts each shelf of a shelf, can fit of a specific product. Does not set the state of the shelves"""
         shelf1, shelf2 = cell.getShelf1(), cell.getShelf2()
         productWeight = product.getWeight()
         amountShelf1 = 0
@@ -297,76 +298,6 @@ class Warehouse():
 
 
 #creating and printing warehouse
-    def createWarehouse(self, xSize, ySize):
-        """makes a warehouse with cells"""
-        if (xSize < 6 or ySize < 6):
-            print("xSize must be atleast 6, ySize must be atleast 9")
-            return None
-        if not (xSize%6==0):
-            print("dimensioning xSize to be divisible by 6 (rounding downwards), so that all storages are accesible")
-            xSize -= (xSize%6)
-        for y in range(1, ySize+1):
-            row = []
-            if (y == ySize//2): 
-                cell = Cell("start", 0, y) #start and end cell have x coordinate 0
-                row.append(cell)
-            elif (y== (ySize//2+1)):
-                cell = Cell("end", 0, y)
-                row.append(cell)
-
-            for x in range(1, xSize+1): 
-                if (y==ySize//2) and (x<(xSize-1)): #8 and 9 are only y coordinates where robot can move in x direction
-                    cell = Cell("moveRight", x, y)
-                    row.append(cell)
-                elif (y== (ySize//2 +1)) and (x<(xSize-1)):
-                    cell = Cell("moveLeft", x, y)
-                    row.append(cell)
-                elif (x==1 or x%6 == 0 or x%6 == 1) and ((y>(ySize//2 +2)) or (y<(ySize//2 -1))): #where I have storage cells
-                    cell = Cell("storage", x, y)
-                    row.append(cell)
-                elif (x%3==2) or (x%6==0 or x%6==1) or (x>=xSize-1):
-                    cell = Cell("load", x, y)
-                    row.append(cell)
-                elif (x%3==0) and (y<ySize//2): #it is a move cell
-                    cell = Cell("moveDown", x, y)
-                    row.append(cell)
-                elif (x%3==1) and y<ySize//2:
-                    cell = Cell("moveUp", x, y)
-                    row.append(cell)
-                elif (x%3==0) and (y>ySize//2): #it is a move cell
-                    cell = Cell("moveDown", x, y)
-                    row.append(cell)
-                elif (x%3==1) and (y>ySize//2):
-                    cell = Cell("moveUp", x, y)
-                    row.append(cell)
-                else:
-                    print("did not find cell type, something is wrong")
-                    return None
-            self.cells.append(row)
-
-    def printWarehouse(self):
-        """printing warehouse to terminal, to make sure it looks as expected"""
-        for row in self.cells:
-            rowString = "  "
-            if (row[0].getCellType() == "start" or row[0].getCellType() == "end"): #to visualize start/end
-                rowString = "O "
-            
-            for cell in row:
-                cellType = cell.getCellType()
-                if (cellType == "storage"):
-                    rowString+="S "
-                elif (cellType == "moveDown"):
-                    rowString+="v "
-                elif (cellType == "moveUp"):
-                    rowString+="^ "
-                elif (cellType == "moveLeft"):
-                    rowString+="<-"
-                elif (cellType == "moveRight"):
-                    rowString+="->"
-                elif (cellType == "load"):
-                    rowString+="L "
-            print(rowString)      
-                
     def makeWarehouseInTkinter(self, xSize, ySize):
         """Returns: (rootWindow, canvas, zones). makes a warehouse with cells and in tkinter so they can be used"""
         rootWindow = Tk()
@@ -494,10 +425,31 @@ class Warehouse():
             zone = canvas.create_rectangle(xc, yc, xc+cellSize, yc+cellSize, fill = fill)
             zones[rowNumber-1].append(cell)
 
-      
-
-
         frame = Frame(rootWindow)
         frame.pack()
         return rootWindow, canvas, zones
-        
+
+
+    def printWarehouse(self):
+        """printing warehouse to terminal, to make sure it looks as expected"""
+        for row in self.cells:
+            rowString = "  "
+            if (row[0].getCellType() == "start" or row[0].getCellType() == "end"): #to visualize start/end
+                rowString = "O "
+            
+            for cell in row:
+                cellType = cell.getCellType()
+                if (cellType == "storage"):
+                    rowString+="S "
+                elif (cellType == "moveDown"):
+                    rowString+="v "
+                elif (cellType == "moveUp"):
+                    rowString+="^ "
+                elif (cellType == "moveLeft"):
+                    rowString+="<-"
+                elif (cellType == "moveRight"):
+                    rowString+="->"
+                elif (cellType == "load"):
+                    rowString+="L "
+            print(rowString)      
+                

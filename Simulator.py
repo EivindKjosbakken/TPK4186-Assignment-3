@@ -18,7 +18,6 @@ class Simulator():
         if numberOfRobots>50:
             print("Can't have more than 50 robots, that means caos in the warehouse")
         warehouse = Warehouse()
-        #warehouse.createWarehouse(xSize, ySize)
         rootWindow, canvas, zones = warehouse.makeWarehouseInTkinter(xSize, ySize)
         warehouse.printWarehouse()
         robots = []
