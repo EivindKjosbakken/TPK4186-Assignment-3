@@ -23,6 +23,8 @@ class Robot():
         return self.currentLoad
     def getCurrentCell(self):
         return self.currentCell
+    def getPreviousCell(self):
+        return self.previousCell
     def setName(self, name : str):
         self.name = name
     def setCurrentLoad(self, currentLoad):
@@ -37,6 +39,8 @@ class Robot():
             return True
         print("cell was None or not Cell type")
         return False
+    def setPreviousCell(self, cell : Cell):
+        self.previousCell = cell
     def setTargetCell(self, cell : Cell):
         if (cell!=None and isinstance(cell, Cell)):
             self.cell = cell
@@ -85,7 +89,7 @@ class Robot():
    
         currentCell = self.currentCell
         self.previousCell = self.currentCell
-
+        print("set curr cell", currentCell)
         didGo = self.goToCell(self.route[0]) #goes to cell if it is a legal move, if legal, also sets cell to occupied
  
         if didGo:
@@ -128,6 +132,7 @@ class Robot():
         elif (nextCell.getIsOccupied() ): #cell is occupied, can't go to cell
             print(f"Robot: {self.name} can't go to {self.currentCell.getCoordinates()} because the cell is occupied or planned to be occupied")
             return False
+
         return True
 
     def unloadRobot(self):

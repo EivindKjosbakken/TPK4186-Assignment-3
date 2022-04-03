@@ -272,7 +272,6 @@ class Warehouse():
                 
     def makeWarehouseInTkinter(self, xSize, ySize):
         """Returns: (rootWindow, canvas, zones). makes a warehouse with cells and in tkinter so they can be used"""
-        #xSize, ySize = xSize+1, ySize+1
         rootWindow = Tk()
         rootWindow.title("MAP OF WAREHOUSE")
         zones = []
@@ -290,27 +289,27 @@ class Warehouse():
             tkinterRow = []
             if (y == ySize//2): 
                 cell = Cell("start", 0, y) #start and end cell have x coordinate 0
-                row.append(cell)
+                #row.append(cell)
                 xc = x*cellSize
                 yc = y*cellSize
                 #zone = canvas.create_rectangle(xc, yc, xc+cellSize, yc+cellSize, fill = "black")
                 #tkinterRow.append(zone)
             elif (y== (ySize//2+1)):
                 cell = Cell("end", 0, y)
-                row.append(cell)
+                #row.append(cell)
                 xc = x*cellSize
                 yc = y*cellSize
                 #zone = canvas.create_rectangle(xc, yc, xc+cellSize, yc+cellSize, fill = "black")
                 #tkinterRow.append(zone)
             for x in range(1, xSize+1): 
-                if (y==ySize//2) and (x<(xSize-1)): #8 and 9 are only y coordinates where robot can move in x direction
+                if (y==ySize//2) and (x<(xSize)): #8 and 9 are only y coordinates where robot can move in x direction
                     cell = Cell("moveRight", x, y)
                     row.append(cell)
                     xc = x*cellSize
                     yc = y*cellSize
                     zone = canvas.create_rectangle(xc, yc, xc+cellSize, yc+cellSize, fill = "green")
                     tkinterRow.append(zone)
-                elif (y== (ySize//2 +1)) and (x<(xSize-1)):
+                elif (y== (ySize//2 +1)) and (x<(xSize)):
                     cell = Cell("moveLeft", x, y)
                     row.append(cell)
                     xc = x*cellSize
@@ -364,6 +363,43 @@ class Warehouse():
                     return None
             self.cells.append(row)
             zones.append(tkinterRow)
+
+        #this handles adding the start and and cell at the middle of the warehouse, and to the left
+        for rowNumber in range(1, len(self.cells)+1):
+            cell = Cell("load", 0, rowNumber)
+            fill = "blue"
+            if ((rowNumber)== (ySize//2)): #index of where start/end cell is
+                cell = Cell("load", xSize+1, rowNumber) #append the last loading cell (cause start/end cells shift index)
+                self.cells[rowNumber-1].append(cell)
+
+                xc = 0
+                yc = rowNumber*cellSize
+                zone = canvas.create_rectangle(xc, yc, xc+cellSize, yc+cellSize, fill = "white")
+                zones[rowNumber-1].append(cell)
+
+                cell = Cell("start", 0, rowNumber)
+                fill = "black"
+            elif (rowNumber== (ySize//2 +1)):
+                cell = Cell("load", xSize+1, rowNumber) 
+                self.cells[rowNumber-1].append(cell)
+
+                xc = 0
+                yc = rowNumber*cellSize
+                zone = canvas.create_rectangle(xc, yc, xc+cellSize, yc+cellSize, fill = "white")
+                zones[rowNumber-1].append(cell)
+
+                cell = Cell("end", 0, rowNumber)
+                fill="black"
+
+            self.cells[rowNumber-1].insert(0, cell)
+            xc = 0
+            yc = rowNumber*cellSize
+            zone = canvas.create_rectangle(xc, yc, xc+cellSize, yc+cellSize, fill = fill)
+            zones[rowNumber-1].append(cell)
+
+      
+
+
         frame = Frame(rootWindow)
         frame.pack()
         return rootWindow, canvas, zones
