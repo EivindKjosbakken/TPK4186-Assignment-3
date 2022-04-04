@@ -16,28 +16,48 @@ class Robot():
         self.route = []
         self.waitTime = 0 #if robot is loading/unloading, it has to wait 12 timeSteps
         self.wasInStorageCell = False
-       
-
         self.isStoring = False
         self.isRetrieving = False
 
 #getters and setters:
     def getName(self):
         return self.name
+    def getWarehouse(self):
+        return self.warehouse
     def getCurrentLoad(self):
         return self.currentLoad
+    def getCurrentToPickUp(self):
+        return self.currentToPickUp
     def getCurrentCell(self):
         return self.currentCell
     def getPreviousCell(self):
         return self.previousCell
+    def getTargetCell(self):
+        return self.targetCell
+    def getRoute(self):
+        return self.route
+    def getWaitTime(self):
+        return self.waitTime
+    def getWasInStorageCell(self):
+        return self.wasInStorageCell
+    def getIsStoring(self):
+        return self.isStoring
+    def getIsRetrieving(self):
+        return self.isRetrieving
+
+
     def setName(self, name : str):
         self.name = name
+    def setWarehouse(self, warehouse : Warehouse):
+        self.warehouse = warehouse
     def setCurrentLoad(self, currentLoad):
         if (currentLoad != None):
             self.currentLoad=currentLoad
             return True
         print("Currentload was 0")
         return False
+    def setCurrentToPickUp(self, currentToPickUp):
+        self.currentToPickUp = currentToPickUp
     def setCurrentCell(self, cell : Cell):
         if (cell!=None and isinstance(cell, Cell)):
             self.cell = cell
@@ -52,18 +72,21 @@ class Robot():
             return True
         print("cell was None or not a Cell object")
         return False
-    def getRoute(self):
-        return self.route
     def setRoute(self, route : list):
         self.route = route
-    def getWaitTime(self):
-        return self.waitTime
     def setWaitTime(self, waitTime : int):
         self.waitTime = waitTime
+    def flipWasInStorageCell(self):
+        self.wasInStorageCell = (not self.wasInStorageCell)
+    def flipIsStoring(self):
+        self.isStoring = (not self.isStoring)
+    def flipIsRetrieving(self):
+        self.isRetrieving = (not self.isRetrieving)
 
-#methods to prepare the robot to store a load (product, amount) and retrieve a load
+
+#methods to send the robot to store a load (product, amount) and retrieve a load
     def storeLoad(self, cellToGoTo : Cell, load):
-        """method for robot to go and store some products in a cell"""
+        """make robot go and store some products in a cell"""
         self.targetCell = cellToGoTo
         self.currentCell = self.warehouse.getStartCell()
         route = self.calculateRoute(cellToGoTo)
@@ -72,12 +95,12 @@ class Robot():
         if (isLoaded == False or route == None):
             print(f"Could not get robot {self.name} to store a load")
             return None
-        cellToGoTo.flipRobotIsOnWay() 
+        cellToGoTo.flipIsRobotOnWay() 
         self.isStoring = True
         self.isRetrieving = False
 
     def retrieveLoad(self, cellToGoTo : Cell, load):
-        """method for robot to retrieve a load from """
+        """make robot retrieve a load from """
         self.currentToPickUp = load
         self.targetCell = cellToGoTo
         self.currentCell = self.warehouse.getStartCell()
@@ -86,7 +109,7 @@ class Robot():
         if (route == None):
             print(f"could not get robot {self.name} to retrieve load")
             return None
-        cellToGoTo.flipRobotIsOnWay()
+        cellToGoTo.flipIsRobotOnWay()
         self.isRetrieving = True
         self.isStoring = False
 
@@ -193,7 +216,7 @@ class Robot():
         self.currentToPickUp = (None, 0)
         self.targetCell.removeLoadFromCell(self.currentLoad) # remove the load from currentcell
         self.waitTime = 12
-        self.targetCell.flipRobotIsOnWay()
+        self.targetCell.flipIsRobotOnWay()
         return True
 
     def loadRobotFromStartCell(self, load):
@@ -213,7 +236,7 @@ class Robot():
         self.waitTime = 12
         product, amount = self.currentLoad
         self.currentLoad = (None, 0)
-        self.targetCell.flipRobotIsOnWay()
+        self.targetCell.flipIsRobotOnWay()
         return product, amount
 
     def unloadRobotToCell(self):
@@ -222,7 +245,7 @@ class Robot():
         self.waitTime = 12 
         storageCell = self.findStorageCell()
         if (self.currentLoad != None and storageCell!=None):
-            storageCell.flipRobotIsOnWay()
+            storageCell.flipIsRobotOnWay()
             product, amount = self.currentLoad
             amountPutIn = storageCell.addToCell(product, amount)
             self.removeCurrentLoad(product, amountPutIn)
@@ -237,7 +260,6 @@ class Robot():
             return None
         newAmount = currentAmount-amount
         self.currentLoad = (product, newAmount)
-
 
     def calcWeightOfLoad(self, load):
         product, amount = load

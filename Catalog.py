@@ -33,8 +33,3 @@ class Catalog():
         print("Product must be product type to add, and can not be in catalog already")
         return False
     
-    def printCatalog(self):
-        """print out catalog nicely with product names"""
-        print("The catalog has the following products:")
-        for product in self.products:
-            print(product.getName())

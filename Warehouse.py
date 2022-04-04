@@ -8,10 +8,7 @@ from Product import Product
 from Truckload import Truckload
 from tkinter import * 
 
-
 import math
-
-
 
 class Warehouse():
     def __init__(self):
@@ -101,7 +98,7 @@ class Warehouse():
         allProducts = dict()
         storageCells = self.getAllStorageCells()
         for storageCell in storageCells:
-            prodsAndAmounts = storageCell.getProductsAndAmounts()
+            prodsAndAmounts = storageCell.getAllProductsAndAmounts()
             for (product, amount) in prodsAndAmounts.items():
                 if (product in allProducts.keys()):
                     currentAmount = allProducts[product]
@@ -114,7 +111,6 @@ class Warehouse():
         """to add back to current truckload, happens if a robot returns with stock after trying to place it in a storage cell"""
         for i in range(amount):
             self.currentTruckload.addProduct(product)
-        print("added to truckload, truckload is now: ", self.currentTruckload.getLoad())
 
     def addTruckload(self, truckload : Truckload):
         self.truckloads.append(truckload)
@@ -125,56 +121,53 @@ class Warehouse():
 #handle the next timeStep of the warehouse
     def nextTimeStep(self):
         """go to next timestep, that means new truckload can come, all robots move once (or wait), 1 timestep = 10 sec (so a robot unloading will take 12 timeSteps for example"""
-
+        #make sure currentTruckload/currentCustomerOrder is updated:
         if (len(self.truckloads)>0):
-            self.currentTruckload = self.truckloads[0] #current truckorder and customerorders are the first ones that came in
+            self.currentTruckload = self.truckloads[0] 
         if (len(self.customerOrders)>0):
             self.currentCustomerOrder = self.customerOrders[0]
-        
+
+        #just wait if nothing is happening:
         if (len(self.customerOrders)==0 and len(self.truckloads)==0):
             print("WAITING HERE")
-            return True #just wait if nothing is happening
-        
-        if (len(self.currentTruckload.getLoad()) == 0): #if truckload is completed
-            self.truckloads.pop(0)
+            return True
 
+        #if truckload/customerorder is completed
+        if (len(self.currentTruckload.getLoad()) == 0): 
+            self.truckloads.pop(0)
         if (len(self.currentCustomerOrder.getOrder()) == 0 and len(self.customerOrders)>0): #if customer order is completed
             print("FILLED CUSTOMER ORDER!")
             self.customerOrders.pop(0)
-        
+
+        #try to pick up customer order first, if not possible, try to make a robot load to a cell
         if (len(self.customerOrders) > 0 or len(self.truckloads) > 0):
-            isPickedUp = self.pickUpCustomerOrder() #try to pick up customer order first
+            isPickedUp = self.pickUpCustomerOrder() 
             if (not isPickedUp): #if an order could not be picked up
                 self.placeLoadInCell() 
 
+        #let all robots do 1 move:
         for robot in self.robots:
             robot.move()
 
-            prodName = "None"
-            if robot.getCurrentLoad()[0] != None:
-                prodName = robot.getCurrentLoad()[0].getName()
-            print("After moving, ", robot.getName(), "is in coordinate: ", robot.getCurrentCell().getCoordinates(), "with load: ", prodName, robot.getCurrentLoad()[1])
         
-
     def placeLoadInCell(self):
-        """find out if available robots, if so, load them and get robot to place order in cell, returns True if has available robot and can place a load in a cell, False if not"""
+        """Function to have robot store a load (product, amount) in a cell. find out if there is any available robots, if so, load them and get robot to place order in cell, returns True if has available robot and can place a load in a cell, False if not"""
         availableRobots = self.getAvailableRobots()
         if (len(availableRobots) > 0):
             robot = availableRobots[0]
             load = self.currentTruckload.getMax40Weight()
-            if (load[0] == None or load[1] == 0): #if there was no more load to get
-                return None
             product, amount = load
-            cell = self.findCell(product, amount)
-            if (cell==None):
-                print("did not find cell to go to")
+            if (product == None or amount == 0): #if there was no more load to get
                 return None
-            robot.storeLoad(cell, load)
-            print("Robot: ", robot.getName(), "going to cell: ", cell.getCoordinates(), "going with load: ", load[0].getName(), "and amount: ", load[1])
+            cellToGoTo = self.findCell(product, amount)
+            if (cellToGoTo==None):
+                print("did not find cell to go to")
+                return False
+            robot.storeLoad(cellToGoTo, load)
 
 
     def pickUpCustomerOrder(self):
-        """pick up a customer order, returns True if it found an order it can pick up, False if not"""
+        """Function for robot to pick up a customer order, returns True if it found an order it can pick up, False if not"""
         availableRobots = self.getAvailableRobots()
         canCompleteOrder = self.currentCustomerOrder.hasOrder(self.getAllProductsAndAmountsInWarehouse())
 
@@ -194,7 +187,7 @@ class Warehouse():
 
 
     def getAvailableRobots(self):
-        """returns all available robots, aka those that are in endCell, and ready for loading"""
+        """returns all available robots, aka those that are in endCell, are not waiting (loading/unloading)"""
         availableRobots = []
         for robot in self.robots:
             if (robot.getCurrentCell() == self.getEndCell()) and (robot.getWaitTime()==0) and (robot.getCurrentLoad() == (None, 0)):
@@ -235,7 +228,7 @@ class Warehouse():
         return None
 
     def fillOrderWithLoad(self, load):
-        """fill the current Customer order with load, just removes the load from the customer order"""
+        """fill the current Customer order with a load, just removes the load from the customer order"""
         product, amount = load
         for i in range(amount):
             self.currentCustomerOrder.removeFromOrder(product)
@@ -243,13 +236,13 @@ class Warehouse():
 
 #helper functions for loading shelves into warehouse
     def findCell(self, product : Product, amount : int):
-        """find an available storage cell for the product to go to return that cell"""
+        """returns an available storage cell for the product to go to"""
         cellsToGoTo = []
         allCells = self.getAllStorageCells()
         currentAmount = amount
-        #first check if there are any cells that already have the same kind of product -> if so I want to go there first
+
         for cell in allCells:
-            if (cell.getRobotIsOnyWay()): #can not go to cell that another robot is going to
+            if (cell.getIsRobotOnWay()): #can not go to cell that another robot is going to
                 continue
             amountShelf1, amountShelf2 = self.getAmountYouCanPutIntoEachShelfOfCell(product, cell)
             if (amountShelf1 > 0): #amount you can put into shelf1
@@ -271,25 +264,24 @@ class Warehouse():
 
     def getAmountYouCanPutIntoEachShelfOfCell(self, product : Product, cell : Cell):
         """returns (amountShelf1, amountShelf2), the amounts each shelf of a shelf, can fit of a specific product. Does not set the state of the shelves"""
-        shelf1, shelf2 = cell.getShelf1(), cell.getShelf2()
+    
         productWeight = product.getWeight()
         amountShelf1 = 0
         amountShelf2 = 0
-        productShelf1 = cell.getProductFromShelf(shelf1)
-        productShelf2 = cell.getProductFromShelf(shelf2)
-        if (productShelf1 == None): #if so, no product is in the shelf
-            amountShelf1 =  math.floor(100/productWeight)  #since 100 kg is the amount of weight a shelf can carry
-            #cell.setShelf1(product, amountShelf1)
+        productShelf1 = cell.getProductShelf1()
+        productShelf2 = cell.getProductShelf2()
+        
+        if (productShelf1 == None): 
+            amountShelf1 = math.floor(100/productWeight)  #since 100 kg is the amount of weight a shelf can carry
         elif (productShelf1 == product): #if the same product is in the shelf, we can still fill the shelf up to 100 kg
-            amountShelf1 = cell.getAmountFromShelf(shelf1)
+            amountShelf1 = cell.getAmountShelf1()
             weightShelf1 = productWeight*amountShelf1
             amountShelf1 = math.floor( (100-weightShelf1)/productWeight ) 
-            #cell.setShelf1(product, amountShelf1)
             
         if (productShelf2 == None):
             amountShelf2 = math.floor(100/productWeight)
-        elif (productShelf2 == product): #if the same product is in the shelf, we can still fill the shelf up to 100 kg
-            amountShelf2 = cell.getAmountFromShelf(shelf2)
+        elif (productShelf2 == product): 
+            amountShelf2 = cell.getAmountShelf2()
             weightShelf2 = productWeight*amountShelf2
             amountShelf2= math.floor( (100-weightShelf2)/productWeight ) 
 
@@ -297,7 +289,7 @@ class Warehouse():
 
 
 
-#creating and printing warehouse
+#creating warehouse
     def makeWarehouseInTkinter(self, xSize, ySize):
         """Returns: (rootWindow, canvas, zones). makes a warehouse with cells and in tkinter so they can be used"""
         rootWindow = Tk()
@@ -429,27 +421,3 @@ class Warehouse():
         frame.pack()
         return rootWindow, canvas, zones
 
-
-    def printWarehouse(self):
-        """printing warehouse to terminal, to make sure it looks as expected"""
-        for row in self.cells:
-            rowString = "  "
-            if (row[0].getCellType() == "start" or row[0].getCellType() == "end"): #to visualize start/end
-                rowString = "O "
-            
-            for cell in row:
-                cellType = cell.getCellType()
-                if (cellType == "storage"):
-                    rowString+="S "
-                elif (cellType == "moveDown"):
-                    rowString+="v "
-                elif (cellType == "moveUp"):
-                    rowString+="^ "
-                elif (cellType == "moveLeft"):
-                    rowString+="<-"
-                elif (cellType == "moveRight"):
-                    rowString+="->"
-                elif (cellType == "load"):
-                    rowString+="L "
-            print(rowString)      
-                
