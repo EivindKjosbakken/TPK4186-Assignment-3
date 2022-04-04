@@ -1,6 +1,7 @@
 
 from functools import partial
 from CustomerOrder import CustomerOrder
+from Printer import Printer
 from Product import Product
 from Robot import Robot
 from Truckload import Truckload
@@ -19,7 +20,8 @@ class Simulator():
             print("Can't have more than 50 robots, that means caos in the warehouse")
         warehouse = Warehouse()
         rootWindow, canvas, zones = warehouse.makeWarehouseInTkinter(xSize, ySize)
-        warehouse.printWarehouse()
+        printer = Printer()
+        printer.printWarehouse(warehouse)
         robots = []
         for i in range(numberOfRobots):
             robot = Robot(f"robot{i}", warehouse)   
@@ -28,12 +30,12 @@ class Simulator():
 
         #TODO
         #hardcoding Truckload and customerOrder for now
-        cheese = Product("cheese", 3)
+        cheese = Product("cheese", 10)
         chair = Product("chair", 18)
         table = Product("table", 13)
         pen = Product("pen", 6)
         truckload = Truckload("t", 100000)
-        load = {chair : 23,cheese : 50, table : 12, pen : 0}
+        load = {cheese : 50, chair : 23, table : 12, pen : 0}
         truckload.setLoad(load)
         warehouse.addTruckload(truckload)
         customerOrder = CustomerOrder("customer1")
@@ -50,11 +52,19 @@ class Simulator():
             warehouse.nextTimeStep()
             self.timeStep += 1
 
+        self.createGUI(robots, canvas, zones, warehouse, rootWindow, displayWarehouse)
 
-        #rest of the functions handles the GUI with tkinter:
+        return warehouse
+
+
+
+
+#for running with tkinter
+    def createGUI(self, robots : list, canvas : Canvas, zones : list, warehouse : Warehouse, rootWindow, displayWarehouse : bool):
         self.updateRobotPosition(robots, canvas, zones)
         canvas.create_text(600, 20, text="Yellow cells: where robots are, grey cells: where storage cells are, green cells: where moving cells are. Blue are not cells in the warehouse, black are start/end cells (can not see robots when in start/endcells", fill="black", font=('Helvetica 8 bold'))
         canvas.pack()
+
         #adding button for going to next timestep, inside tkinter application
         frame = Frame(rootWindow)
         
@@ -66,12 +76,7 @@ class Simulator():
         frame.pack()
         if (displayWarehouse):
             rootWindow.mainloop()
-        return warehouse
 
-
-
-
-#for running with tkinter
     def nextTimeStepTkinter(self, warehouse : Warehouse, robots : list, canvas : Canvas, zones : list):
         print(f"\n ____TIMESTEP {self.timeStep}____")
         self.timeStep+=1

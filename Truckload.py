@@ -71,8 +71,3 @@ class Truckload():
             else:
                 print("do not have that many products in truckload")
 
-    def printTruckload(self):
-        """print truckload out nicely"""
-        print("The following products and amount are in the truckload")
-        for product, amount in self.load.items():
-            print(product.getName(), amount)

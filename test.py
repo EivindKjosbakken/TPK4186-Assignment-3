@@ -3,17 +3,36 @@ from Warehouse import Warehouse
 from Simulator import *
 from Product import Product
 
-wh = runSimulation(24, 16, 2, 200, False)
+simulator = Simulator()
+wh = simulator.runSimulation(24, 16, 1, 5000, True)
 robots = wh.getRobots()
+assert len(robots) == 1, "length of robots should be 2"
 cell1 = wh.getCellByCoordinates(1,1)
 cell2 = wh.getCellByCoordinates(6,1)
-cell1.printCell()
-cell2.printCell()
 
-shelf1 = cell1.getShelf1()
-product = cell1.getProductFromShelf(shelf1)
-print(product.getName())
-assert product.getName()=="cheese", "product in cell1 shelf1 should be cheese"
+
+allProds = wh.getAllProductsAndAmountsInWarehouse()
+cheese = Product("cheese", 10)
+chair = Product("chair", 18)
+table = Product("table", 13)
+prodsPutInMinusOut =  {cheese : 40, chair : 13, table : 2}
+print(allProds)
+
+#assert allProds == prodsPutInMinusOut, "amount of products in warehouse is wrong"
+
+for key, value in allProds.items():
+    if (key.getName() == "cheese"):
+        assert value == 40
+    elif (key.getName() == "chair"):
+        assert value == 13
+    elif (key.getName() == "table"):
+        assert value == 2
+    else:
+        raise Exception("error in prod name")
+
+assert len(wh.customerOrders) == 0, f"length of customer orders should be 0, it is: {len(wh.customerOrders)}"
+
+
 
 
 
