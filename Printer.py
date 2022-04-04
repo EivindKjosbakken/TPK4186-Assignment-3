@@ -3,17 +3,24 @@ from Cell import Cell
 from CustomerOrder import CustomerOrder
 from Product import Product
 from Truckload import Truckload
-from Warehouse import Warehouse
-from Robot import Robot
+
 
 
 class Printer():
     def __init__(self):
         return
 
-    def printRobotPositions(self, robots):
-        print()
-    
+
+    def printRobotInfo(self, robots : list):
+        for robot in robots:
+            name, currentCell, targetCell, currentLoad, currentToPickUp, isStoring, isRetrieving = robot.getName(), robot.getCurrentCell(), robot.getTargetCell(), robot.getCurrentLoad(), robot.getCurrentToPickUp(), robot.getIsStoring(), robot.getIsRetrieving()
+            if (isRetrieving):
+                print(f"After  timestep, robot: {name}, pos: {currentCell.getCoordinates()}, load: {self.getLoadNice(currentLoad)}, picking up: {self.getLoadNice(currentToPickUp)}, targetCell: {targetCell}, and it is retrieving load from a cell ")
+            elif (isStoring):
+                print(f"After  timestep, robot: {name}, pos: {currentCell.getCoordinates()}, load: {self.getLoadNice(currentLoad)}, picking up: {self.getLoadNice(currentToPickUp)}, targetCell: {targetCell}, and it is loading to a storage cell ")
+            else:
+                print("Robot: {name} is not yet active")
+                
     def printCell(self, cell : Cell):
         if not (isinstance(cell, Cell)):
             raise Exception("Cant print something else than cell in printCell")
@@ -30,16 +37,36 @@ class Printer():
             print(product.getName())
 
     def printCustomerOrder(self, customerOrder : CustomerOrder):
+        print("The following products and amounts are in the customerorder")
         for key, value in customerOrder.getOrder().items():
             print(key.getName(), ":", value)
 
     def printTruckload(self, truckload : Truckload):
         """print truckload out nicely"""
-        print("The following products and amount are in the truckload")
+        print("The following products and amounts are in the truckload")
         for product, amount in truckload.getLoad().items():
             print(product.getName(), amount)
 
-    def printWarehouse(self, warehouse : Warehouse):
+    def printProductsInWarehouse(self, warehouse):
+        print("The following are in the warehouse")
+        allInventory = warehouse.getAllProductsAndAmountsInWarehouse()
+        if (allInventory!=None):
+            for product, amount in allInventory.items():
+                if (product!=None):
+                    print(product.getName(), ":", amount)
+                else:
+                    print(product, ":", amount)
+
+    def getLoadNice(self, load):
+        """returns load out nicely"""
+        product, amount = load
+        if (product==None):
+            productName = "None"
+        else:
+            productName = product.getName()
+        return f"{productName} : {amount}"
+
+    def printWarehouse(self, warehouse):
         """printing warehouse to terminal, to make sure it looks as expected"""
         for row in warehouse.getCells():
             rowString = "  "

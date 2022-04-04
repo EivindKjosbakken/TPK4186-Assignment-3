@@ -8,7 +8,7 @@ from Simulator import *
 #__________
 
 sim = Simulator()      
-wh = sim.runSimulation(24, 16, 1, 10, True)
+wh = sim.runSimulation(24, 16, 2, 25, False)
 #___________
 counter = 0
 

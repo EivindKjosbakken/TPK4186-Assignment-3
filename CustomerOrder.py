@@ -40,7 +40,6 @@ class CustomerOrder():
         else:
             raise Exception("product was not in dict")
 
-
     def hasOrder(self, warehouseStock : dict):
         """checks if warehouse has the stock to fill the order"""
         for product in self.order.keys():

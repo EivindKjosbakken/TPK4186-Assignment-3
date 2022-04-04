@@ -82,7 +82,8 @@ class Simulator():
         self.timeStep+=1
         warehouse.nextTimeStep()
         self.updateRobotPosition(robots, canvas, zones)
- 
+        cell = warehouse.getCellByCoordinates(1,8)
+        
     def next10TimeStepsTkinter(self, warehouse : Warehouse, robots : list, canvas : Canvas, zones : list):
         for i in range(10):
             print(f"\n ____TIMESTEP {self.timeStep}____")
@@ -111,6 +112,5 @@ class Simulator():
                     else:
                         canvas.itemconfig(zones[prevY-1][prevX-1], fill="white") 
 
-            else:
-                print("ROBOT DID NOT HAVE PREV")
+
   

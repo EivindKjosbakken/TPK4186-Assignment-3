@@ -12,7 +12,7 @@ class Cell():
         self.cellType = cellType #type of cell: storage/route/loading/unloading-cell
         self.shelf1 = (None, 0) 
         self.shelf2 = (None, 0) 
-        self.isOccupied = False
+        self.isOccupied = False #if a robot was at cell at time t-1, another cannot go there at time t
         self.isPlannedOccupied = False #if planned occupied next timestep
         self.isRobotOnWay = False 
 
@@ -85,7 +85,7 @@ class Cell():
     def flipIsPlannedOccupied(self):
         self.isPlannedOccupied = (not self.isPlannedOccupied)
 
-
+    
 #methods to add a product, and an amount of it, to a shelf
     def addToCell(self, product : Product, amount : int):
         """add a product with an amount to a cell. Returns amount it put in"""

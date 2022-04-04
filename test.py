@@ -4,18 +4,16 @@ from Simulator import *
 from Product import Product
 
 simulator = Simulator()
-wh = simulator.runSimulation(24, 16, 1, 5000, True)
+numRobots = 2
+wh = simulator.runSimulation(24, 16, numRobots, 1250, True)
 robots = wh.getRobots()
-assert len(robots) == 1, "length of robots should be 2"
+assert len(robots) == numRobots, "length of robots should be 2"
 cell1 = wh.getCellByCoordinates(1,1)
 cell2 = wh.getCellByCoordinates(6,1)
 
 
 allProds = wh.getAllProductsAndAmountsInWarehouse()
-cheese = Product("cheese", 10)
-chair = Product("chair", 18)
-table = Product("table", 13)
-prodsPutInMinusOut =  {cheese : 40, chair : 13, table : 2}
+
 print(allProds)
 
 #assert allProds == prodsPutInMinusOut, "amount of products in warehouse is wrong"
@@ -107,7 +105,7 @@ robot = Robot("robot", wh)
 robot2 = Robot("robot2", wh)
 #trying to add a blockade for robot
 newCell = wh.getCellByCoordinates(5, 9) 
-newCell.flipIsOccupied()
+newCell.flipIsPlannedOccupied()
 
 wh.robots = [robot]
 targetCell = wh.getCellByCoordinates(6,11)

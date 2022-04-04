@@ -116,58 +116,63 @@ class Robot():
 #methods for robot to move
     def move(self):
         """when a new timestep, a robot must move, it wants to move to the next cell in its trajectory, but if it collides with another robot, it must wait"""
-        if (self.waitTime>0): 
-            print(f"Robot: {self.name} is waiting at coordinates: ", self.currentCell.getCoordinates())
-            self.waitTime -= 1
+        shouldMove = self.moveChecks()
+        if (not shouldMove):
+            return False
+
+        self.previousCell = self.currentCell
+        
+        didGo = self.goToCell(self.route[0], self.previousCell) #goes to cell if it is a legal move, if legal, also sets cell to occupied
+ 
+        if didGo:
+            self.route.pop(0) 
+            if (self.previousCell!=self.warehouse.getStartCell() and self.previousCell!=self.warehouse.getEndCell()):
+                self.previousCell.flipIsPlannedOccupied() #if robot moves on, then previous cell is not occupied anymore
+                
             return True
+        return False
+
+    def moveChecks(self):
+        """Returns True if robot should move to another cell, False is not. Handles loading/unloading/waiting if the robot is in a state that requires that"""
+        if (self.waitTime>0): 
+            self.waitTime -= 1
+            return False
         #if robot is going to unload at endCell (to fill customer order)
         elif (self.currentCell == self.warehouse.getEndCell() and self.isRetrieving):
             self.warehouse.fillOrderWithLoad(self.currentLoad)
             self.currentLoad = (None, 0)
             self.waitTime = 12
-            return True
+            return False
         #load back product that it couldnt fit on shelf
         elif (self.currentCell == self.warehouse.getEndCell() and self.isStoring):
             product, amount = self.currentLoad
             self.warehouse.addBackToTruckload(product, amount)
             self.waitTime = 12
             self.route, self.previousCell, self.currentLoad = [], None, (None, 0)
-            return True    
+            return False    
         elif (self.route==None):
-            return None
+            return False
         elif (len(self.route) == 0): #robot does not need to move
-            return None
+            return False
 
         #for storing or retriving from cell
         if (self.isInStorageCell() and (not self.wasInStorageCell) and self.isStoring):
             self.wasInStorageCell = True
             self.unloadRobotToCell()
-            return True
+            return False
         elif (self.isInStorageCell() and (not self.wasInStorageCell) and self.isRetrieving):
             self.wasInStorageCell = True
             self.loadRobotFromStorageCell()
-            return True
+            return False
         self.wasInStorageCell = False
+        return True
 
-
-        currentCell = self.currentCell
-        self.previousCell = self.currentCell
-        didGo = self.goToCell(self.route[0]) #goes to cell if it is a legal move, if legal, also sets cell to occupied
- 
-        if didGo:
-            #print(f"Robot: {self.name} went to: ", self.route[0].getCoordinates())
-            self.route.pop(0) 
-            if (currentCell!=self.warehouse.getStartCell() and currentCell!=self.warehouse.getEndCell()):
-                currentCell.flipIsOccupied() #if robot moves on, then previous cell is not occupied anymore
-            return True
-        print(f"Robot: {self.name} had to wait at coordinates: ", self.currentCell.getCoordinates())
-        return False
-
-    def goToCell(self, cell : Cell):
+    def goToCell(self, cell : Cell, previousCell : Cell):
         if (self.isLegalMove(cell)):
             self.currentCell = cell
             if (cell!=self.warehouse.getStartCell() and cell!=self.warehouse.getEndCell()): #these cells will never be occupied (assumption)
-                cell.flipIsOccupied()
+                cell.flipIsPlannedOccupied()
+                previousCell.flipIsOccupied()
             return True
         print(f"Robot: {self.name} could not go to cell with coordinates: ", cell.getCoordinates())
         return False
@@ -177,15 +182,14 @@ class Robot():
         currentX, currentY = self.currentCell.getCoordinates()
         nextX, nextY = nextCell.getCoordinates()
         if (abs(currentX-nextX)>1 or abs(currentY-nextY)>1):
-            print("can't move more than 1 cell")
             return False
         elif ( abs(currentX-nextX) + abs(currentY-nextY) ) > 1:
-            print("Can not move diagonally, only up/down/right/left")
-        elif (nextCell.getCellType() == "storage"):
-            print("Can't move to a storage cell")
             return False
-        elif (nextCell.getIsOccupied() ): #cell is occupied, can't go to cell
-            print(f"Robot: {self.name} can't go to {self.currentCell.getCoordinates()} because the cell is occupied or planned to be occupied")
+        elif (nextCell.getCellType() == "storage"):
+            return False
+        elif (nextCell.getIsPlannedOccupied() ): #cell is occupied, can't go to cell
+            return False
+        elif (nextCell.getIsOccupied()):
             return False
 
         return True
@@ -269,38 +273,55 @@ class Robot():
 
 #methods to get the route the robot must take to get to its target location, and back
     def calculateRoute(self, targetCell : Cell):
-        """returns a list of Cells the robot must go to to get to its objective. """
+        """returns a of all the cells a robot must go to, to get from startcell of the warehouse, to a storage cell (the targetCell), and then back to the endcell of warehouse"""
         if (targetCell.getCellType() != "storage"):
             print("targetCell for robot must be a storage cell")
             return None
+        pointsOnRoute, direction, unloadingCellX, unloadingCellY = self.calculateRouteToStorageCell(targetCell)
+        pointsOnRoute = self.calculateRouteBackFromStorageCell(pointsOnRoute, direction, unloadingCellX, unloadingCellY)
+       
+        fullRoute = self.getFullRouteFromPointsOnRoute(pointsOnRoute)
+
+        if (self.warehouse.getStartCell() in fullRoute): #robot is already in start cell so remove it if its in route
+            fullRoute.remove(self.warehouse.getStartCell()) 
+        return fullRoute
+    
+    def calculateRouteToStorageCell(self, targetCell : Cell):
+        """returns a list of cells which is the route to a storage cell (target cell), as well as a direction (left or right), which is the direction robot had to go when at same y-value as storage cell. Also returns the vertical and unloading cell """
+
         targetX, targetY = targetCell.getCoordinates()
-        pointsOnRoute = [] # a list of all cells robot must reach, to reach unloading point
+        pointsOnRoute = [] #points on the route robot must reach (not all the cells it must go to)
 
         startCell = self.warehouse.getStartCell()
         pointsOnRoute.append(startCell)
+
+        #find first cell the robot must go up or down, also says if robot have to go left or right when reaching same y-coordinate as targetCell
         verticalCell, direction = self.findVerticalCell(startCell, targetCell)
         pointsOnRoute.append(verticalCell)
         verticalX, verticalY = verticalCell.getCoordinates()
-        horizontalX = verticalX
-        horizontalY = targetY
+
+        #find where robot must go to the side to reach the storage cell
+        horizontalX = verticalX #x-coordinate is equal to when the robot changed vertical direction
+        horizontalY = targetY #y-coordinate is equal to the y-coordinate of the target cell
         horizontalCell = self.warehouse.getCellByCoordinates(horizontalX, horizontalY)
         pointsOnRoute.append(horizontalCell)
         
+        #find unloading cell, which is the cell adjacent to the storageCell, and where robot unloads
         if (direction == "left"):
             unloadingCellX = horizontalX - 1 #if storage place is to the left, go one to the left
         elif (direction == "right"):
             unloadingCellX = horizontalX + 2 #if storage place to the right, go 2 steps to the right
         else:
-            print("something is wrong")
-            return None
+            raise Exception("error in calculating route for robot")
         unloadingCellY = horizontalY #horizontal coordinate is same when unloading
         unloadingCell = self.warehouse.getCellByCoordinates(unloadingCellX, unloadingCellY)
         pointsOnRoute.append(unloadingCell)
+        return pointsOnRoute, direction, unloadingCell, verticalCell
 
-        #pointsOnRoute.append("Unload") #so robot knows to unload
-
-        #then calcuating the points back:
-
+    def calculateRouteBackFromStorageCell(self, pointsOnRoute : list, direction : str, unloadingCell : Cell, verticalCell : Cell):
+        """calculates route back from storage cell, and returns the full list of the the points robot has to go to, to and from the storage cell"""
+        unloadingCellX, unloadingCellY = unloadingCell.getCoordinates()
+        verticalX, verticalY = verticalCell.getCoordinates()
         if (direction == "left"): #then i must go to the right to go back
             horizontalX = unloadingCellX + 2
         elif (direction == "right"):
@@ -315,17 +336,10 @@ class Robot():
         
         pointsOnRoute.append(self.warehouse.getEndCell()) #appending end cell of warehouse
 
-        #print(pointsOnRoute)
-        fullRoute = self.getFullRouteFromPointsOnRoute(pointsOnRoute)
-        #print("__________PRINTING ROUTE ROBOT IS TAKING______________")
-        #for i in fullRoute:
-        #    print(i.getCoordinates())
-        if (self.warehouse.getStartCell() in fullRoute): #robot is already in start cell so remove it if its in route
-            fullRoute.remove(self.warehouse.getStartCell()) 
-        return fullRoute
-  
+        return pointsOnRoute
+
     def getFullRouteFromPointsOnRoute(self, pointsOnRoute : list):
-        """just calculates the middle points from the points on the route. Returns a list of all cells robot must visit"""
+        """ calculates the middle points from the points on the route. Returns a list of all cells robot must visit"""
         routeList = []
         for i in range(len(pointsOnRoute)-1):
 
@@ -375,25 +389,6 @@ class Robot():
         verticalCell = self.warehouse.getCellByCoordinates(verticalX, verticalY)
         return verticalCell, direction
 
-
-        direction = self.getDirection(nextCell)
-        currentCellType = self.currentCell.getType()
-        if (currentCellType == "moveRight" and direction == "left"):
-            print("can't move left on a right arrow")
-            return None
-        elif (currentCellType == "moveLeft" and direction == "right"):
-            print("can't move right on a left arrow")
-            return None
-        elif (currentCellType == "moveUp" and direction == "down"):
-            print("can't move down on up arrow")
-            return None
-        elif (currentCellType == "moveDown" and direction == "up"):
-            print("can't move up on down arrow")
-            return None
-        elif (currentCellType == "load" and (direction == "up" or direction == "down")):
-            print("can only move sideways on load spaces")
-            return None
-        return True
 
     def getDirection(self, nextCell : Cell):
         """returns the direction the next cell is going to, either left, right, up or down. This assumes already the move is no more than 1 in length, and that it is not diagonal""" 

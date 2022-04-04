@@ -4,6 +4,7 @@ from turtle import st
 from zoneinfo import available_timezones
 from Cell import Cell
 from CustomerOrder import CustomerOrder
+from Printer import Printer
 from Product import Product
 from Truckload import Truckload
 from tkinter import * 
@@ -145,10 +146,20 @@ class Warehouse():
             if (not isPickedUp): #if an order could not be picked up
                 self.placeLoadInCell() 
 
+        
         #let all robots do 1 move:
         for robot in self.robots:
             robot.move()
 
+        #if cells was occupied, they are not the next time step 
+        self.changeIsOccupied()
+
+
+        printer = Printer()
+        printer.printRobotInfo(self.robots)
+        printer.printTruckload(self.currentTruckload)
+        printer.printCustomerOrder(self.currentCustomerOrder)
+        printer.printProductsInWarehouse(self)
         
     def placeLoadInCell(self):
         """Function to have robot store a load (product, amount) in a cell. find out if there is any available robots, if so, load them and get robot to place order in cell, returns True if has available robot and can place a load in a cell, False if not"""
@@ -164,7 +175,6 @@ class Warehouse():
                 print("did not find cell to go to")
                 return False
             robot.storeLoad(cellToGoTo, load)
-
 
     def pickUpCustomerOrder(self):
         """Function for robot to pick up a customer order, returns True if it found an order it can pick up, False if not"""
@@ -185,7 +195,6 @@ class Warehouse():
             return True
         return False
 
-
     def getAvailableRobots(self):
         """returns all available robots, aka those that are in endCell, are not waiting (loading/unloading)"""
         availableRobots = []
@@ -194,7 +203,16 @@ class Warehouse():
                 availableRobots.append(robot)
         return availableRobots
 
-  
+    def changeIsOccupied(self):
+        """if a cell was occupied the last timestep, it is not occupied at the next timestep, this function is called every timestep"""
+        for row in self.cells:
+            for cell in row:
+                if (cell.getIsOccupied()):
+                    cell.flipIsOccupied()
+
+    def checkToManyRobotInOnPlace(self):
+        """to make sure not too many robots are sent to the same spot in the warehouse"""
+
 #helper functions to pick up products from warehouse
     def locateCellWithLoad(self, load):
         """locates a cell which has the products that a robot is going to carry"""
