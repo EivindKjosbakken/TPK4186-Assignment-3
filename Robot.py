@@ -123,12 +123,15 @@ class Robot():
         self.previousCell = self.currentCell
         
         didGo = self.goToCell(self.route[0], self.previousCell) #goes to cell if it is a legal move, if legal, also sets cell to occupied
- 
+
+        #if (self.currentCell != self.targetCell and (self.targetCell not in (self.route))):
+        #    self.targetCell = None
+        
         if didGo:
             self.route.pop(0) 
             if (self.previousCell!=self.warehouse.getStartCell() and self.previousCell!=self.warehouse.getEndCell()):
                 self.previousCell.flipIsPlannedOccupied() #if robot moves on, then previous cell is not occupied anymore
-                
+
             return True
         return False
 
@@ -221,6 +224,7 @@ class Robot():
         self.targetCell.removeLoadFromCell(self.currentLoad) # remove the load from currentcell
         self.waitTime = 12
         self.targetCell.flipIsRobotOnWay()
+        #self.targetCell = None
         return True
 
     def loadRobotFromStartCell(self, load):
@@ -240,7 +244,7 @@ class Robot():
         self.waitTime = 12
         product, amount = self.currentLoad
         self.currentLoad = (None, 0)
-        self.targetCell.flipIsRobotOnWay()
+        #self.targetCell.flipIsRobotOnWay() #TODO tror ikke denne skal være i bruk
         return product, amount
 
     def unloadRobotToCell(self):
@@ -248,6 +252,7 @@ class Robot():
         print(f"unloading {self.name}")
         self.waitTime = 12 
         storageCell = self.findStorageCell()
+        #self.targetCell = None
         if (self.currentLoad != None and storageCell!=None):
             storageCell.flipIsRobotOnWay()
             product, amount = self.currentLoad

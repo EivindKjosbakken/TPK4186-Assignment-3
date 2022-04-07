@@ -4,8 +4,8 @@ from Simulator import *
 from Product import Product
 
 simulator = Simulator()
-numRobots = 2
-wh = simulator.runSimulation(24, 16, numRobots, 1250, True)
+numRobots = 3
+wh = simulator.runSimulation(24, 16, numRobots, 800, True)
 robots = wh.getRobots()
 assert len(robots) == numRobots, "length of robots should be 2"
 cell1 = wh.getCellByCoordinates(1,1)
