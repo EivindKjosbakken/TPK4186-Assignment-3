@@ -14,6 +14,8 @@ class Printer():
     def printRobotInfo(self, robots : list):
         for robot in robots:
             name, currentCell, targetCell, currentLoad, currentToPickUp, isStoring, isRetrieving = robot.getName(), robot.getCurrentCell(), robot.getTargetCell(), robot.getCurrentLoad(), robot.getCurrentToPickUp(), robot.getIsStoring(), robot.getIsRetrieving()
+            if (targetCell != None):
+                targetCell = targetCell.getCoordinates()
             if (isRetrieving):
                 print(f"After  timestep, robot: {name}, pos: {currentCell.getCoordinates()}, load: {self.getLoadNice(currentLoad)}, picking up: {self.getLoadNice(currentToPickUp)}, targetCell: {targetCell}, and it is retrieving load from a cell ")
             elif (isStoring):
@@ -23,7 +25,8 @@ class Printer():
                 
     def printCell(self, cell : Cell):
         if not (isinstance(cell, Cell)):
-            raise Exception("Cant print something else than cell in printCell")
+            print("Could not print cell because it was not a cell object")
+            return None
         prodNameShelf1, amountShelf1 = cell.getProductShelf1(), cell.getAmountShelf1()
         prodNameShelf2, amountShelf2 = cell.getProductShelf2(), cell.getAmountShelf2()
         print(f"Cell with coordinates: {cell.getCoordinates()} | shelf 1: ({prodNameShelf1} : {amountShelf1}) | shelf2: ({prodNameShelf2} : {amountShelf2})")
@@ -31,23 +34,37 @@ class Printer():
     def printCatalog(self, catalog : Catalog):
         """print out catalog nicely with product names"""
         if not (isinstance(catalog, Catalog)):
-            raise Exception("cant print anything else than catalog in printCatalog")
+            print("Could not print catalog because it was not a Catalog object")
+            return None
         print("The catalog has the following products:")
         for product in catalog.getProducts():
             print(product.getName())
 
     def printCustomerOrder(self, customerOrder : CustomerOrder):
+        if not (isinstance(customerOrder, CustomerOrder)):
+            print("Could not print customerOrder because it was not a CustomerOrder object")
+            return None
         print("The following products and amounts are in the customerorder")
         for key, value in customerOrder.getOrder().items():
             print(key.getName(), ":", value)
+        if (len(customerOrder.getOrder())==0):
+            print("No more products in customerOrder")
 
     def printTruckload(self, truckload : Truckload):
         """print truckload out nicely"""
-        print("The following products and amounts are in the truckload")
+        if not (isinstance(truckload, Truckload)):
+            print("Could not print truckload because it was not a Truckload object")
+            return None
+        print("The following products and amounts are in the truckload:")
         for product, amount in truckload.getLoad().items():
             print(product.getName(), amount)
+        if (len(truckload.getLoad()) ==0):
+            print("was not items in truckload")
 
     def printProductsInWarehouse(self, warehouse):
+        if (warehouse == None):
+            print("Could not print warehouse because it was a None object")
+            return None
         print("The following are in the warehouse")
         allInventory = warehouse.getAllProductsAndAmountsInWarehouse()
         if (allInventory!=None):

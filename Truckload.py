@@ -12,6 +12,13 @@ class Truckload():
         return self.name
     def getLoad(self):
         return self.load
+
+    def getIsTruckloadCompleted(self):
+        for amount in self.load.values():
+            if amount > 0:
+                return False
+        return True
+
     def setProducts(self, products : list):
         self.load = products
     def setLoad(self, truckload : dict):
@@ -26,6 +33,8 @@ class Truckload():
             return True
         print("maxCapacity must be bigger than 1")
         return False
+
+
 
     def getMax40Weight(self):
         """returns first product it finds, and an amount so its less than or equal to 40"""        

@@ -38,6 +38,9 @@ class Simulator():
         load = {cheese : 50, chair : 23, table : 12, pen : 0}
         truckload.setLoad(load)
         warehouse.addTruckload(truckload)
+        truckload2 = Truckload("t2", 10000)
+        load = {cheese : 50, chair: 10, table : 11}
+        warehouse.addTruckload(truckload2)
         customerOrder = CustomerOrder("customer1")
         for i in range(10):
             customerOrder.addToOrder(chair)
