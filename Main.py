@@ -11,8 +11,8 @@ sim = Simulator()
 numRobots = 2
 xSize = 24
 ySize = 16 
-timeSteps = 3000 # 2300 funka, ferdig etter 2417
-wh = sim.runSimulation(xSize, ySize, numRobots, timeSteps, True)
+timeSteps = 4000 # 2300 funka, ferdig etter 2417
+wh = sim.runSimulation(xSize, ySize, numRobots, timeSteps, False)
 #___________
 counter = 0
 

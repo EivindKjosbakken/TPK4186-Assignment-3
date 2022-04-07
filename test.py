@@ -4,13 +4,10 @@ from Simulator import *
 from Product import Product
 
 simulator = Simulator()
-numRobots = 1
-wh = simulator.runSimulation(24, 16, numRobots, 10, False)
+numRobots = 8
+wh = simulator.runSimulation(24, 16, numRobots, 5000, False)
 robots = wh.getRobots()
-assert len(robots) == numRobots, "length of robots should be 2"
-cell1 = wh.getCellByCoordinates(1,1)
-cell2 = wh.getCellByCoordinates(6,1)
-
+assert len(robots) == numRobots, f"length of robots should be {numRobots}"
 
 allProds = wh.getAllProductsAndAmountsInWarehouse()
 
@@ -21,11 +18,13 @@ for key, value in allProds.items():
 
 for key, value in allProds.items():
     if (key.getName() == "cheese"):
-        assert value == 50
+        assert value == 90
     elif (key.getName() == "chair"):
-        assert value == 23, f"value was {allProds[key]}, should have been 33"
+        assert value == 40, f"value was {allProds[key]}, should have been 40"
     elif (key.getName() == "table"):
-        assert value == 12, f"value was {allProds[key]}, should have been 23"
+        assert value == 15, f"value was {allProds[key]}, should have been 15"
+    elif (key.getName() == "pen"):
+        assert value == 12, f"value was {allProds[key]}, should be 12"
     else:
         raise Exception("error in prod name")
 
