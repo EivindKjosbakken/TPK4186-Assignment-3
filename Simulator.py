@@ -1,4 +1,5 @@
 
+import copy
 from functools import partial
 from CustomerOrder import CustomerOrder
 from Printer import Printer
@@ -35,11 +36,12 @@ class Simulator():
         table = Product("table", 13)
         pen = Product("pen", 6)
         truckload = Truckload("t", 100000)
-        load = {cheese : 50, chair : 23, table : 12, pen : 0}
+        load = {cheese : 50, chair : 23, table : 15, pen : 0}
         truckload.setLoad(load)
         warehouse.addTruckload(truckload)
         truckload2 = Truckload("t2", 10000)
-        load = {cheese : 50, chair: 10, table : 11}
+        load = {cheese : 50, chair: 27, table : 10}
+        truckload2.setLoad(load)
         warehouse.addTruckload(truckload2)
         customerOrder = CustomerOrder("customer1")
         for i in range(10):
@@ -48,12 +50,15 @@ class Simulator():
             customerOrder.addToOrder(table)
         warehouse.addCustomerOrder(customerOrder)
  
-
         for i in range(maxTimeStep):
-            print()
+            
+            #print()
             print("___TIMESTEP: ", i, " ____")
             warehouse.nextTimeStep()
             self.timeStep += 1
+            
+ 
+
 
         self.createGUI(robots, canvas, zones, warehouse, rootWindow, displayWarehouse)
 
@@ -85,7 +90,8 @@ class Simulator():
         self.timeStep+=1
         warehouse.nextTimeStep()
         self.updateRobotPosition(robots, canvas, zones)
-        cell = warehouse.getCellByCoordinates(1,8)
+        p = Printer() #TODO fjerne
+        p.printProductsInWarehouse(warehouse)
         
     def next10TimeStepsTkinter(self, warehouse : Warehouse, robots : list, canvas : Canvas, zones : list):
         for i in range(10):

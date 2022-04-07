@@ -47,7 +47,6 @@ class Warehouse():
                 xCoordinate, yCoordinate = cell.getCoordinates()
                 if (x==xCoordinate and y == yCoordinate):
                     return cell
-        print("did not find cell")
         return False
     def getStartCell(self):
         """returns cell object in the warehouse, that is the start cell"""
@@ -119,41 +118,46 @@ class Warehouse():
     def addCustomerOrder(self, customerOrder : CustomerOrder):
         self.customerOrders.append(customerOrder)
 
+    def getIsAllRobotsInStartCell(self):
+        for robot in self.robots:
+            if (robot.getCurrentCell() != self.getStartCell()):
+                return False
+        return True
 
 #handle the next timeStep of the warehouse
     def nextTimeStep(self):
         """go to next timestep, that means new truckload can come, all robots move once (or wait), 1 timestep = 10 sec (so a robot unloading will take 12 timeSteps for example"""
         #make sure currentTruckload/currentCustomerOrder is updated:
+
         if (len(self.truckloads)>0):
             self.currentTruckload = self.truckloads[0] 
         if (len(self.customerOrders)>0):
             self.currentCustomerOrder = self.customerOrders[0]    
 
-        #check if truckload/customerorder is completed
-        #if (len(self.currentTruckload.getLoad()) == 0):
         if (self.currentTruckload != None): 
-            if (self.currentTruckload.getIsTruckloadCompleted()): 
+            if (self.currentTruckload.getIsTruckloadCompleted() and not self.getIsRobotsLoading()): 
                 print("TRUCKLOAD COMPLETED")
+                p = Printer()
+                print("truckload is:", end = " ")
+                p.printTruckload(self.currentTruckload)
                 self.truckloads.pop(0)
                 self.currentTruckload = None
                 if (len(self.truckloads)>0):
+                    print("INSERTING NEW TRUCKLOAD")
                     self.currentTruckload = self.truckloads[0]
-        if (len(self.currentCustomerOrder.getOrder()) == 0 and self.currentCustomerOrder != None): #if customer order is completed
-            print("FILLED CUSTOMER ORDER!")
-            self.customerOrders.pop(0)
-            self.currentCustomerOrder = None
-            if (len(self.customerOrders)>0):
-                self.currentCustomerOrder = self.customerOrders[0]
+        if (self.currentCustomerOrder != None):
+            if (len(self.currentCustomerOrder.getOrder()) == 0 and self.currentCustomerOrder != None): #if customer order is completed
+                print("FILLED CUSTOMER ORDER!")
+                self.customerOrders.pop(0)
+                self.currentCustomerOrder = None
+                if (len(self.customerOrders)>0):
+                    self.currentCustomerOrder = self.customerOrders[0]
 
 
         #just wait if nothing is happening:
-        if (self.currentTruckload == None and self.currentCustomerOrder == None):
-            print("WAITING HERE")
+        if (self.currentTruckload == None and self.currentCustomerOrder == None and self.getIsAllRobotsInStartCell()):
             return True
 
-           
-        #try to pick up customer order first, if not possible, try to make a robot load to a cell
-        #if (len(self.customerOrders) > 0 or len(self.truckloads) > 0):
         isPickingUp = False
         if (self.currentCustomerOrder != None):
             isPickingUp = self.pickUpCustomerOrder() 
@@ -167,13 +171,14 @@ class Warehouse():
 
         #if cells was occupied, they are not occupied the next time step 
         self.changeIsOccupied()
-
+        #"""
         printer = Printer()
         printer.printRobotInfo(self.robots)
         printer.printTruckload(self.currentTruckload)
         printer.printCustomerOrder(self.currentCustomerOrder)
         printer.printProductsInWarehouse(self)
-        
+        #"""
+
     def placeLoadInCell(self):
         """Function to have robot store a load (product, amount) in a cell. find out if there is any available robots, if so, load them and get robot to place order in cell, returns True if has available robot and can place a load in a cell, False if not"""
         availableRobots = self.getAvailableRobots()
@@ -245,7 +250,12 @@ class Warehouse():
         return amountToGet
 
 
-
+    def getIsRobotsLoading(self):
+        for robot in self.robots:
+            product, amount = robot.getCurrentLoad()
+            if robot.getCurrentCell() == self.getStartCell() and product!= None and amount != 0:
+                return True
+        return False
 
 
 #helper functions to pick up products from warehouse
@@ -346,19 +356,23 @@ class Warehouse():
                 continue
 
             amountShelf1, amountShelf2 = self.getAmountYouCanPutIntoEachShelfOfCell(product, storageCell)
-            if (amountShelf1 > 0):
-                currentAmount -= amountShelf1
-                if (currentAmount <= 0):
-                    cellsToGoTo.append(storageCell)
-                    return cellsToGoTo[0]
-                cellsToGoTo.append(storageCell) 
+            if (amountShelf1 >= amount):    
+                return storageCell
+            #if (amountShelf1 > 0):    
+                #currentAmount -= amountShelf1  #TODO -> gjør store endringer
+                #if (currentAmount <= 0):
+                #    cellsToGoTo.append(storageCell)
+                #    return cellsToGoTo[0]
+                #cellsToGoTo.append(storageCell) 
 
-            if (amountShelf2 > 0):
-                currentAmount -= amountShelf2
-                if (currentAmount <= 0):
-                    cellsToGoTo.append(storageCell)
-                    return cellsToGoTo[0]
-                cellsToGoTo.append(storageCell)
+            if (amountShelf2 >= amount):
+                return storageCell
+            #if (amountShelf2 > 0):
+                #currentAmount -= amountShelf2
+                #if (currentAmount <= 0):
+                #    cellsToGoTo.append(storageCell)
+                #    return cellsToGoTo[0]
+                #cellsToGoTo.append(storageCell)
 
         print("Could not find cell for item")
         return None

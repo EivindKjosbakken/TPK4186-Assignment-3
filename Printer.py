@@ -13,7 +13,7 @@ class Printer():
 
     def printRobotInfo(self, robots : list):
         for robot in robots:
-            name, currentCell, targetCell, currentLoad, currentToPickUp, isStoring, isRetrieving = robot.getName(), robot.getCurrentCell(), robot.getTargetCell(), robot.getCurrentLoad(), robot.getCurrentToPickUp(), robot.getIsStoring(), robot.getIsRetrieving()
+            name, currentCell, targetCell, currentLoad, currentToPickUp, isStoring, isRetrieving, route = robot.getName(), robot.getCurrentCell(), robot.getTargetCell(), robot.getCurrentLoad(), robot.getCurrentToPickUp(), robot.getIsStoring(), robot.getIsRetrieving(), robot.getRoute()
             if (targetCell != None):
                 targetCell = targetCell.getCoordinates()
             if (isRetrieving):

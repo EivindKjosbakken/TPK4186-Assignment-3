@@ -123,10 +123,12 @@ class Robot():
         self.previousCell = self.currentCell
         
         didGo = self.goToCell(self.route[0], self.previousCell) #goes to cell if it is a legal move, if legal, also sets cell to occupied
-
-        #if (self.currentCell != self.targetCell and (self.targetCell not in (self.route))):
-        #    self.targetCell = None
+        if (self.targetCell != None):
+            loadingCell = self.findLoadingCell(self.targetCell) 
+            if (self.currentCell != loadingCell and loadingCell != None and (loadingCell not in (self.route))):
+                self.targetCell = None
         
+
         if didGo:
             self.route.pop(0) 
             if (self.previousCell!=self.warehouse.getStartCell() and self.previousCell!=self.warehouse.getEndCell()):
@@ -208,6 +210,20 @@ class Robot():
             return cell
         print("Could not find storage cell, something is wrong")
         return None
+    
+    def findLoadingCell(self, storageCell = Cell):
+        """find the cell a robot unloads from, from a storage cell"""
+        currentX, currentY = storageCell.getCoordinates()
+        cell = self.warehouse.getCellByCoordinates(currentX+1, currentY)
+        if (isinstance(cell, Cell)):
+            if cell.getCellType() == "load":
+                return cell
+            cell = self.warehouse.getCellByCoordinates(currentX-1, currentY)
+            if (cell.getCellType() == "load"):
+                return cell
+        else:
+            return None
+            
 
     def isInStorageCell(self):
         """robot is at storage cell if it same same cell appears twice after over 3 cells"""
@@ -252,7 +268,10 @@ class Robot():
         print(f"unloading {self.name}")
         self.waitTime = 12 
         storageCell = self.findStorageCell()
-        #self.targetCell = None
+
+        #product, amount = self.currentLoad
+        #self.warehouse.getCurrentTruckload().removeProducts(product, amount)
+
         if (self.currentLoad != None and storageCell!=None):
             storageCell.flipIsRobotOnWay()
             product, amount = self.currentLoad

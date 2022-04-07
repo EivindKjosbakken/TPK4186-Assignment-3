@@ -4,8 +4,8 @@ from Simulator import *
 from Product import Product
 
 simulator = Simulator()
-numRobots = 3
-wh = simulator.runSimulation(24, 16, numRobots, 800, True)
+numRobots = 1
+wh = simulator.runSimulation(24, 16, numRobots, 10, False)
 robots = wh.getRobots()
 assert len(robots) == numRobots, "length of robots should be 2"
 cell1 = wh.getCellByCoordinates(1,1)
@@ -14,26 +14,26 @@ cell2 = wh.getCellByCoordinates(6,1)
 
 allProds = wh.getAllProductsAndAmountsInWarehouse()
 
-print(allProds)
+for key, value in allProds.items():
+    print(key.getName(), ":", value, end=", ")
 
 #assert allProds == prodsPutInMinusOut, "amount of products in warehouse is wrong"
 
 for key, value in allProds.items():
     if (key.getName() == "cheese"):
-        assert value == 40
+        assert value == 50
     elif (key.getName() == "chair"):
-        assert value == 13
+        assert value == 23, f"value was {allProds[key]}, should have been 33"
     elif (key.getName() == "table"):
-        assert value == 2
+        assert value == 12, f"value was {allProds[key]}, should have been 23"
     else:
         raise Exception("error in prod name")
 
 assert len(wh.customerOrders) == 0, f"length of customer orders should be 0, it is: {len(wh.customerOrders)}"
 
-
-
-
-
+a = wh.getAllProductsAndAmountsInWarehouse()
+for key, value in a.items():
+    print(key.getName(), value)
 
 
 #random tests:
