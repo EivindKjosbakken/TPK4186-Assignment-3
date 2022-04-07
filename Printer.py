@@ -22,7 +22,7 @@ class Printer():
                 print(f"After  timestep, robot: {name}, pos: {currentCell.getCoordinates()}, load: {self.getLoadNice(currentLoad)}, picking up: {self.getLoadNice(currentToPickUp)}, targetCell: {targetCell}, and it is loading to a storage cell ")
             else:
                 print("Robot: {name} is not yet active")
-                
+
     def printCell(self, cell : Cell):
         if not (isinstance(cell, Cell)):
             print("Could not print cell because it was not a cell object")
@@ -38,7 +38,7 @@ class Printer():
             return None
         print("The catalog has the following products:")
         for product in catalog.getProducts():
-            print(product.getName())
+            print("Product:",product.getName(), ", weight:", product.getWeight())
 
     def printCustomerOrder(self, customerOrder : CustomerOrder):
         if not (isinstance(customerOrder, CustomerOrder)):

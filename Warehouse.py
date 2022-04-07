@@ -125,7 +125,7 @@ class Warehouse():
         return True
 
 #handle the next timeStep of the warehouse
-    def nextTimeStep(self):
+    def nextTimeStep(self, shouldPrint : bool):
         """go to next timestep, that means new truckload can come, all robots move once (or wait), 1 timestep = 10 sec (so a robot unloading will take 12 timeSteps for example"""
         #make sure currentTruckload/currentCustomerOrder is updated:
 
@@ -136,10 +136,8 @@ class Warehouse():
 
         if (self.currentTruckload != None): 
             if (self.currentTruckload.getIsTruckloadCompleted() and not self.getIsRobotsLoading()): 
-                print("TRUCKLOAD COMPLETED")
-                p = Printer()
-                print("truckload is:", end = " ")
-                p.printTruckload(self.currentTruckload)
+                if (shouldPrint):
+                    print("TRUCKLOAD COMPLETED")
                 self.truckloads.pop(0)
                 self.currentTruckload = None
                 if (len(self.truckloads)>0):
@@ -147,7 +145,8 @@ class Warehouse():
                     self.currentTruckload = self.truckloads[0]
         if (self.currentCustomerOrder != None):
             if (len(self.currentCustomerOrder.getOrder()) == 0 and self.currentCustomerOrder != None): #if customer order is completed
-                print("FILLED CUSTOMER ORDER!")
+                if (shouldPrint):   
+                    print("FILLED CUSTOMER ORDER!")
                 self.customerOrders.pop(0)
                 self.currentCustomerOrder = None
                 if (len(self.customerOrders)>0):
@@ -172,11 +171,12 @@ class Warehouse():
         #if cells was occupied, they are not occupied the next time step 
         self.changeIsOccupied()
         #"""
-        printer = Printer()
-        printer.printRobotInfo(self.robots)
-        printer.printTruckload(self.currentTruckload)
-        printer.printCustomerOrder(self.currentCustomerOrder)
-        printer.printProductsInWarehouse(self)
+        if (shouldPrint):
+            printer = Printer()
+            printer.printRobotInfo(self.robots)
+            printer.printTruckload(self.currentTruckload)
+            printer.printCustomerOrder(self.currentCustomerOrder)
+            printer.printProductsInWarehouse(self)
         #"""
 
     def placeLoadInCell(self):
@@ -190,7 +190,6 @@ class Warehouse():
                 return None
             cellToGoTo = self.findCell(product, amount)
             if (cellToGoTo==None):
-                print("did not find cell to go to")
                 return False
             robot.storeLoad(cellToGoTo, load)
 
@@ -203,13 +202,10 @@ class Warehouse():
             robot = availableRobots[0]
             load = self.getMax40FromOrder(self.currentCustomerOrder)
             if (load == None):
-                print("was not product or amount of product in pickUpCustomerOrder")
                 return False
             cellToGoTo = self.locateCellWithLoad(load)
             if (cellToGoTo == None):
-                print("did not find cell to go to in pickUpCustomerOrder")
                 return False
-            print(robot.getName(), "is going to", cellToGoTo)
             robot.retrieveLoad(cellToGoTo, load)
             return True
         return False
@@ -295,7 +291,6 @@ class Warehouse():
             if (product in currentlyGettingPickedUp.keys()):
                 amount -= currentlyGettingPickedUp[product]
             if (amount<=0): #if the rest of the product is already getting picked up by other robots
-                print("CONTINUING")
                 continue
  
             productToCarry = product
@@ -358,23 +353,11 @@ class Warehouse():
             amountShelf1, amountShelf2 = self.getAmountYouCanPutIntoEachShelfOfCell(product, storageCell)
             if (amountShelf1 >= amount):    
                 return storageCell
-            #if (amountShelf1 > 0):    
-                #currentAmount -= amountShelf1  #TODO -> gjør store endringer
-                #if (currentAmount <= 0):
-                #    cellsToGoTo.append(storageCell)
-                #    return cellsToGoTo[0]
-                #cellsToGoTo.append(storageCell) 
 
             if (amountShelf2 >= amount):
                 return storageCell
-            #if (amountShelf2 > 0):
-                #currentAmount -= amountShelf2
-                #if (currentAmount <= 0):
-                #    cellsToGoTo.append(storageCell)
-                #    return cellsToGoTo[0]
-                #cellsToGoTo.append(storageCell)
 
-        print("Could not find cell for item")
+
         return None
 
     def getAmountYouCanPutIntoEachShelfOfCell(self, product : Product, cell : Cell):

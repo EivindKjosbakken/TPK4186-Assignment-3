@@ -97,14 +97,12 @@ class Cell():
             currentAmount -= amountPutInShelf1
             self.addToShelf(1, product, amountPutInShelf1)
             if (currentAmount<=0):
-                print(f"put amount: {amount} of product: {product.getName()} in shelf1")
                 return amount
         amountPutInShelf2 = self.availableInShelf(product, currentAmount, 2)
         if (amountPutInShelf2>0):
             currentAmount -= amountPutInShelf2
             self.addToShelf(2, product, amountPutInShelf2)
             if (currentAmount==0):
-                print(f"put amount: {amountPutInShelf1} in shelf1, and {amountPutInShelf2} in shelf2 of product: {product.getName()} ")
                 return amount
             elif (currentAmount<=0):
                 print("something wrong with addToCell")

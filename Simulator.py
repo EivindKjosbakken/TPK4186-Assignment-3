@@ -7,7 +7,7 @@ from Product import Product
 from Robot import Robot
 from Truckload import Truckload
 from Warehouse import Warehouse
-
+from Parameters import *
 from tkinter import *
 
 
@@ -16,13 +16,14 @@ class Simulator():
         self.timeStep = 0
         
 
-    def runSimulation(self, xSize : int, ySize : int, numberOfRobots : int, maxTimeStep : int, displayWarehouse : bool):
+    def runSimulation(self, xSize : int, ySize : int, numberOfRobots : int, maxTimeStep : int, displayWarehouse : bool, shouldPrint : bool):
         if numberOfRobots>50:
             print("Can't have more than 50 robots, that means caos in the warehouse")
         warehouse = Warehouse()
         rootWindow, canvas, zones = warehouse.makeWarehouseInTkinter(xSize, ySize)
-        printer = Printer()
-        printer.printWarehouse(warehouse)
+        if (shouldPrint):
+            printer = Printer()
+            printer.printWarehouse(warehouse)
         robots = []
         for i in range(numberOfRobots):
             robot = Robot(f"robot{i}", warehouse)   
@@ -31,6 +32,8 @@ class Simulator():
 
         #TODO
         #hardcoding Truckload and customerOrder for now
+
+        """
         cheese = Product("cheese", 10)
         chair = Product("chair", 18)
         table = Product("table", 13)
@@ -54,11 +57,22 @@ class Simulator():
             customerOrder2.addToOrder(chair)
         warehouse.addCustomerOrder(customerOrder)
         warehouse.addCustomerOrder(customerOrder2)
-
+        """
+        #generating truckorders and customerorders:
+        catalog = generateCatalog()
+        truckload = generateTruckLoad("truckload", catalog, 10000)
+        p = Printer()
+        p.printTruckload(truckload)
+        warehouse.addTruckload(truckload)
+        for i in range(3):
+            customerOrder = generateCustomerOrder(f"customerOrder{i}", catalog)
+            warehouse.addCustomerOrder(customerOrder)
+            p.printCustomerOrder(customerOrder)
         for i in range(maxTimeStep):
             #print()
-            print("___TIMESTEP: ", i, " ____")
-            warehouse.nextTimeStep()
+            if (shouldPrint):
+                print("___TIMESTEP: ", i, " ____")
+            warehouse.nextTimeStep(shouldPrint)
             self.timeStep += 1
             
  

@@ -5,7 +5,7 @@ from Product import Product
 
 simulator = Simulator()
 numRobots = 8
-wh = simulator.runSimulation(24, 16, numRobots, 5000, False)
+wh = simulator.runSimulation(24, 16, numRobots, 5000, False, True)
 robots = wh.getRobots()
 assert len(robots) == numRobots, f"length of robots should be {numRobots}"
 
@@ -18,13 +18,13 @@ for key, value in allProds.items():
 
 for key, value in allProds.items():
     if (key.getName() == "cheese"):
-        assert value == 90
+        assert value == 80
     elif (key.getName() == "chair"):
-        assert value == 40, f"value was {allProds[key]}, should have been 40"
+        assert value == 30, f"value was {allProds[key]}, should have been 40"
     elif (key.getName() == "table"):
         assert value == 15, f"value was {allProds[key]}, should have been 15"
     elif (key.getName() == "pen"):
-        assert value == 12, f"value was {allProds[key]}, should be 12"
+        assert value == 2, f"value was {allProds[key]}, should be 12"
     else:
         raise Exception("error in prod name")
 

@@ -60,8 +60,7 @@ class Truckload():
              
     def addProduct(self, product : Product):
         if ( (self.getTotalWeight() + product.getWeight()) > self.maxCapacity):
-            print("Weight limit is reached, can't add product:", product.getName())
-            return False 
+                return False 
         if (isinstance(product, Product)):
             if (product in self.load.keys()):
                 amount = self.load[product]
