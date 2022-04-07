@@ -36,7 +36,7 @@ class Simulator():
         table = Product("table", 13)
         pen = Product("pen", 6)
         truckload = Truckload("t", 100000)
-        load = {cheese : 50, chair : 23, table : 15, pen : 0}
+        load = {cheese : 50, chair : 23, table : 15, pen : 12}
         truckload.setLoad(load)
         warehouse.addTruckload(truckload)
         truckload2 = Truckload("t2", 10000)
@@ -44,14 +44,18 @@ class Simulator():
         truckload2.setLoad(load)
         warehouse.addTruckload(truckload2)
         customerOrder = CustomerOrder("customer1")
+        customerOrder2 = CustomerOrder("customer2")
         for i in range(10):
             customerOrder.addToOrder(chair)
             customerOrder.addToOrder(cheese)
             customerOrder.addToOrder(table)
+            customerOrder2.addToOrder(cheese)
+            customerOrder2.addToOrder(pen)
+            customerOrder2.addToOrder(chair)
         warehouse.addCustomerOrder(customerOrder)
- 
+        warehouse.addCustomerOrder(customerOrder2)
+
         for i in range(maxTimeStep):
-            
             #print()
             print("___TIMESTEP: ", i, " ____")
             warehouse.nextTimeStep()
