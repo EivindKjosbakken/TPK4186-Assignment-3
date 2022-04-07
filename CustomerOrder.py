@@ -1,4 +1,5 @@
 
+
 from Product import Product
 
 
@@ -32,13 +33,31 @@ class CustomerOrder():
         if (product in self.order.keys()):
             currentAmount = self.order[product]
             if (currentAmount<=0):
-                raise Exception("Cant remove product there is noting from")
+                raise Exception("Cant remove product there is nothing from in removeFromOrder")
             currentAmount-=1
             self.order[product] = currentAmount
             if (currentAmount == 0): #if the amount of a product is 0, delete it from dict
                 del self.order[product]
         else:
-            raise Exception("product was not in dict")
+            productName = product
+            if (product != None):
+                productName = product.getName()
+            raise Exception(f"product: {productName} was not in dict")
+
+    def removeFromOrderByName(self, productName : str):
+        """if creating new customerOrder, new product objects are created, so have to remove by name (not by object)"""
+    
+        for product in self.order.keys():
+            if (str(product.getName()) == productName):
+                currentAmount = self.order[product]
+                if (currentAmount<=0):
+                    raise Exception("Cant remove product there is nothing from in removeFromOrderByName")
+                currentAmount -=1
+                self.order[product] = currentAmount
+                if (currentAmount == 0):
+                    del self.order[product] 
+                return True
+        raise Exception(f"product: {productName} was not in dict in removeFromOrderByName")
 
     def hasOrder(self, warehouseStock : dict):
         """checks if warehouse has the stock to fill the order"""

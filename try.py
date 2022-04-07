@@ -8,6 +8,11 @@ from tkinter import *
 
 from Warehouse import Warehouse
 
+a = []
+b = a[0]
+print("b is:", b)
+
+
 co = CustomerOrder("order1")
 product = Product("chair", 10)
 prod2 = Product("armchair", 5)
