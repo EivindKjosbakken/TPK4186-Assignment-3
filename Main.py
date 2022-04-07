@@ -11,10 +11,16 @@ sim = Simulator()
 numRobots = 2
 xSize = 24
 ySize = 16 
-timeSteps = 4000 # 2300 funka, ferdig etter 2417
-wh = sim.runSimulation(xSize, ySize, numRobots, timeSteps, False)
+timeSteps = 100000 # 2300 funka, ferdig etter 2417
+showTkinter = False
+shouldPrint = False
+wh = sim.runSimulation(xSize, ySize, numRobots, timeSteps, showTkinter, shouldPrint)
 #___________
-counter = 0
+a = wh.getAllProductsAndAmountsInWarehouse()
+print("AFTER")
+for key, value in a.items():
+    print(key.getName(), ":", value)
+
 
 
 """

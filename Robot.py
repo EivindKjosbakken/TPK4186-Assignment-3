@@ -179,7 +179,6 @@ class Robot():
                 cell.flipIsPlannedOccupied()
                 previousCell.flipIsOccupied()
             return True
-        print(f"Robot: {self.name} could not go to cell with coordinates: ", cell.getCoordinates())
         return False
 
     def isLegalMove(self, nextCell : Cell):
@@ -244,7 +243,6 @@ class Robot():
         return True
 
     def loadRobotFromStartCell(self, load):
-        print("loading", self.getName())
         self.waitTime = 12
         totalWeight = self.calcWeightOfLoad(load)
 
@@ -256,7 +254,6 @@ class Robot():
 
     def unloadRobotToStartCell(self):
         """when retrieving products, they are unloaded at startcell. Returns product and amount the robot is unloading"""
-        print(f"unloading {self.name}")
         self.waitTime = 12
         product, amount = self.currentLoad
         self.currentLoad = (None, 0)
@@ -265,7 +262,6 @@ class Robot():
 
     def unloadRobotToCell(self):
         """unload the products the robot has to a shelf (all that it can at a storagecell"""
-        print(f"unloading {self.name}")
         self.waitTime = 12 
         storageCell = self.findStorageCell()
 
