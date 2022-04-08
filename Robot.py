@@ -54,7 +54,6 @@ class Robot():
         if (currentLoad != None):
             self.currentLoad=currentLoad
             return True
-        print("Currentload was 0")
         return False
     def setCurrentToPickUp(self, currentToPickUp):
         self.currentToPickUp = currentToPickUp

@@ -15,7 +15,7 @@ class CustomerOrder():
         return self.order
     def setCustomerName(self, name : str):
         self.name = name
-    def setOrderList(self, order : list):
+    def setOrder(self, order : list):
         self.order = order 
 
 

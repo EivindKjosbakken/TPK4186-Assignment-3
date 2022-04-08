@@ -22,6 +22,9 @@ class Warehouse():
         self.truckloads = []
         self.customerOrders = []
 
+        self.timeStep = 0
+        self.filledCustomerOrders = [] #lists that contains the timestep each customerorder/truckorder was completed
+        self.completedTruckloads = []
 
 #getters and setters and some add functions:
     def getCells(self):
@@ -71,7 +74,6 @@ class Warehouse():
             for cell in row:
                 if (cell.getCellType()=="storage"):
                     storageCells.append(cell)
-        #print("STOERAGE: ", storageCells)
         return storageCells
     def getRobots(self):
         return self.robots
@@ -128,6 +130,7 @@ class Warehouse():
     def nextTimeStep(self, shouldPrint : bool):
         """go to next timestep, that means new truckload can come, all robots move once (or wait), 1 timestep = 10 sec (so a robot unloading will take 12 timeSteps for example"""
         #make sure currentTruckload/currentCustomerOrder is updated:
+        self.timeStep += 1
 
         if (len(self.truckloads)>0):
             self.currentTruckload = self.truckloads[0] 
@@ -138,15 +141,16 @@ class Warehouse():
             if (self.currentTruckload.getIsTruckloadCompleted() and not self.getIsRobotsLoading()): 
                 if (shouldPrint):
                     print("TRUCKLOAD COMPLETED")
+                self.completedTruckloads.append(self.timeStep)
                 self.truckloads.pop(0)
                 self.currentTruckload = None
                 if (len(self.truckloads)>0):
-                    print("INSERTING NEW TRUCKLOAD")
                     self.currentTruckload = self.truckloads[0]
         if (self.currentCustomerOrder != None):
             if (len(self.currentCustomerOrder.getOrder()) == 0 and self.currentCustomerOrder != None): #if customer order is completed
                 if (shouldPrint):   
                     print("FILLED CUSTOMER ORDER!")
+                self.filledCustomerOrders.append(self.timeStep)
                 self.customerOrders.pop(0)
                 self.currentCustomerOrder = None
                 if (len(self.customerOrders)>0):
@@ -161,29 +165,31 @@ class Warehouse():
         if (self.currentCustomerOrder != None):
             isPickingUp = self.pickUpCustomerOrder() 
         if (not isPickingUp and self.currentTruckload != None): #if an order could not be picked up
-            self.placeLoadInCell() 
+            couldPlace = self.placeLoadInCell() 
+            if (not couldPlace):
+                pass #TODO -> some counter here so that it shows how many times warehouse was full 
 
-        
         #let all robots do 1 move:
         for robot in self.robots:
             robot.move()
 
         #if cells was occupied, they are not occupied the next time step 
         self.changeIsOccupied()
-        #"""
+     
         if (shouldPrint):
             printer = Printer()
             printer.printRobotInfo(self.robots)
             printer.printTruckload(self.currentTruckload)
             printer.printCustomerOrder(self.currentCustomerOrder)
             printer.printProductsInWarehouse(self)
-        #"""
+     
 
     def placeLoadInCell(self):
         """Function to have robot store a load (product, amount) in a cell. find out if there is any available robots, if so, load them and get robot to place order in cell, returns True if has available robot and can place a load in a cell, False if not"""
         availableRobots = self.getAvailableRobots()
         if (len(availableRobots) > 0):
             robot = availableRobots[0]
+            #get a random product from the customerOrder, that equals 40 weight (or as close to it as possible):
             load = self.currentTruckload.getMax40Weight()
             product, amount = load
             if (product == None or amount == 0): #if there was no more load to get
@@ -242,7 +248,6 @@ class Warehouse():
             if (product == productInOrder):
                 amountRobotsAreGetting += amount
         amountToGet = amountInOrder - amountRobotsAreGetting 
-        print("AMOUTN TO GET:",amountToGet)
         return amountToGet
 
 
@@ -281,6 +286,7 @@ class Warehouse():
                 return storageCell
         return None
 
+    #TODO skal denne være i customerOrder kanskje?
     def getMax40FromOrder(self, customerOrder : CustomerOrder):
         """returns a (product, amount) with product and the amount, where total weight <= 40 also avoids filling up customerorder twice (by getting same products as other robots are already getting) """
         productToCarry = None
@@ -335,9 +341,7 @@ class Warehouse():
 #helper functions for loading shelves into warehouse
     def findCell(self, product : Product, amount : int):
         """returns an available storage cell for the product to go to"""
-        cellsToGoTo = []
         allStorageCells = self.getAllStorageCells()
-        currentAmount = amount
 
         for storageCell in allStorageCells:
             if (storageCell.getIsRobotOnWay()): #can not go to cell that another robot is going to
@@ -357,8 +361,8 @@ class Warehouse():
             if (amountShelf2 >= amount):
                 return storageCell
 
-
-        return None
+        #print("COULD NOT FIND CELL, THIS PROBABLY MEANS WAREHOUSE IS FULL")
+        return False
 
     def getAmountYouCanPutIntoEachShelfOfCell(self, product : Product, cell : Cell):
         """returns (amountShelf1, amountShelf2), the amounts each shelf of a shelf, can fit of a specific product. Does not set the state of the shelves"""

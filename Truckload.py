@@ -1,5 +1,6 @@
 import math
 from Product import Product
+import random
 
 class Truckload():
     def __init__(self, name : str, maxCapacity : int):
@@ -37,8 +38,10 @@ class Truckload():
 
 
     def getMax40Weight(self):
-        """returns first product it finds, and an amount so its less than or equal to 40"""        
-        for product, amount in self.load.items():
+        """returns a random product, and an amount so its less than or equal to 40"""    
+        for i in range(len(self.load)):
+            product, amount = random.choice(list(self.load.items()))
+        #for product, amount in self.load.items(): #TODO fjerne denne om alt funker fint
             if (amount==0):
                 continue
             amountToGet = math.floor(40/product.getWeight())
@@ -48,7 +51,6 @@ class Truckload():
 
             self.removeProducts(product, amount)
             return (product, amount)
-        print("No more products left")
         return (None, 0)
 
 

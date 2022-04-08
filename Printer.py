@@ -57,7 +57,7 @@ class Printer():
             return None
         print("The following products and amounts are in the truckload:")
         for product, amount in truckload.getLoad().items():
-            print(product.getName(), amount)
+            print(product.getName(),", weight:",product.getWeight(), ", amount:", amount)
         if (len(truckload.getLoad()) ==0):
             print("was not items in truckload")
 

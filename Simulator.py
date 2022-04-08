@@ -16,71 +16,55 @@ class Simulator():
         self.timeStep = 0
         
 
-    def runSimulation(self, xSize : int, ySize : int, numberOfRobots : int, maxTimeStep : int, displayWarehouse : bool, shouldPrint : bool):
+    def runSimulation(self, xSize : int, ySize : int, numberOfRobots : int, maxTimeStep : int, truckloadSizePer5000Time : int, customerOrderSizePer5000Time : int,   displayWarehouse : bool, shouldPrint : bool):
         if numberOfRobots>50:
-            print("Can't have more than 50 robots, that means caos in the warehouse")
+            print("Can't have more than 50 robots, that means chaos in the warehouse")
         warehouse = Warehouse()
         rootWindow, canvas, zones = warehouse.makeWarehouseInTkinter(xSize, ySize)
         if (shouldPrint):
             printer = Printer()
             printer.printWarehouse(warehouse)
+
         robots = []
         for i in range(numberOfRobots):
             robot = Robot(f"robot{i}", warehouse)   
             robots.append(robot)
         warehouse.setRobots(robots)
 
-        #TODO
-        #hardcoding Truckload and customerOrder for now
-
-        """
-        cheese = Product("cheese", 10)
-        chair = Product("chair", 18)
-        table = Product("table", 13)
-        pen = Product("pen", 6)
-        truckload = Truckload("t", 100000)
-        load = {cheese : 50, chair : 23, table : 15, pen : 12}
-        truckload.setLoad(load)
-        warehouse.addTruckload(truckload)
-        truckload2 = Truckload("t2", 10000)
-        load = {cheese : 50, chair: 27, table : 10}
-        truckload2.setLoad(load)
-        warehouse.addTruckload(truckload2)
-        customerOrder = CustomerOrder("customer1")
-        customerOrder2 = CustomerOrder("customer2")
-        for i in range(10):
-            customerOrder.addToOrder(chair)
-            customerOrder.addToOrder(cheese)
-            customerOrder.addToOrder(table)
-            customerOrder2.addToOrder(cheese)
-            customerOrder2.addToOrder(pen)
-            customerOrder2.addToOrder(chair)
-        warehouse.addCustomerOrder(customerOrder)
-        warehouse.addCustomerOrder(customerOrder2)
-        """
+        """ """
         #generating truckorders and customerorders:
-        catalog = generateCatalog()
-        truckload = generateTruckLoad("truckload", catalog, 10000)
+        catalog = generateCatalog("catalog1", 5)
+        truckload = generateTruckLoad("truckload", catalog, 23000)
         p = Printer()
-        p.printTruckload(truckload)
         warehouse.addTruckload(truckload)
-        for i in range(3):
-            customerOrder = generateCustomerOrder(f"customerOrder{i}", catalog)
+        #p.printTruckload(truckload)
+
+        shouldBeInWarehouseAfterFinish = dict()
+        for product, amount in truckload.getLoad().items():
+            addToDict(shouldBeInWarehouseAfterFinish, product.getName(), amount)
+        
+        allCustOrders = dict()
+        for i in range(15):
+            customerOrder = generateCustomerOrder(f"customerOrder{i}", catalog, 500)
             warehouse.addCustomerOrder(customerOrder)
-            p.printCustomerOrder(customerOrder)
+            #p.printCustomerOrder(customerOrder)
+            for product, amount in customerOrder.getOrder().items():
+                addToDict(allCustOrders, product.getName(), amount)
+
+        #for testing purposes:
+        for product, amount in allCustOrders.items():
+            removeFromDict(shouldBeInWarehouseAfterFinish, product, amount)
+    
         for i in range(maxTimeStep):
             #print()
             if (shouldPrint):
                 print("___TIMESTEP: ", i, " ____")
             warehouse.nextTimeStep(shouldPrint)
             self.timeStep += 1
-            
- 
-
 
         self.createGUI(robots, canvas, zones, warehouse, rootWindow, displayWarehouse)
 
-        return warehouse
+        return warehouse, shouldBeInWarehouseAfterFinish
 
 
 
@@ -108,8 +92,7 @@ class Simulator():
         self.timeStep+=1
         warehouse.nextTimeStep()
         self.updateRobotPosition(robots, canvas, zones)
-        p = Printer() #TODO fjerne
-        p.printProductsInWarehouse(warehouse)
+
         
     def next10TimeStepsTkinter(self, warehouse : Warehouse, robots : list, canvas : Canvas, zones : list):
         for i in range(10):

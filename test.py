@@ -3,36 +3,56 @@ from Warehouse import Warehouse
 from Simulator import *
 from Product import Product
 
+
+#run simulation:
 simulator = Simulator()
+xSize = 24
+ySize = 16
 numRobots = 8
-wh = simulator.runSimulation(24, 16, numRobots, 5000, False, True)
+timeSteps = 50000
+truckloadWeightPer5000 = 1000
+customerOrderWeightPer5000 = 500
+displayWarehouse = False
+shouldPrint = False
+
+wh, shouldBeInWarehouseAfterFinish = simulator.runSimulation(xSize, ySize, numRobots, timeSteps, truckloadWeightPer5000,
+                            customerOrderWeightPer5000, displayWarehouse, shouldPrint)
+
+allProdsInWarehouse = wh.getAllProductsAndAmountsInWarehouse()
+
+#make sure what is in warehouse after filling it with truckload, and filling customer orders, is correct
+for product, amount in allProdsInWarehouse.items():
+    assert shouldBeInWarehouseAfterFinish[product.getName()] == amount, f"Product: {product.getName()} had amount: {amount}, but it should have been: {shouldBeInWarehouseAfterFinish[product.getName()]},what is in warehouse after truckload and filling customerOrders, is wrong"
+
+
+#make sure expected number of robots is correct
 robots = wh.getRobots()
 assert len(robots) == numRobots, f"length of robots should be {numRobots}"
 
-allProds = wh.getAllProductsAndAmountsInWarehouse()
 
-for key, value in allProds.items():
-    print(key.getName(), ":", value, end=", ")
+#if all orders should have been filled, all customerOrders should be filled
+if (timeSteps>30000): 
+    assert len(wh.customerOrders) == 0, f"length of customer orders should be 0, it is: {len(wh.customerOrders)}"
 
-#assert allProds == prodsPutInMinusOut, "amount of products in warehouse is wrong"
 
-for key, value in allProds.items():
-    if (key.getName() == "cheese"):
-        assert value == 80
-    elif (key.getName() == "chair"):
-        assert value == 30, f"value was {allProds[key]}, should have been 40"
-    elif (key.getName() == "table"):
-        assert value == 15, f"value was {allProds[key]}, should have been 15"
-    elif (key.getName() == "pen"):
-        assert value == 2, f"value was {allProds[key]}, should be 12"
-    else:
-        raise Exception("error in prod name")
 
-assert len(wh.customerOrders) == 0, f"length of customer orders should be 0, it is: {len(wh.customerOrders)}"
 
-a = wh.getAllProductsAndAmountsInWarehouse()
-for key, value in a.items():
-    print(key.getName(), value)
+
+
+
+print("customerordertimes:",wh.filledCustomerOrders)
+print("truckloadtimes:", wh.completedTruckloads)
+print("ALL TESTS PASSED!!!")
+
+
+
+
+
+
+
+
+
+
 
 
 #random tests:

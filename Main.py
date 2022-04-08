@@ -14,12 +14,12 @@ ySize = 16
 timeSteps = 100000 # 2300 funka, ferdig etter 2417
 showTkinter = False
 shouldPrint = False
-wh = sim.runSimulation(xSize, ySize, numRobots, timeSteps, showTkinter, shouldPrint)
+wh, shouldBeInWarehouseAfterFinish = sim.runSimulation(xSize, ySize, numRobots, timeSteps, 1000, 500, showTkinter, shouldPrint)
 #___________
-a = wh.getAllProductsAndAmountsInWarehouse()
-print("AFTER")
-for key, value in a.items():
-    print(key.getName(), ":", value)
+#a = wh.getAllProductsAndAmountsInWarehouse()
+#print("AFTER")
+#for key, value in a.items():
+#    print(key.getName(), ":", value)
 
 
 
