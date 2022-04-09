@@ -293,6 +293,7 @@ class Robot():
 #methods to get the route the robot must take to get to its target location, and back
     def calculateRoute(self, targetCell : Cell):
         """returns a of all the cells a robot must go to, to get from startcell of the warehouse, to a storage cell (the targetCell), and then back to the endcell of warehouse"""
+
         if (targetCell.getCellType() != "storage"):
             print("targetCell for robot must be a storage cell")
             return None

@@ -8,9 +8,12 @@ from CustomerOrder import CustomerOrder
 from Printer import Printer
 from Product import Product
 from Truckload import Truckload
-from tkinter import * 
+from WarehouseStats import WarehouseStats
 
+from tkinter import * 
 import math
+
+
 
 class Warehouse():
     def __init__(self):
@@ -127,7 +130,7 @@ class Warehouse():
         return True
 
 #handle the next timeStep of the warehouse
-    def nextTimeStep(self, shouldPrint : bool):
+    def nextTimeStep(self, shouldPrint : bool, warehouseStats : WarehouseStats):
         """go to next timestep, that means new truckload can come, all robots move once (or wait), 1 timestep = 10 sec (so a robot unloading will take 12 timeSteps for example"""
         #make sure currentTruckload/currentCustomerOrder is updated:
         self.timeStep += 1
@@ -141,6 +144,7 @@ class Warehouse():
             if (self.currentTruckload.getIsTruckloadCompleted() and not self.getIsRobotsLoading()): 
                 if (shouldPrint):
                     print("TRUCKLOAD COMPLETED")
+                warehouseStats.addTruckloadFinishTime(self.timeStep)
                 self.completedTruckloads.append(self.timeStep)
                 self.truckloads.pop(0)
                 self.currentTruckload = None
@@ -150,6 +154,7 @@ class Warehouse():
             if (len(self.currentCustomerOrder.getOrder()) == 0 and self.currentCustomerOrder != None): #if customer order is completed
                 if (shouldPrint):   
                     print("FILLED CUSTOMER ORDER!")
+                warehouseStats.addCustomerOrderFinishTime(self.timeStep)
                 self.filledCustomerOrders.append(self.timeStep)
                 self.customerOrders.pop(0)
                 self.currentCustomerOrder = None
@@ -195,7 +200,7 @@ class Warehouse():
             if (product == None or amount == 0): #if there was no more load to get
                 return None
             cellToGoTo = self.findCell(product, amount)
-            if (cellToGoTo==None):
+            if (cellToGoTo==None or cellToGoTo == False):
                 return False
             robot.storeLoad(cellToGoTo, load)
 
@@ -210,7 +215,7 @@ class Warehouse():
             if (load == None):
                 return False
             cellToGoTo = self.locateCellWithLoad(load)
-            if (cellToGoTo == None):
+            if (cellToGoTo == None or cellToGoTo == False):
                 return False
             robot.retrieveLoad(cellToGoTo, load)
             return True

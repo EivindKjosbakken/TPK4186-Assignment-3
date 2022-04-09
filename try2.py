@@ -15,6 +15,13 @@ for i in range(10):
     print("got:", product.getName(), amount)
 p.printTruckload(t)
 
+for i in range(15):
+    print(random.randint(1,3))
+
+
+
+catalog = generateCatalog("catalog1", 5)
+t = generateTruckLoad("t1", catalog, 1000)
 """
 a = {"product 1" : 4, "product 3" : 2, "product 2" : 5}
 counter1 = 0

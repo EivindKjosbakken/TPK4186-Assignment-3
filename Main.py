@@ -11,10 +11,12 @@ sim = Simulator()
 numRobots = 2
 xSize = 24
 ySize = 16 
-timeSteps = 100000 # 2300 funka, ferdig etter 2417
-showTkinter = False
-shouldPrint = False
-wh, shouldBeInWarehouseAfterFinish = sim.runSimulation(xSize, ySize, numRobots, timeSteps, 1000, 500, showTkinter, shouldPrint)
+timeSteps = 2000 
+truckloadWeightPer5000 = 1000
+customerOrderWeightPer5000 = 500
+showTkinter = True
+shouldPrint = True
+wh, shouldBeInWarehouseAfterFinish = sim.runSimulation(xSize, ySize, numRobots, timeSteps, truckloadWeightPer5000, customerOrderWeightPer5000, showTkinter, shouldPrint)
 #___________
 #a = wh.getAllProductsAndAmountsInWarehouse()
 #print("AFTER")

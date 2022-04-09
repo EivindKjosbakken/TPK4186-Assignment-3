@@ -2,27 +2,40 @@
 from Warehouse import Warehouse
 from Simulator import *
 from Product import Product
+from Parameters import *
 
-
+p = Printer()
 #run simulation:
 simulator = Simulator()
 xSize = 24
 ySize = 16
-numRobots = 8
-timeSteps = 50000
-truckloadWeightPer5000 = 1000
-customerOrderWeightPer5000 = 500
+numRobots = 18
+timeSteps = 17500
+truckloadWeightPer5000 = 4000
+customerOrderWeightPer5000 = 2000
 displayWarehouse = False
 shouldPrint = False
+
 
 wh, shouldBeInWarehouseAfterFinish = simulator.runSimulation(xSize, ySize, numRobots, timeSteps, truckloadWeightPer5000,
                             customerOrderWeightPer5000, displayWarehouse, shouldPrint)
 
+print("__________________")
+
+print("SHOULD BE IN WH")
+for product, amount in shouldBeInWarehouseAfterFinish.items():
+    print(product, amount)
+
 allProdsInWarehouse = wh.getAllProductsAndAmountsInWarehouse()
+
+print("SAYING ALL PRODS IN WAREHOUSE ARE:")
+for key, value in allProdsInWarehouse.items():
+    print(key.getName(), ":", value, end = " , ")
 
 #make sure what is in warehouse after filling it with truckload, and filling customer orders, is correct
 for product, amount in allProdsInWarehouse.items():
-    assert shouldBeInWarehouseAfterFinish[product.getName()] == amount, f"Product: {product.getName()} had amount: {amount}, but it should have been: {shouldBeInWarehouseAfterFinish[product.getName()]},what is in warehouse after truckload and filling customerOrders, is wrong"
+    productName = product.getName()
+    assert shouldBeInWarehouseAfterFinish[productName] == amount, f"Product: {productName} had amount: {amount} in warehouse, but it should have been: {shouldBeInWarehouseAfterFinish[productName]}"
 
 
 #make sure expected number of robots is correct

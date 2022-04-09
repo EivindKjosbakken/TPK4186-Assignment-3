@@ -27,8 +27,13 @@ class Printer():
         if not (isinstance(cell, Cell)):
             print("Could not print cell because it was not a cell object")
             return None
-        prodNameShelf1, amountShelf1 = cell.getProductShelf1(), cell.getAmountShelf1()
-        prodNameShelf2, amountShelf2 = cell.getProductShelf2(), cell.getAmountShelf2()
+        prodShelf1, amountShelf1 = cell.getProductShelf1(), cell.getAmountShelf1()
+        prodShelf2, amountShelf2 = cell.getProductShelf2(), cell.getAmountShelf2()
+        prodNameShelf1, prodNameShelf2 = prodShelf1, prodShelf2
+        if (isinstance(prodShelf1, Product)):
+            prodNameShelf1 = prodShelf1.getName()
+        if (isinstance(prodShelf2, Product)):
+            prodNameShelf2 = prodShelf2.getName()
         print(f"Cell with coordinates: {cell.getCoordinates()} | shelf 1: ({prodNameShelf1} : {amountShelf1}) | shelf2: ({prodNameShelf2} : {amountShelf2})")
 
     def printCatalog(self, catalog : Catalog):

@@ -9,7 +9,7 @@ from Truckload import Truckload
 
 from Printer import Printer
 import random
-random.seed(0) #seed to it's deterministic, makes testing easier. Also, a product for example should always have the same weight
+#random.seed(0) #seed to it's deterministic, makes testing easier. Also, a product for example should always have the same weight
 
 #this file is just for generating some values that are useful for simulating the warehouse
 
@@ -42,15 +42,17 @@ def generateTruckLoad(name : str, catalog : Catalog, maxCapacity = 20000):
     totalWeight = 0
     products = catalog.getProducts()
     maxDigit = len(products)
+    p = Printer()
     while totalWeight < maxCapacity: 
         digit = random.randrange(0, maxDigit)
         product = products[digit]
         isAdded = truckload.addProduct(product)
         if (not isAdded): #if false, weight limit is reached
+            p.printTruckload
             return truckload
     return truckload
 
-#TODO
+
 def generateCustomerOrder(name : str, catalog : Catalog, amountOfWeight : int): 
     customerOrder = CustomerOrder(name)
     totalWeight = 0
@@ -87,8 +89,23 @@ def removeFromDict(dictionary, product, amount):
         dictionary[product]= currentAmount
         return dictionary
     else:
-        raise Exception(f"Product: {product} was not in dictionary, in removeFromDict")
+        productName = product
+        if (isinstance(product, Product)):
+            productName = product.getName()
+        raise Exception(f"Product: {productName} was not in dictionary, in removeFromDict")
 
+
+
+#functions just for helping some tests: #TODO disse burde nok plasseres et annet sted
+def addCustomerOrderToDict(dictionary : dict, customerOrder : CustomerOrder):
+    for product, amount in customerOrder.getOrder().items():
+        addToDict(dictionary, product.getName(), amount) #by name because diff prod objects gets created, but they have same name
+    return dictionary
+
+def addTruckloadToDict(dictionary : dict, truckload : Truckload):
+    for product, amount in truckload.getLoad().items():
+        addToDict(dictionary, product.getName(), amount)
+    return dictionary
 
 """
 p = Printer()
