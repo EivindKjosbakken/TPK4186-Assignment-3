@@ -19,7 +19,7 @@ class Simulator():
         self.timeStep = 0
         self.warehouseStats = None
 
-    def runSimulation(self, xSize : int, ySize : int, numberOfRobots : int, maxTimeStep : int, truckloadSizePer5000Time : int, customerOrderSizePer5000Time : int,   displayWarehouse : bool, shouldPrint : bool):
+    def runSimulation(self, xSize : int, ySize : int, numberOfRobots : int, timeStepToGoTO : int, maxTimeStep: int, truckloadSizePer5000Time : int, customerOrderSizePer5000Time : int,   displayWarehouse : bool, shouldPrint : bool):
         p = Printer() #TODO fjerne
         warehouse = Warehouse()
         self.warehouseStats = WarehouseStats(warehouse)
@@ -49,49 +49,54 @@ class Simulator():
         self.warehouseStats.setCatalog(catalog)
         #choosing times the truckload and customerorder should come
         customerOrderTimes = []
-        customerOrders = []
         for i in range(5):
             customerOrderTime = random.randint(0, timeForReload)
             customerOrderTimes.append(customerOrderTime)
         truckloadTime = random.randint(0, timeForReload)
 
+        #allCustOrders = dict()
+        #shouldBeInWarehouseAfterFinish = dict()
 
-        allCustOrders = dict()
-        shouldBeInWarehouseAfterFinish = dict()
+        for i in range(timeStepToGoTO):
 
-        for i in range(maxTimeStep):
-
-            #TODO alt under burde vært egen funksjon
-            if (i%timeForReload == truckloadTime and maxTimeStep-i > timeForReload*2.5):
-                truckload = generateTruckLoad(f"truckload{i}", catalog, truckloadSizePer5000Time)
-                warehouse.addTruckload(truckload)
-                addTruckloadToDict(shouldBeInWarehouseAfterFinish, truckload) #TODO skal trolig fjernes/endres
-                self.warehouseStats.addTruckload(truckload)
-            elif (i%timeForReload in customerOrderTimes and maxTimeStep-i > timeForReload*2.5):
-                customerOrder = generateCustomerOrder(f"order{i}", catalog, customerOrderSizePer5000Time//5)
-                customerOrders.append(customerOrder)
-                warehouse.addCustomerOrder(customerOrder)
-                addCustomerOrderToDict(allCustOrders, customerOrder) #TODO skal trolig fjernes/endres
-                self.warehouseStats.addCustomerOrder(customerOrder)
-
+            self.addTruckloadsAndCustomerOrders(warehouse, catalog, shouldPrint, maxTimeStep, timeForReload, truckloadTime, customerOrderTimes, truckloadSizePer5000Time, customerOrderSizePer5000Time)
+            
             if (shouldPrint):
                 print("___TIMESTEP: ", i, " ____")
             warehouse.nextTimeStep(shouldPrint, self.warehouseStats)
             self.timeStep += 1
 
-        self.createGUI(robots, canvas, zones, warehouse, rootWindow, displayWarehouse, shouldPrint, self.warehouseStats)
+
+        self.createGUI(robots, canvas, zones, warehouse, rootWindow, displayWarehouse, shouldPrint, self.warehouseStats, catalog, maxTimeStep, timeForReload, truckloadTime, customerOrderTimes, truckloadSizePer5000Time, customerOrderSizePer5000Time)
     
         #for running the tests (makes sure that what goes in from the truckloads minus what goes out from the customerOrders, is equal to the amount of products in the warehouse)
-        for productName, amount in allCustOrders.items():
-            removeFromDict(shouldBeInWarehouseAfterFinish, productName, amount)
+        #for productName, amount in allCustOrders.items():
+        #    removeFromDict(shouldBeInWarehouseAfterFinish, productName, amount)
  
-        return warehouse, shouldBeInWarehouseAfterFinish
+        return warehouse, self.warehouseStats#shouldBeInWarehouseAfterFinish
 
 
+    
+    def addTruckloadsAndCustomerOrders(self, warehouse : Warehouse, catalog : Catalog, shouldPrint : bool, maxTimeStep : int, timeForReload : int, truckloadTime : int, customerOrderTimes : int, truckloadSizePer5000Time : int, customerOrderSizePer5000Time : int):
+        """add truckloads and customerOrders to warehouse in intervals, also stores all the truckloads and customerOrders in a stats class, so I can see how long each order took etc"""
+        if (self.timeStep%timeForReload == truckloadTime and maxTimeStep-self.timeStep > maxTimeStep/5):
+            truckload = generateTruckLoad(f"truckload{self.timeStep}", catalog, truckloadSizePer5000Time)
+            warehouse.addTruckload(truckload)
+            self.warehouseStats.addTruckload(copy.deepcopy(truckload))
+            self.warehouseStats.addTruckloadArrivalTime(self.timeStep)
+            if (shouldPrint):
+                print("________ADDED TRUCKLOAD________")
+        elif (self.timeStep%timeForReload in customerOrderTimes and maxTimeStep-self.timeStep > maxTimeStep/5):
+            customerOrder = generateCustomerOrder(f"order{self.timeStep}", catalog, customerOrderSizePer5000Time//5)
+            warehouse.addCustomerOrder(customerOrder)
+            self.warehouseStats.addCustomerOrder(copy.deepcopy(customerOrder))
+            self.warehouseStats.addCustomerOrderArrivalTime(self.timeStep)
+            if (shouldPrint):
+                print("_________ADDED CUSTOMERORDER___________")
 
 
 #for running with tkinter
-    def createGUI(self, robots : list, canvas : Canvas, zones : list, warehouse : Warehouse, rootWindow, displayWarehouse : bool, shouldPrint : bool, warehouseStats : WarehouseStats):
+    def createGUI(self, robots : list, canvas : Canvas, zones : list, warehouse : Warehouse, rootWindow, displayWarehouse : bool, shouldPrint : bool, warehouseStats : WarehouseStats, catalog, maxTimeStep, timeForReload, truckloadTime, customerOrderTimes, truckloadSizePer5000Time, customerOrderSizePer5000Time):
         self.updateRobotPosition(robots, canvas, zones)
         canvas.create_text(600, 20, text="Yellow cells: where robots are, grey cells: where storage cells are, green cells: where moving cells are. Blue are not cells in the warehouse, black are start/end cells (can not see robots when in start/endcells", fill="black", font=('Helvetica 8 bold'))
         canvas.pack()
@@ -99,24 +104,26 @@ class Simulator():
         #adding button for going to next timestep, inside tkinter application
         frame = Frame(rootWindow)
         
-        button1 = Button(frame, text = "Go to next timestep", command=partial(self.nextTimeStepTkinter, warehouse, robots, canvas, zones, shouldPrint, warehouseStats)) 
+        button1 = Button(frame, text = "Go to next timestep", command=partial(self.nextTimeStepTkinter, warehouse, robots, canvas, zones, shouldPrint, warehouseStats, catalog, maxTimeStep, timeForReload, truckloadTime, customerOrderTimes, truckloadSizePer5000Time, customerOrderSizePer5000Time)) 
         button1.pack()
-        button2 = Button(frame, text = "Go to 10th next timestep", command=partial(self.next10TimeStepsTkinter, warehouse, robots, canvas, zones, shouldPrint, warehouseStats)) 
+        button2 = Button(frame, text = "Go to 10th next timestep", command=partial(self.next10TimeStepsTkinter, warehouse, robots, canvas, zones, shouldPrint, warehouseStats, catalog, maxTimeStep, timeForReload, truckloadTime, customerOrderTimes, truckloadSizePer5000Time, customerOrderSizePer5000Time)) 
         button2.pack()
 
         frame.pack()
         if (displayWarehouse):
             rootWindow.mainloop()
 
-    def nextTimeStepTkinter(self, warehouse : Warehouse, robots : list, canvas : Canvas, zones : list, shouldPrint : bool, warehouseStats : WarehouseStats):
+    def nextTimeStepTkinter(self, warehouse : Warehouse, robots : list, canvas : Canvas, zones : list, shouldPrint : bool, warehouseStats : WarehouseStats, catalog, maxTimeStep, timeForReload, truckloadTime, customerOrderTimes, truckloadSizePer5000Time, customerOrderSizePer5000Time):
+        self.addTruckloadsAndCustomerOrders(warehouse, catalog, maxTimeStep, timeForReload, truckloadTime, customerOrderTimes, truckloadSizePer5000Time, customerOrderSizePer5000Time)
         print(f"\n ____TIMESTEP {self.timeStep}____")
         self.timeStep+=1
         warehouse.nextTimeStep(shouldPrint, warehouseStats)
         self.updateRobotPosition(robots, canvas, zones)
 
-        
-    def next10TimeStepsTkinter(self, warehouse : Warehouse, robots : list, canvas : Canvas, zones : list, shouldPrint : bool, warehouseStats : WarehouseStats):
+
+    def next10TimeStepsTkinter(self, warehouse : Warehouse, robots : list, canvas : Canvas, zones : list, shouldPrint : bool, warehouseStats : WarehouseStats, catalog, maxTimeStep, timeForReload, truckloadTime, customerOrderTimes, truckloadSizePer5000Time, customerOrderSizePer5000Time):
         for i in range(10):
+            self.addTruckloadsAndCustomerOrders(warehouse, catalog, maxTimeStep, timeForReload, truckloadTime, customerOrderTimes, truckloadSizePer5000Time, customerOrderSizePer5000Time)
             print(f"\n ____TIMESTEP {self.timeStep}____")
             self.timeStep+=1
             warehouse.nextTimeStep(shouldPrint, warehouseStats)

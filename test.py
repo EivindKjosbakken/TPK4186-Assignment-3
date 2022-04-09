@@ -10,32 +10,26 @@ simulator = Simulator()
 xSize = 24
 ySize = 16
 numRobots = 18
-timeSteps = 17500
-truckloadWeightPer5000 = 4000
+timeStepToGoTo = 50000
+maxTimeStep = 50000
+truckloadWeightPer5000 = 3000
 customerOrderWeightPer5000 = 2000
 displayWarehouse = False
 shouldPrint = False
 
 
-wh, shouldBeInWarehouseAfterFinish = simulator.runSimulation(xSize, ySize, numRobots, timeSteps, truckloadWeightPer5000,
+#wh, shouldBeInWarehouseAfterFinish = simulator.runSimulation(xSize, ySize, numRobots, timeSteps, truckloadWeightPer5000,
+ #                           customerOrderWeightPer5000, displayWarehouse, shouldPrint)
+wh, whStats = simulator.runSimulation(xSize, ySize, numRobots, timeStepToGoTo, maxTimeStep, truckloadWeightPer5000,
                             customerOrderWeightPer5000, displayWarehouse, shouldPrint)
 
-print("__________________")
-
-print("SHOULD BE IN WH")
-for product, amount in shouldBeInWarehouseAfterFinish.items():
-    print(product, amount)
-
+#make sure what is in warehouse after filling it with truckload, and filling customer orders, is correct
+inMinusOut = whStats.getProductsFromTruckloadsMinusCustomerOrders()
 allProdsInWarehouse = wh.getAllProductsAndAmountsInWarehouse()
 
-print("SAYING ALL PRODS IN WAREHOUSE ARE:")
-for key, value in allProdsInWarehouse.items():
-    print(key.getName(), ":", value, end = " , ")
-
-#make sure what is in warehouse after filling it with truckload, and filling customer orders, is correct
 for product, amount in allProdsInWarehouse.items():
     productName = product.getName()
-    assert shouldBeInWarehouseAfterFinish[productName] == amount, f"Product: {productName} had amount: {amount} in warehouse, but it should have been: {shouldBeInWarehouseAfterFinish[productName]}"
+    assert inMinusOut[productName] == amount, f"Product: {productName} had amount: {amount} in warehouse, but it should have been: {inMinusOut[productName]}"
 
 
 #make sure expected number of robots is correct
@@ -44,7 +38,7 @@ assert len(robots) == numRobots, f"length of robots should be {numRobots}"
 
 
 #if all orders should have been filled, all customerOrders should be filled
-if (timeSteps>30000): 
+if (timeStepToGoTo>30000): 
     assert len(wh.customerOrders) == 0, f"length of customer orders should be 0, it is: {len(wh.customerOrders)}"
 
 
@@ -53,8 +47,10 @@ if (timeSteps>30000):
 
 
 
-print("customerordertimes:",wh.filledCustomerOrders)
-print("truckloadtimes:", wh.completedTruckloads)
+print("avg truckload complete time:", whStats.calculateAvgTimeToCompleteCustomerOrder())
+print("avg time to complete customerOrder:", whStats.calculateAvgTimeToCompleteCustomerOrder())
+
+
 print("ALL TESTS PASSED!!!")
 
 

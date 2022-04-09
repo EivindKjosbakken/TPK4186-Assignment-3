@@ -16,23 +16,6 @@ class WarehouseStats():
         self.truckloadFinishTimes = []
         self.customerOrderFinishTimes = []
 
-
-    def setCatalog(self, catalog):
-        self.catalog = catalog
-
-    def addTruckload(self, truckload):
-        self.allTruckloads.append(truckload)
-    def addCustomerOrder(self, customerOrder):
-        self.allCustomerOrders.append(customerOrder)
-    def addTruckloadArrival(self, time : int):
-        self.truckloadArrivalTimes.append(time)   
-    def addCustomerOrderArrival(self, time : int):
-        self.customerOrderArrivalTimes.append(time)
-    def addTruckloadFinishTime(self, time : int):
-        self.truckloadFinishTimes.append(time)
-    def addCustomerOrderFinishTime(self, time : int):
-        self.customerOrderFinishTimes.append(time)
-    
     def getWarehouse(self):
         return self.warehouse
     def getCatalog(self):
@@ -50,29 +33,64 @@ class WarehouseStats():
     def getCustomerOrderFinishTimes(self):
         return self.customerOrderFinishTimes
 
+    def setCatalog(self, catalog):
+        self.catalog = catalog
 
+
+    def addTruckload(self, truckload):
+        self.allTruckloads.append(truckload)
+    def addCustomerOrder(self, customerOrder):
+        self.allCustomerOrders.append(customerOrder)
+    def addTruckloadArrivalTime(self, time : int):
+        self.truckloadArrivalTimes.append(time)   
+    def addCustomerOrderArrivalTime(self, time : int):
+        self.customerOrderArrivalTimes.append(time)
+    def addTruckloadFinishTime(self, time : int):
+        self.truckloadFinishTimes.append(time)
+    def addCustomerOrderFinishTime(self, time : int):
+        self.customerOrderFinishTimes.append(time)
+    
+
+    def calculateAvgTimeToCompleteTruckload(self):
+        """returns avg time used to complete a truckload, out of all the truckloads completed"""
+        if len(self.truckloadArrivalTimes) != len(self.truckloadFinishTimes):
+            raise Exception("the amount of truckloads in is not equal to the amount finished")
+        totalTime = 0
+        for i in range(len(self.truckloadArrivalTimes)):
+            totalTime += (self.truckloadFinishTimes[i] - self.truckloadArrivalTimes[i])
+        avgTime = totalTime/len(self.truckloadArrivalTimes)
+        return avgTime
+
+    def calculateAvgTimeToCompleteCustomerOrder(self):
+        if len(self.customerOrderArrivalTimes) != len(self.customerOrderFinishTimes):
+            raise Exception("the amount of customerOrders in is not equal to the amount finished")
+        totalTime = 0
+        for i in range(len(self.customerOrderArrivalTimes)):
+            totalTime += (self.customerOrderFinishTimes[i] - self.customerOrderArrivalTimes[i])
+        avgTime = totalTime/len(self.customerOrderArrivalTimes)
+        return avgTime      
 
     def getAllTruckloadsInOneDict(self):
+        """returns dictionar of all truckloads, the keys are strings (not product objects)"""
         allTruckloadsDict = dict()
-        print("Tloads:", self.allTruckloads)
         for truckload in self.allTruckloads:
             for product, amount in truckload.getLoad().items():
-                addToDict(allTruckloadsDict, product, amount)
-                print("prod:", product.getName(), "amount:", amount)
+                addToDict(allTruckloadsDict, product.getName(), amount)
         return allTruckloadsDict
 
     def getAllCustomerOrdersInOneDict(self):
+        """return dictionary of all customerOrders, the keys are strings (not product objects)"""
         allCustomerOrdersDict = dict()
         for customerOrder in self.allCustomerOrders:
             for product, amount in customerOrder.getOrder().items():
-                addToDict(allCustomerOrdersDict, product, amount)
+                addToDict(allCustomerOrdersDict, product.getName(), amount)
         return allCustomerOrdersDict
 
     def getProductsFromTruckloadsMinusCustomerOrders(self):
         """for testing purposes, make sure what goes into warehouse = what is in warehouse"""
         allTruckloads = self.getAllTruckloadsInOneDict()
         allCustomerOrders = self.getAllCustomerOrdersInOneDict()
-        print("WHEN GETTING", allTruckloads, allCustomerOrders)
-        for product, amount in allCustomerOrders.items():
-            removeFromDict(allTruckloads, product, amount)
+
+        for productName, amount in allCustomerOrders.items():
+            removeFromDict(allTruckloads, productName, amount)
         return allTruckloads
