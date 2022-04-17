@@ -5,7 +5,6 @@ from Product import Product
 from Truckload import Truckload
 
 
-
 class Printer():
     def __init__(self):
         return
@@ -51,7 +50,7 @@ class Printer():
             return None
         print("The following products and amounts are in the customerorder")
         for key, value in customerOrder.getOrder().items():
-            print(key.getName(), ":", value)
+            print(key.getName(), ", amount:", value)
         if (len(customerOrder.getOrder())==0):
             print("No more products in customerOrder")
 
@@ -111,3 +110,20 @@ class Printer():
                     rowString+="L "
             print(rowString)      
                 
+
+    def printExperimentalProtocol(self, stats : dict):
+        if (not isinstance(stats, dict)):
+            print("Must be a dictionary")
+            return False
+        for key, value in stats.items():
+            if (not isinstance(value, str)):
+                continue
+        for key, value in stats.items():
+            truckloadTime = key.calculateAvgTimeToCompleteTruckload()
+            customerOrderTime = key.calculateAvgTimeToCompleteCustomerOrder()
+            totalCustomerOrderWeight = key.calculateTotalWeightOfCustomerOrders()
+            totalTruckloadWeight = key.calculateTotalWeightOfTruckloads()
+            print("___For experimental protocol: ", value, ": ___")
+            print(f"avg time to complete truckload: {truckloadTime}, avg time to complete customerOrder: {customerOrderTime}")
+            print(f"Total weight of customerOrders: {totalCustomerOrderWeight}, total weight of truckloads {totalTruckloadWeight}")
+            print("\n")

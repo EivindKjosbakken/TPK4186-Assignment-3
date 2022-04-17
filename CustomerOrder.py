@@ -19,6 +19,12 @@ class CustomerOrder():
         self.order = order 
 
 
+    def calculateTotalWeight(self):
+        totalWeight = 0
+        for product, amount in self.order.items():
+            totalWeight += (product.getWeight() * amount)
+        return totalWeight
+        
     def addToOrder(self, product : Product):
         """adds a single product to customer order (amount = 1)"""
         if (product in self.order.keys()):

@@ -84,3 +84,9 @@ class Truckload():
             else:
                 print("do not have that many products in truckload")
 
+    
+    def calculateTotalWeight(self):
+        totalWeight = 0
+        for product, amount in self.load.items():
+            totalWeight += (product.getWeight() * amount)
+        return totalWeight

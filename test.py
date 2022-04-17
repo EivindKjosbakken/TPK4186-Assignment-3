@@ -18,10 +18,11 @@ displayWarehouse = False
 shouldPrint = False
 
 
-#wh, shouldBeInWarehouseAfterFinish = simulator.runSimulation(xSize, ySize, numRobots, timeSteps, truckloadWeightPer5000,
- #                           customerOrderWeightPer5000, displayWarehouse, shouldPrint)
 wh, whStats = simulator.runSimulation(xSize, ySize, numRobots, timeStepToGoTo, maxTimeStep, truckloadWeightPer5000,
                             customerOrderWeightPer5000, displayWarehouse, shouldPrint)
+
+
+#___TESTS___
 
 #make sure what is in warehouse after filling it with truckload, and filling customer orders, is correct
 inMinusOut = whStats.getProductsFromTruckloadsMinusCustomerOrders()
