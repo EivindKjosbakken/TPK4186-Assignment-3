@@ -3,13 +3,24 @@ from Warehouse import Warehouse
 from Parameters import * 
 from Simulator import * 
 
+from Optimizer import Optimizer
+
+p = Printer()
+
+optimizer = Optimizer()
+
+stats = optimizer.experimentalProtocol(20, 20)
+p.printExperimentalProtocol(stats)
 
 
+
+
+"""
 #__________
 
 sim = Simulator()     
 numRobots = 2
-xSize = 24
+xSize = 24  
 ySize = 16 
 timeStepToGoTo = 1785
 maxTimeStep = 50000 
@@ -23,7 +34,7 @@ wh, shouldBeInWarehouseAfterFinish = sim.runSimulation(xSize, ySize, numRobots, 
 #print("AFTER")
 #for key, value in a.items():
 #    print(key.getName(), ":", value)
-
+"""
 
 
 """

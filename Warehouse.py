@@ -396,7 +396,7 @@ class Warehouse():
 
 
 
-#creating warehouse
+#creating warehouse #TODO skal være i tkinter class
     def makeWarehouseInTkinter(self, xSize, ySize):
         """Returns: (rootWindow, canvas, zones). makes a warehouse with cells and in tkinter so they can be used"""
         rootWindow = Tk()

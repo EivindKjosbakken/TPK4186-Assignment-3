@@ -9,7 +9,6 @@ from tkinter import *
 from Warehouse import Warehouse
 
 
-
 #TODO fix, robot has already assigned load in timestep 0 
 def testCurrentProducts(warehouse, originalTruckloads : list):
     """tests if sum of all products in warehouse + in robots + in cells = what is taken from truckload"""

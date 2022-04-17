@@ -2,10 +2,28 @@ import random
 from Parameters import *
 
 #har overført!!!
+p = Printer()
+
+
 
 catalog = generateCatalog("catalog", 5)
 t = generateTruckLoad("t", catalog, 500)
-p = Printer()
+
+co = generateCustomerOrder("1", catalog, 1120)
+p.printCustomerOrder(co)
+
+totalWeight = 0
+for product, value in co.getOrder().items():
+    totalWeight += (product.getWeight() * value)
+
+
+truckload = generateTruckLoad("1", catalog, 100)
+totalWeight = 0
+for product, value in truckload.getLoad().items():
+    totalWeight += (product.getWeight() * value)
+print("Totalweight for truckload = :", totalWeight)
+p.printCatalog(catalog)
+"""
 p.printTruckload(t)
 
 
@@ -22,6 +40,7 @@ for i in range(15):
 
 catalog = generateCatalog("catalog1", 5)
 t = generateTruckLoad("t1", catalog, 1000)
+"""
 """
 a = {"product 1" : 4, "product 3" : 2, "product 2" : 5}
 counter1 = 0
