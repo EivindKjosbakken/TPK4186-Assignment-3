@@ -1,7 +1,7 @@
 import random   
 from Parameters import *
 
-
+#har overført!!!
 
 catalog = generateCatalog("catalog", 5)
 t = generateTruckLoad("t", catalog, 500)
