@@ -54,21 +54,47 @@ class WarehouseStats():
     def calculateAvgTimeToCompleteTruckload(self):
         """returns avg time used to complete a truckload, out of all the truckloads completed"""
         if len(self.truckloadArrivalTimes) != len(self.truckloadFinishTimes):
-            raise Exception("the amount of truckloads in is not equal to the amount finished")
+            return None
+        length = 0
+        #if not all truckloads was completed, just calculate times for the truckloads that was completed
+        if (len(self.truckloadArrivalTimes) >= len(self.truckloadFinishTimes)):
+            length = len(self.truckloadFinishTimes)
+        else:
+            length = len(self.truckloadArrivalTimes)
         totalTime = 0
-        for i in range(len(self.truckloadArrivalTimes)):
+        for i in range(length):
             totalTime += (self.truckloadFinishTimes[i] - self.truckloadArrivalTimes[i])
-        avgTime = totalTime/len(self.truckloadArrivalTimes)
+        if (len(self.truckloadArrivalTimes) !=0):
+            avgTime = totalTime/len(self.truckloadArrivalTimes)
+
         return avgTime
 
     def calculateAvgTimeToCompleteCustomerOrder(self):
         if len(self.customerOrderArrivalTimes) != len(self.customerOrderFinishTimes):
-            raise Exception("the amount of customerOrders in is not equal to the amount finished")
+            return None
+            #raise Exception("the amount of customerOrders in is not equal to the amount finished")
+        length = 0
+        if (len(self.customerOrderArrivalTimes) >= len(self.customerOrderFinishTimes)):
+            length = len(self.customerOrderFinishTimes)
+        else:
+            length = len(self.customerOrderArrivalTimes)
         totalTime = 0
-        for i in range(len(self.customerOrderArrivalTimes)):
+        for i in range(length):
             totalTime += (self.customerOrderFinishTimes[i] - self.customerOrderArrivalTimes[i])
         avgTime = totalTime/len(self.customerOrderArrivalTimes)
         return avgTime      
+
+    def calculateTotalWeightOfCustomerOrders(self):
+        totalWeight = 0
+        for customerOrder in self.allCustomerOrders:
+            totalWeight += customerOrder.calculateTotalWeight()
+        return totalWeight
+
+    def calculateTotalWeightOfTruckloads(self):
+        totalWeight = 0
+        for truckload in self.allTruckloads:
+            totalWeight += truckload.calculateTotalWeight()
+        return totalWeight
 
     def getAllTruckloadsInOneDict(self):
         """returns dictionar of all truckloads, the keys are strings (not product objects)"""

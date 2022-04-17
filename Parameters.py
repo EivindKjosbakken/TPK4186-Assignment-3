@@ -47,9 +47,13 @@ def generateTruckLoad(name : str, catalog : Catalog, maxCapacity = 20000):
         digit = random.randrange(0, maxDigit)
         product = products[digit]
         isAdded = truckload.addProduct(product)
-        if (not isAdded): #if false, weight limit is reached
-            p.printTruckload
+        if (not isAdded): #if not, truckload is almost full, trying to fill it completely up if possible
+            weightLeft = maxCapacity - totalWeight
+            productToAdd = findProductToFillWeight(catalog, weightLeft)
+            if (productToAdd != None):
+                truckload.addProduct(productToAdd)
             return truckload
+        totalWeight += product.getWeight()
     return truckload
 
 
@@ -62,12 +66,28 @@ def generateCustomerOrder(name : str, catalog : Catalog, amountOfWeight : int):
         digit = random.randrange(0, maxDigit)
         product = products[digit]
         if (totalWeight + product.getWeight()>amountOfWeight):
+            #try to see if we can add another product and still be under max weight
+            weightLeft = amountOfWeight - totalWeight
+            productToAdd = findProductToFillWeight(catalog, weightLeft)
+            if (productToAdd != None):
+                customerOrder.addToOrder(productToAdd)
             return customerOrder
         customerOrder.addToOrder(product)
         totalWeight += product.getWeight()
     return customerOrder
 
 
+
+def findProductToFillWeight(catalog : Catalog, weigthLeft : int):
+    """returns the product that is closest in weight to the weight left, is used to fill truckload/customerOrder as close to max capacity as possible"""
+    bestProduct = None
+    bestWeight = 0
+    for product in catalog.getProducts():
+        productWeight = product.getWeight()
+        if (productWeight <= weigthLeft and productWeight > bestWeight):
+            bestProduct = product
+            bestWeight = productWeight
+    return bestProduct
 
 def addToDict(dictionary, product, amount):
     if (product == None or amount <=0):
