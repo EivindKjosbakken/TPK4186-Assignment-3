@@ -15,6 +15,7 @@ class Truckload():
         return self.load
 
     def getIsTruckloadCompleted(self):
+        """returns True if a truckload is completed (no amounts left of any product)"""
         for amount in self.load.values():
             if amount > 0:
                 return False
@@ -45,22 +46,21 @@ class Truckload():
             if (amount==0):
                 continue
             amountToGet = math.floor(40/product.getWeight())
-            if amount>= amountToGet: #if truckload has enough
-                self.removeProducts(product, amountToGet)
+            if amount>= amountToGet: #if truckload has enough weight
                 return (product, amountToGet)
-
-            self.removeProducts(product, amount)
+            #self.removeProducts(product, amount)
             return (product, amount)
         return (None, 0)
 
-
     def getTotalWeight(self):
+        """returns total weight of the truckload"""
         totalWeight = 0
         for productObject, amount in self.load.items():
-            totalWeight+= (productObject.getWeight() * amount)
+            totalWeight += (productObject.getWeight() * amount)
         return totalWeight
              
     def addProduct(self, product : Product):
+        """add a single product to the truckload, returns True if product was added"""
         if ( (self.getTotalWeight() + product.getWeight()) > self.maxCapacity):
             return False 
         if (isinstance(product, Product)):
@@ -75,17 +75,19 @@ class Truckload():
         return False
 
     def removeProducts(self, product : Product, amount):
-        """remove products from a truckload"""
+        """remove a single product from a truckload"""
         if product in self.load.keys():
             productAmount = self.load[product]
             if (amount<=productAmount):
                 productAmount-=amount
                 self.load[product] = productAmount
+                return True
             else:
                 print("do not have that many products in truckload")
-
+                return False
+        return False
     
-    def calculateTotalWeight(self):
+    def calculateTotalWeight(self): #TODO skal vel fjernes, er en lik en over
         totalWeight = 0
         for product, amount in self.load.items():
             totalWeight += (product.getWeight() * amount)

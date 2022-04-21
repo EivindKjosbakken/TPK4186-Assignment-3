@@ -9,45 +9,15 @@ p = Printer()
 
 optimizer = Optimizer()
 
-stats = optimizer.experimentalProtocol(20, 20)
+
+numTimeSteps = 300000
+numProductsInCatalog = 30
+numRobotsToTry = [13, 5, 7, 10, 15, 20, 30, 40]
+truckloadAndCustomerOrderRatesToTry = [500, 1000, 2000, 4000, 6000, 8000, 12000, 20000]
+warehouseSizesToTry = [(8, 12), (24, 16), (30, 30)]
+stats = optimizer.experimentalProtocol(numTimeSteps, numProductsInCatalog, numRobotsToTry, truckloadAndCustomerOrderRatesToTry, warehouseSizesToTry)
 p.printExperimentalProtocol(stats)
 
+#sim = Simulator()
+#warehouse, whStats = sim.runSimulation(24, 18, 3, 5, 1000, 50000, 10000, 500, True, False)
 
-
-
-"""
-#__________
-
-sim = Simulator()     
-numRobots = 2
-xSize = 24  
-ySize = 16 
-timeStepToGoTo = 1785
-maxTimeStep = 50000 
-truckloadWeightPer5000 = 1000
-customerOrderWeightPer5000 = 500
-showTkinter = True
-shouldPrint = True
-wh, shouldBeInWarehouseAfterFinish = sim.runSimulation(xSize, ySize, numRobots, timeStepToGoTo, maxTimeStep, truckloadWeightPer5000, customerOrderWeightPer5000, showTkinter, shouldPrint)
-#___________
-#a = wh.getAllProductsAndAmountsInWarehouse()
-#print("AFTER")
-#for key, value in a.items():
-#    print(key.getName(), ":", value)
-"""
-
-
-"""
-def printProdDict(prods):
-    for key, value in prods.items():
-        print(key.getName(), ":", value, end= ", ")
-
-all = wh.getAllProductsAndAmountsInWarehouse()
-print()
-print("ALL PRODUCTS IN WAREHOUSE:")
-printProdDict(all)
-currentLoad = wh.getTruckload().getLoad()
-print("TRUCKLOAD IS:")
-printProdDict(currentLoad)
-print()
-"""

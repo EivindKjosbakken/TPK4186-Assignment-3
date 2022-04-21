@@ -63,25 +63,31 @@ class Cell():
             return True
         print("Coordinate was None or did not have x and y coordinate")
         return False
+
     def setCellType(self, cellType : str):
         self.cellType = cellType
+
     def setShelf1(self, product : Product, amount : int):
         if (isinstance(product, Product) and amount > 0):
             self.shelf1 = (product, amount)
             return True
         print("Shelf1 was None or did not have length 2")
         return False
+
     def setShelf2(self, product : Product, amount : int):
         if (isinstance(product, Product) and amount > 0):
             self.shelf2 = (product, amount)
             return True
         print("Shelf2 was None or did not have length 2")
-        return False        
+        return False 
+
     def flipIsRobotOnWay(self):
         """say that cell is occupied so no other robot will be assigned to go to this cell"""
         self.isRobotOnWay = (not self.isRobotOnWay) 
+
     def flipIsOccupied(self):
         self.isOccupied = (not self.isOccupied)
+        
     def flipIsPlannedOccupied(self):
         self.isPlannedOccupied = (not self.isPlannedOccupied)
 
@@ -108,7 +114,6 @@ class Cell():
                 print("something wrong with addToCell")
                 return None
         putIn = amountPutInShelf1+amountPutInShelf2
-        #print(f"put in {putIn} of product: {product}")
         return putIn
 
     def addToShelf(self, shelfNumber : int, product : Product, amount : int):
@@ -157,7 +162,7 @@ class Cell():
         return canPutIn #else return the maximum you can put in
 
     def removeLoadFromCell(self, load):
-        """remove a load from a cell"""
+        """remove a load from a cell. Returns True if the load could be removed (the cell had enough of the product)"""
         productToGet, amountToGet = load
         productShelf1, amountShelf1 = self.shelf1
         productShelf2, amountShelf2 = self.shelf2

@@ -1,11 +1,12 @@
 import random   
 from Parameters import *
+from Warehouse import Warehouse
 
-#har overført!!!
+
 p = Printer()
 
 
-
+"""
 catalog = generateCatalog("catalog", 5)
 t = generateTruckLoad("t", catalog, 500)
 
@@ -23,6 +24,28 @@ for product, value in truckload.getLoad().items():
     totalWeight += (product.getWeight() * value)
 print("Totalweight for truckload = :", totalWeight)
 p.printCatalog(catalog)
+"""
+
+
+a = ["product 1", "product 3", "product 2"]
+a.sort()
+print("b is", a)
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+data_1 = np.random.normal(0, 0.5, 200)
+print(data_1)
+
+fig = plt.figure(figsize =(10, 7))
+ 
+# Creating axes instance
+ax = fig.add_axes([0, 0, 1, 1])
+ 
+# Creating plot
+bp = ax.boxplot(data_1)
+plt.show()
+
 """
 p.printTruckload(t)
 

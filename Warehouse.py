@@ -27,7 +27,8 @@ class Warehouse():
 
         self.timeStep = 0
         self.filledCustomerOrders = [] #lists that contains the timestep each customerorder/truckorder was completed
-        self.completedTruckloads = []
+        self.completedTruckloads = [] #TODO fikses ikke disse av whStats?
+
 
 #getters and setters and some add functions:
     def getCells(self):
@@ -77,6 +78,7 @@ class Warehouse():
             for cell in row:
                 if (cell.getCellType()=="storage"):
                     storageCells.append(cell)
+        
         return storageCells
     def getRobots(self):
         return self.robots
@@ -100,7 +102,7 @@ class Warehouse():
         self.customerOrders = customerOrders
     
     def getAllProductsAndAmountsInWarehouse(self):
-        """returns dictionary of all products and amount in the warehouse in total, used to see if warehouse can fill a customer order"""
+        """returns dictionary of all products and amount in the warehouse cells in total, used to see if warehouse can fill a customer order"""
         allProducts = dict()
         storageCells = self.getAllStorageCells()
         for storageCell in storageCells:
@@ -113,6 +115,24 @@ class Warehouse():
                 else:
                     allProducts[product] = amount
         return allProducts
+
+    def getAllProductNamesAndAmountsInWarehouse(self):
+        """returns dictionary of all products (their names) and amount in the warehouse cells in total"""
+        allProducts = dict()
+        storageCells = self.getAllStorageCells()
+        for storageCell in storageCells:
+            prodsAndAmounts = storageCell.getAllProductsAndAmounts()
+            for (product, amount) in prodsAndAmounts.items():
+                if (product != None and amount > 0):
+                    productName = product.getName()
+                    if (productName in allProducts.keys()):
+                        currentAmount = allProducts[productName]
+                        currentAmount+=amount
+                        allProducts[productName] = currentAmount
+                    else:
+                        allProducts[productName] = amount
+        return allProducts
+
     def addBackToTruckload(self, product : Product, amount : int):
         """to add back to current truckload, happens if a robot returns with stock after trying to place it in a storage cell"""
         for i in range(amount):
@@ -129,10 +149,10 @@ class Warehouse():
                 return False
         return True
 
+
 #handle the next timeStep of the warehouse
     def nextTimeStep(self, shouldPrint : bool, warehouseStats : WarehouseStats):
         """go to next timestep, that means new truckload can come, all robots move once (or wait), 1 timestep = 10 sec (so a robot unloading will take 12 timeSteps for example"""
-        #make sure currentTruckload/currentCustomerOrder is updated:
         self.timeStep += 1
 
         if (len(self.truckloads)>0):
@@ -140,27 +160,7 @@ class Warehouse():
         if (len(self.customerOrders)>0):
             self.currentCustomerOrder = self.customerOrders[0]    
 
-        if (self.currentTruckload != None): 
-            if (self.currentTruckload.getIsTruckloadCompleted() and not self.getIsRobotsLoading()): 
-                if (shouldPrint):
-                    print("TRUCKLOAD COMPLETED")
-                warehouseStats.addTruckloadFinishTime(self.timeStep)
-                self.completedTruckloads.append(self.timeStep)
-                self.truckloads.pop(0)
-                self.currentTruckload = None
-                if (len(self.truckloads)>0):
-                    self.currentTruckload = self.truckloads[0]
-        if (self.currentCustomerOrder != None):
-            if (len(self.currentCustomerOrder.getOrder()) == 0 and self.currentCustomerOrder != None): #if customer order is completed
-                if (shouldPrint):   
-                    print("FILLED CUSTOMER ORDER!")
-                warehouseStats.addCustomerOrderFinishTime(self.timeStep)
-                self.filledCustomerOrders.append(self.timeStep)
-                self.customerOrders.pop(0)
-                self.currentCustomerOrder = None
-                if (len(self.customerOrders)>0):
-                    self.currentCustomerOrder = self.customerOrders[0]
-
+        self.addAndCompleteTruckloadsAndCustomerOrders(shouldPrint, warehouseStats)
 
         #just wait if nothing is happening:
         if (self.currentTruckload == None and self.currentCustomerOrder == None and self.getIsAllRobotsInStartCell()):
@@ -182,12 +182,35 @@ class Warehouse():
         self.changeIsOccupied()
      
         if (shouldPrint):
-            printer = Printer()
-            printer.printRobotInfo(self.robots)
-            printer.printTruckload(self.currentTruckload)
-            printer.printCustomerOrder(self.currentCustomerOrder)
-            printer.printProductsInWarehouse(self)
+            p = Printer()
+            p.printRobotInfo(self.robots)
+            #p.printTruckload(self.currentTruckload) #TODO evt printe
+            p.printCustomerOrder(self.currentCustomerOrder)
+            p.printProductsInWarehouse(self)
      
+
+    def addAndCompleteTruckloadsAndCustomerOrders(self, shouldPrint : bool, warehouseStats : WarehouseStats):
+        """handles customerOrders and truckloads arriving in warehouse, as well as finishing current truckloads and customerOrders the warehouse is working on"""
+        if (self.currentTruckload != None): 
+            if (self.currentTruckload.getIsTruckloadCompleted() and not self.getIsRobotsLoading()): 
+                if (shouldPrint):
+                    print("TRUCKLOAD COMPLETED")
+                warehouseStats.addTruckloadFinishTime(self.timeStep)
+                self.completedTruckloads.append(self.timeStep)
+                self.truckloads.pop(0)
+                self.currentTruckload = None
+                if (len(self.truckloads)>0):
+                    self.currentTruckload = self.truckloads[0]
+        if (self.currentCustomerOrder != None):
+            if (len(self.currentCustomerOrder.getOrder()) == 0 and self.currentCustomerOrder != None): #if customer order is completed
+                if (shouldPrint):   
+                    print("FILLED CUSTOMER ORDER!")
+                warehouseStats.addCustomerOrderFinishTime(self.timeStep) 
+                self.filledCustomerOrders.append(self.timeStep)
+                self.customerOrders.pop(0)
+                self.currentCustomerOrder = None
+                if (len(self.customerOrders)>0):
+                    self.currentCustomerOrder = self.customerOrders[0]
 
     def placeLoadInCell(self):
         """Function to have robot store a load (product, amount) in a cell. find out if there is any available robots, if so, load them and get robot to place order in cell, returns True if has available robot and can place a load in a cell, False if not"""
@@ -202,12 +225,13 @@ class Warehouse():
             cellToGoTo = self.findCell(product, amount)
             if (cellToGoTo==None or cellToGoTo == False):
                 return False
+            self.currentTruckload.removeProducts(product, amount) #remove the products the robot is picking up, from the truckload
             robot.storeLoad(cellToGoTo, load)
 
     def pickUpCustomerOrder(self):
         """Function for robot to pick up a customer order, returns True if it found an order it can pick up, False if not"""
         availableRobots = self.getAvailableRobots()
-        canCompleteOrder = self.currentCustomerOrder.hasOrder(self.getAllProductsAndAmountsInWarehouse()) 
+        canCompleteOrder = self.currentCustomerOrder.hasOrder(self.getAllProductsAndAmountsInWarehouse()) #TODO starter ikke på customerOrder før den kan completes, fikse det?
 
         if (len(availableRobots) > 0 and canCompleteOrder):
             robot = availableRobots[0]
@@ -236,11 +260,6 @@ class Warehouse():
                 if (cell.getIsOccupied()):
                     cell.flipIsOccupied()
 
-    def checkToManyRobotInOnPlace(self):
-        """to make sure not too many robots are sent to the same spot in the warehouse"""
-        #TODO
-
-
     def amountToGetFromProductInCustomerOrder(self, productInOrder : Product):
         """returns the amount the warehouse needs a robot to pick up, of a produt. Takes the amount of the product I need to fill in the customerOrder, minus the amount of the product robots are getting"""
         amountInOrder = self.currentCustomerOrder.getOrder()[productInOrder]
@@ -255,8 +274,8 @@ class Warehouse():
         amountToGet = amountInOrder - amountRobotsAreGetting 
         return amountToGet
 
-
     def getIsRobotsLoading(self):
+        """returns True if there is a robot current loading or unloading"""
         for robot in self.robots:
             product, amount = robot.getCurrentLoad()
             if robot.getCurrentCell() == self.getStartCell() and product!= None and amount != 0:
@@ -266,7 +285,7 @@ class Warehouse():
 
 #helper functions to pick up products from warehouse
     def locateCellWithLoad(self, load):
-        """locates a cell which has the products that a robot is going to carry"""
+        """returns a cell which has the products that a robot is going to carry"""
         product, amount = load
       
         for storageCell in self.getAllStorageCells():
@@ -366,7 +385,6 @@ class Warehouse():
             if (amountShelf2 >= amount):
                 return storageCell
 
-        #print("COULD NOT FIND CELL, THIS PROBABLY MEANS WAREHOUSE IS FULL")
         return False
 
     def getAmountYouCanPutIntoEachShelfOfCell(self, product : Product, cell : Cell):
@@ -395,18 +413,25 @@ class Warehouse():
         return amountShelf1, amountShelf2
 
 
-
-#creating warehouse #TODO skal være i tkinter class
     def makeWarehouseInTkinter(self, xSize, ySize):
-        """Returns: (rootWindow, canvas, zones). makes a warehouse with cells and in tkinter so they can be used"""
+        """Returns: (rootWindow, canvas, zones). makes a warehouse with cells and in tkinter so they can be used. Is in warehouse class since it also makes the warehouse in general. A long function but it all handles creating the warehouse, and it requires a lot of if/elif/else to make it happen"""
         rootWindow = Tk()
         rootWindow.title("MAP OF WAREHOUSE")
         zones = []
+
         cellSize = 35
+        if (xSize + ySize > 250):
+            cellSize = 2
+        elif (xSize + ySize > 150):
+            cellSize = 7
+        elif (xSize + ySize > 100):
+            cellSize = cellSize//3
+        elif (xSize + ySize > 50):
+            cellSize = cellSize//2
         canvas = Canvas(rootWindow, width=xSize*cellSize+50, height=ySize*cellSize+50)
         canvas.pack()
         if (xSize < 6 or ySize < 6):
-            print("xSize must be atleast 6, ySize must be atleast 9")
+            print("xSize must be atleast 6, ySize must be atleast 6")
             return None
         if not (xSize%6==0):
             print("dimensioning xSize to be divisible by 6 (rounding downwards), so that all storages are accesible")
@@ -416,20 +441,15 @@ class Warehouse():
             tkinterRow = []
             if (y == ySize//2): 
                 cell = Cell("start", 0, y) #start and end cell have x coordinate 0
-                #row.append(cell)
                 xc = x*cellSize
                 yc = y*cellSize
-                #zone = canvas.create_rectangle(xc, yc, xc+cellSize, yc+cellSize, fill = "black")
-                #tkinterRow.append(zone)
+
             elif (y== (ySize//2+1)):
                 cell = Cell("end", 0, y)
-                #row.append(cell)
                 xc = x*cellSize
                 yc = y*cellSize
-                #zone = canvas.create_rectangle(xc, yc, xc+cellSize, yc+cellSize, fill = "black")
-                #tkinterRow.append(zone)
             for x in range(1, xSize+1): 
-                if (y==ySize//2) and (x<(xSize)): #8 and 9 are only y coordinates where robot can move in x direction
+                if (y==ySize//2) and (x<(xSize)): 
                     cell = Cell("moveRight", x, y)
                     row.append(cell)
                     xc = x*cellSize
@@ -495,7 +515,7 @@ class Warehouse():
         for rowNumber in range(1, len(self.cells)+1):
             cell = Cell("load", 0, rowNumber)
             fill = "blue"
-            if ((rowNumber)== (ySize//2)): #index of where start/end cell is
+            if ((rowNumber)== (ySize//2)): #coordinate of where start/end cell is
                 cell = Cell("load", xSize+1, rowNumber) #append the last loading cell (cause start/end cells shift index)
                 self.cells[rowNumber-1].append(cell)
 
@@ -528,3 +548,6 @@ class Warehouse():
         frame.pack()
         return rootWindow, canvas, zones
 
+
+
+    

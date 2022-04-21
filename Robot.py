@@ -99,7 +99,7 @@ class Robot():
         self.isRetrieving = False
 
     def retrieveLoad(self, cellToGoTo : Cell, load):
-        """make robot retrieve a load from """
+        """make robot retrieve a load from the warehouse"""
         self.currentToPickUp = load
         self.targetCell = cellToGoTo
         self.currentCell = self.warehouse.getStartCell()
@@ -111,6 +111,7 @@ class Robot():
         cellToGoTo.flipIsRobotOnWay()
         self.isRetrieving = True
         self.isStoring = False
+
 
 #methods for robot to move
     def move(self):
@@ -127,7 +128,6 @@ class Robot():
             if (self.currentCell != loadingCell and loadingCell != None and (loadingCell not in (self.route))):
                 self.targetCell = None
         
-
         if didGo:
             self.route.pop(0) 
             if (self.previousCell!=self.warehouse.getStartCell() and self.previousCell!=self.warehouse.getEndCell()):
@@ -147,7 +147,7 @@ class Robot():
             self.currentLoad = (None, 0)
             self.waitTime = 12
             return False
-        #load back product that it couldnt fit on shelf
+        #load back product that it couldn't fit on shelf
         elif (self.currentCell == self.warehouse.getEndCell() and self.isStoring):
             product, amount = self.currentLoad
             self.warehouse.addBackToTruckload(product, amount)
@@ -156,7 +156,7 @@ class Robot():
             return False    
         elif (self.route==None):
             return False
-        elif (len(self.route) == 0): #robot does not need to move
+        elif (len(self.route) == 0):
             return False
 
         #for storing or retriving from cell
@@ -172,6 +172,7 @@ class Robot():
         return True
 
     def goToCell(self, cell : Cell, previousCell : Cell):
+        """make robot go to a cell, returns True if it was able to"""
         if (self.isLegalMove(cell)):
             self.currentCell = cell
             if (cell!=self.warehouse.getStartCell() and cell!=self.warehouse.getEndCell()): #these cells will never be occupied (assumption)
@@ -181,7 +182,7 @@ class Robot():
         return False
 
     def isLegalMove(self, nextCell : Cell):
-        """different checks to make sure next move is legal"""
+        """different checks to make sure next move is legal, returns True if move is legal"""
         currentX, currentY = self.currentCell.getCoordinates()
         nextX, nextY = nextCell.getCoordinates()
         if (abs(currentX-nextX)>1 or abs(currentY-nextY)>1):
@@ -190,7 +191,7 @@ class Robot():
             return False
         elif (nextCell.getCellType() == "storage"):
             return False
-        elif (nextCell.getIsPlannedOccupied() ): #cell is occupied, can't go to cell
+        elif (nextCell.getIsPlannedOccupied() ):
             return False
         elif (nextCell.getIsOccupied()):
             return False
@@ -198,7 +199,7 @@ class Robot():
         return True
 
     def findStorageCell(self):
-        """storage cell is either to the left or right when unloading, this function finds the storage cell. Assumes currentPosition is next to a storage cell (which it should be when unloading)"""
+        """Returns a storage cell the robot is looking for. Storage cell is either to the left or right when unloading, this function finds the storage cell. Assumes currentPosition is next to a storage cell (which it should be when unloading)"""
         currentX, currentY = self.currentCell.getCoordinates()
         cell = self.warehouse.getCellByCoordinates(currentX+1, currentY)
         if cell.getCellType() == "storage":
@@ -210,7 +211,7 @@ class Robot():
         return None
     
     def findLoadingCell(self, storageCell = Cell):
-        """find the cell a robot unloads from, from a storage cell"""
+        """returns the cell a robot unloads from, from a storage cell"""
         currentX, currentY = storageCell.getCoordinates()
         cell = self.warehouse.getCellByCoordinates(currentX+1, currentY)
         if (isinstance(cell, Cell)):
@@ -224,7 +225,7 @@ class Robot():
             
 
     def isInStorageCell(self):
-        """robot is at storage cell if it same same cell appears twice after over 3 cells"""
+        """returns true if robot is at storage cell"""
         if (self.previousCell == self.route[0]) and (self.previousCell!=None) and (len(self.route)>0) and (self.currentCell!=self.warehouse.getStartCell()) and (self.currentCell!=self.warehouse.getEndCell()): #if previousCell is same as next cell, robot must be in a storage cell
             return True
         return False
@@ -238,10 +239,10 @@ class Robot():
         self.targetCell.removeLoadFromCell(self.currentLoad) # remove the load from currentcell
         self.waitTime = 12
         self.targetCell.flipIsRobotOnWay()
-        #self.targetCell = None
         return True
 
     def loadRobotFromStartCell(self, load):
+        """load robot at start cell, returns True if it was able to load the robot"""
         self.waitTime = 12
         totalWeight = self.calcWeightOfLoad(load)
 
@@ -256,16 +257,12 @@ class Robot():
         self.waitTime = 12
         product, amount = self.currentLoad
         self.currentLoad = (None, 0)
-        #self.targetCell.flipIsRobotOnWay() #TODO tror ikke denne skal være i bruk
         return product, amount
 
     def unloadRobotToCell(self):
-        """unload the products the robot has to a shelf (all that it can at a storagecell"""
+        """unload the products the robot has to a shelf (all that it can at a storagecell). Raises exception if it was not able to unload the robot to the cell"""
         self.waitTime = 12 
         storageCell = self.findStorageCell()
-
-        #product, amount = self.currentLoad
-        #self.warehouse.getCurrentTruckload().removeProducts(product, amount)
 
         if (self.currentLoad != None and storageCell!=None):
             storageCell.flipIsRobotOnWay()
@@ -285,6 +282,7 @@ class Robot():
         self.currentLoad = (product, newAmount)
 
     def calcWeightOfLoad(self, load):
+        """calculate the weight of the products in a load"""
         product, amount = load
         totalWeight = (product.getWeight()*amount)
         return totalWeight
@@ -354,7 +352,7 @@ class Robot():
         verticalCell = self.warehouse.getCellByCoordinates(verticalX, verticalY)
         pointsOnRoute.append(verticalCell)
         
-        pointsOnRoute.append(self.warehouse.getEndCell()) #appending end cell of warehouse
+        pointsOnRoute.append(self.warehouse.getEndCell())
 
         return pointsOnRoute
 
@@ -393,7 +391,7 @@ class Robot():
         return routeList
 
     def findVerticalCell(self, startCell : Cell, targetCell : Cell):
-        """finds the coordinates where the robot should go up or down, and returns them. Also returns whether to go right or left when reaching same y coordinate as cell. This functions is made wrt. how the warehouse is built (i.e if you placed the storage spaces differently, it would not work)"""
+        """Returns a cell and a direction ("left" or "right") finds the coordinates where the robot should go up or down, and returns them. Also returns whether to go right or left when reaching same y coordinate as cell. This functions is made wrt. how the warehouse is built (i.e if you placed the storage spaces differently, it would not work)"""
         startX, startY = startCell.getCoordinates()
         targetX, targetY = targetCell.getCoordinates()
         direction = ""

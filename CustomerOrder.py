@@ -20,6 +20,7 @@ class CustomerOrder():
 
 
     def calculateTotalWeight(self):
+        """returns total weight of all products in customerOrder"""
         totalWeight = 0
         for product, amount in self.order.items():
             totalWeight += (product.getWeight() * amount)
@@ -35,14 +36,14 @@ class CustomerOrder():
         self.order[product] = 1
 
     def removeFromOrder(self, product : Product):
-        """remove 1 of a product from the CustomerOrder"""
+        """remove 1 of a product from the CustomerOrder, raises exception if product was not in the order"""
         if (product in self.order.keys()):
             currentAmount = self.order[product]
             if (currentAmount<=0):
                 raise Exception("Cant remove product there is nothing from in removeFromOrder")
             currentAmount-=1
             self.order[product] = currentAmount
-            if (currentAmount == 0): #if the amount of a product is 0, delete it from dict
+            if (currentAmount == 0): 
                 del self.order[product]
         else:
             productName = product
@@ -51,8 +52,7 @@ class CustomerOrder():
             raise Exception(f"product: {productName} was not in dict")
 
     def removeFromOrderByName(self, productName : str):
-        """if creating new customerOrder, new product objects are created, so have to remove by name (not by object)"""
-    
+        """if creating new customerOrder, new product objects are created, so have to remove by name (not by object). Raises exception if product was not in the customerOrder"""
         for product in self.order.keys():
             if (str(product.getName()) == productName):
                 currentAmount = self.order[product]
@@ -66,9 +66,9 @@ class CustomerOrder():
         raise Exception(f"product: {productName} was not in dict in removeFromOrderByName")
 
     def hasOrder(self, warehouseStock : dict):
-        """checks if warehouse has the stock to fill the order"""
+        """checks if warehouse has the stock to fill the order, returns True if so"""
         for product in self.order.keys():
-            if (product not in warehouseStock.keys()): #if product is not available in warehouse
+            if (product not in warehouseStock.keys()): 
                 return False
             elif (warehouseStock[product] < self.order[product]): #if there is not enough of product in warehouse
                 return False

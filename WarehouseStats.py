@@ -7,8 +7,8 @@ class WarehouseStats():
         self.warehouse = warehouse
         self.catalog = None
 
-        self.allTruckloads = []
-        self.allCustomerOrders = []
+        self.allTruckloadsThatArrived = []
+        self.allCustomerOrdersThatArrived = []
 
         self.truckloadArrivalTimes = []
         self.customerOrderArrivalTimes = []
@@ -20,10 +20,12 @@ class WarehouseStats():
         return self.warehouse
     def getCatalog(self):
         return self.catalog
-    def getAllTruckloads(self):
-        return self.allTruckloads
-    def getAllCustomerOrders(self):
-        return self.allCustomerOrders
+    def getAllTruckloadsThatArrived(self):
+        """returns all the truckloads that arrived in warehouse during simulation"""
+        return self.allTruckloadsThatArrived
+    def getAllCustomerOrdersThatArrived(self):
+        """returns all the customerOrders that arrived in warehouse during simulation"""
+        return self.allCustomerOrdersThatArrived
     def getTruckloadArrivalTimes(self):
         return self.truckloadArrivalTimes
     def getCustomerOrderArrivalTimes(self):
@@ -38,9 +40,9 @@ class WarehouseStats():
 
 
     def addTruckload(self, truckload):
-        self.allTruckloads.append(truckload)
+        self.allTruckloadsThatArrived.append(truckload)
     def addCustomerOrder(self, customerOrder):
-        self.allCustomerOrders.append(customerOrder)
+        self.allCustomerOrdersThatArrived.append(customerOrder)
     def addTruckloadArrivalTime(self, time : int):
         self.truckloadArrivalTimes.append(time)   
     def addCustomerOrderArrivalTime(self, time : int):
@@ -52,9 +54,7 @@ class WarehouseStats():
     
 
     def calculateAvgTimeToCompleteTruckload(self):
-        """returns avg time used to complete a truckload, out of all the truckloads completed"""
-        if len(self.truckloadArrivalTimes) != len(self.truckloadFinishTimes):
-            return None
+        """returns average time used to complete a truckload, out of all the truckloads completed"""
         length = 0
         #if not all truckloads was completed, just calculate times for the truckloads that was completed
         if (len(self.truckloadArrivalTimes) >= len(self.truckloadFinishTimes)):
@@ -66,13 +66,14 @@ class WarehouseStats():
             totalTime += (self.truckloadFinishTimes[i] - self.truckloadArrivalTimes[i])
         if (len(self.truckloadArrivalTimes) !=0):
             avgTime = totalTime/len(self.truckloadArrivalTimes)
+        else:
+            print("0 arrival")
+            avgTime = 0
 
         return avgTime
 
     def calculateAvgTimeToCompleteCustomerOrder(self):
-        if len(self.customerOrderArrivalTimes) != len(self.customerOrderFinishTimes):
-            return None
-            #raise Exception("the amount of customerOrders in is not equal to the amount finished")
+        """returns average time used to complete all the customerOrders that was completed"""
         length = 0
         if (len(self.customerOrderArrivalTimes) >= len(self.customerOrderFinishTimes)):
             length = len(self.customerOrderFinishTimes)
@@ -81,25 +82,31 @@ class WarehouseStats():
         totalTime = 0
         for i in range(length):
             totalTime += (self.customerOrderFinishTimes[i] - self.customerOrderArrivalTimes[i])
-        avgTime = totalTime/len(self.customerOrderArrivalTimes)
+        if (len(self.customerOrderArrivalTimes) == 0):
+            print("0 arrival")
+            avgTime = 0
+        else:
+            avgTime = totalTime/len(self.customerOrderArrivalTimes)
         return avgTime      
 
     def calculateTotalWeightOfCustomerOrders(self):
+        """returns total weight contained in all the customerOrders the warehouse received"""
         totalWeight = 0
-        for customerOrder in self.allCustomerOrders:
+        for customerOrder in self.allCustomerOrdersThatArrived:
             totalWeight += customerOrder.calculateTotalWeight()
         return totalWeight
 
     def calculateTotalWeightOfTruckloads(self):
+        """returns total weight contained in all the truckloads the warehouse received"""
         totalWeight = 0
-        for truckload in self.allTruckloads:
+        for truckload in self.allTruckloadsThatArrived:
             totalWeight += truckload.calculateTotalWeight()
         return totalWeight
 
-    def getAllTruckloadsInOneDict(self):
-        """returns dictionar of all truckloads, the keys are strings (not product objects)"""
+    def getAllTruckloadsThatArrivedInOneDict(self):
+        """returns dictionary of all truckloads, the keys are strings (not product objects)"""
         allTruckloadsDict = dict()
-        for truckload in self.allTruckloads:
+        for truckload in self.allTruckloadsThatArrived:
             for product, amount in truckload.getLoad().items():
                 addToDict(allTruckloadsDict, product.getName(), amount)
         return allTruckloadsDict
@@ -107,14 +114,14 @@ class WarehouseStats():
     def getAllCustomerOrdersInOneDict(self):
         """return dictionary of all customerOrders, the keys are strings (not product objects)"""
         allCustomerOrdersDict = dict()
-        for customerOrder in self.allCustomerOrders:
+        for customerOrder in self.allCustomerOrdersThatArrived:
             for product, amount in customerOrder.getOrder().items():
                 addToDict(allCustomerOrdersDict, product.getName(), amount)
         return allCustomerOrdersDict
 
-    def getProductsFromTruckloadsMinusCustomerOrders(self):
-        """for testing purposes, make sure what goes into warehouse = what is in warehouse"""
-        allTruckloads = self.getAllTruckloadsInOneDict()
+    def getProductsFromTruckloadsMinusCustomerOrders(self): #TODO fjerne?
+        """returns all products that came in from truckloads minus what all customerOrders. For testing purposes, make sure what goes into warehouse = what is in warehouse"""
+        allTruckloads = self.getAllTruckloadsThatArrivedInOneDict()
         allCustomerOrders = self.getAllCustomerOrdersInOneDict()
 
         for productName, amount in allCustomerOrders.items():

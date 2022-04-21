@@ -18,15 +18,10 @@ class Catalog():
     def setName(self, name : str):
         self.name = name
     
-    def addProduct(self, product : Product):
-        if (isinstance(product, Product)):
-            self.products.append(product)
-            return True
-        print("Could not add product to catalog")
-        return False
 
 
     def addProduct(self, product : Product):
+        """add product to catalog, returns True if product could be added"""
         if (isinstance(product, Product) and product not in self.products):
             self.products.append(product)
             return True
