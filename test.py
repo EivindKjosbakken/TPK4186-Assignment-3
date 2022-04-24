@@ -1,32 +1,35 @@
+#group: 120, name: Eivind Kjosbakken
 
-from Warehouse import Warehouse
 from Simulator import *
-from Product import Product
 from Parameters import *
 
 p = Printer()
 #run simulation:
 simulator = Simulator()
-xSize = 16
-ySize = 24
+xSize = 24
+ySize = 30
 numRobots = 1
 numProductsInCatalog = 120
-timeStepToGoTo = 60000
-maxTimeStep = 60000
-truckloadWeightPer5000 = 1000
-customerOrderWeightPer5000 = 1000
-displayWarehouse = False
+timeStepToGoTo = 150000
+arrivalInterval = 5000 #in which intervals the truckloads/customerorders arrive
+truckloadWeightPerArrivalInterval = 500
+customerOrderWeightPerArrivalInterval = 500
+displayWarehouse = True
 shouldPrint = False
+
+
+wh, whStats = simulator.runSimulation(xSize, ySize, numRobots, numProductsInCatalog, timeStepToGoTo, arrivalInterval, truckloadWeightPerArrivalInterval, customerOrderWeightPerArrivalInterval, displayWarehouse, shouldPrint)
+
+
+
+
 shouldTest = True
-
-
-wh, whStats = simulator.runSimulation(xSize, ySize, numRobots, numProductsInCatalog, timeStepToGoTo, maxTimeStep, truckloadWeightPer5000, customerOrderWeightPer5000, displayWarehouse, shouldPrint)
-
-
-
-
 #___TESTS___
 if (shouldTest):
+    """short explenation for the first test: checks if the following equation is true:
+    allProducts in warehouse shelves + all products robots are currently carrying + all truckloads that the warehouse is currently handling (which is all truckloads received minus products the robots are handling+whats in warehouse) + all customerorders that have been sent to warehouse 
+    == 
+    all truckloads that was sent to warehouse + all customerOrders that the warehouse is currently handling"""
 
     #left side of equation:
     shouldBeIn = wh.getAllProductNamesAndAmountsInWarehouse()
@@ -45,8 +48,6 @@ if (shouldTest):
     for customerOrder in allCustomerOrdersThatArrived:
         for product, amount in customerOrder.getOrder().items():
             productName = product.getName()
-
-
             addToDict(shouldBeIn, productName, amount)
     
     #right side of equation
@@ -180,12 +181,6 @@ if (shouldTest):
     """
     
 
-
-    """ #testing inserting product into shelf,
-    product = Product("cheese", 25)
-    wh.insertIntoShelves(product,  17)
-    cells = wh.getCells1D()
-    """
 
 
     #"""

@@ -1,8 +1,6 @@
+#group: 120, name: Eivind Kjosbakken
 
-
-from inspect import iscoroutinefunction
 import math
-from numpy import isin, product
 from Product import Product
 
 

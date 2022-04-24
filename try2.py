@@ -32,19 +32,35 @@ a.sort()
 print("b is", a)
 
 import numpy as np
-import matplotlib.pyplot as plt
 
-data_1 = np.random.normal(0, 0.5, 200)
-print(data_1)
 
-fig = plt.figure(figsize =(10, 7))
- 
-# Creating axes instance
-ax = fig.add_axes([0, 0, 1, 1])
- 
-# Creating plot
-bp = ax.boxplot(data_1)
-plt.show()
+
+
+cat = generateCatalog("1", 10)
+
+tload = generateTruckLoad("2", cat, 5000)
+co1 = generateCustomerOrder("3", cat, 1000)
+co2 = generateCustomerOrder("4", cat, 1000)
+co3 = generateCustomerOrder("5", cat, 1000)
+co4 = generateCustomerOrder("6", cat, 1000)
+co5 = generateCustomerOrder("7", cat, 1000)
+
+p.printTruckload(tload)
+
+allco = dict()
+for product, amount in co1.getOrder().items():
+    addToDict(allco, product.getName(), amount)
+for product, amount in co2.getOrder().items():
+    addToDict(allco, product.getName(), amount)
+for product, amount in co3.getOrder().items():
+    addToDict(allco, product.getName(), amount)
+for product, amount in co4.getOrder().items():
+    addToDict(allco, product.getName(), amount)
+for product, amount in co5.getOrder().items():
+    addToDict(allco, product.getName(), amount)
+
+for key, value in allco.items():
+    print(key, value)
 
 """
 p.printTruckload(t)

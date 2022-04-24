@@ -1,4 +1,4 @@
-
+#group: 120, name: Eivind Kjosbakken
 
 from Product import Product
 
@@ -18,6 +18,28 @@ class CustomerOrder():
     def setOrder(self, order : list):
         self.order = order 
 
+
+    def getMax40FromOrder(self, warehouse):
+        """returns a (product, amount) with product and the amount, where total weight <= 40 also avoids filling up customerorder twice (by getting same products as other robots are already getting) """
+        productToCarry = None
+        amountToCarry = 0
+        totalWeight = 0
+        currentlyGettingPickedUp = warehouse.getAllProductsGettingPickedUp()
+        for product, amount in self.order.items():
+            if (product in currentlyGettingPickedUp.keys()):
+                amount -= currentlyGettingPickedUp[product]
+            if (amount<=0): #if the rest of the product is already getting picked up by other robots
+                continue
+ 
+            productToCarry = product
+            productWeight = product.getWeight()
+            for i in range(amount):
+                if (totalWeight + productWeight > 40):
+                    return (productToCarry, amountToCarry)
+                totalWeight += productWeight
+                amountToCarry+=1
+            return (productToCarry, amountToCarry) #only want to run 1 iteration since robot can only carry one type of product at a time
+        return None
 
     def calculateTotalWeight(self):
         """returns total weight of all products in customerOrder"""

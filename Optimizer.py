@@ -1,5 +1,8 @@
-from tqdm import trange
+#group: 120, name: Eivind Kjosbakken
+
+from Printer import Printer
 from Simulator import Simulator
+
 
 
 class Optimizer():
@@ -8,14 +11,13 @@ class Optimizer():
 
 
 
-    def experimentalProtocol(self, numTimesteps : int, numProductsInCatalog : int, numRobotsToTry : list, truckloadAndCustomerOrderRatesToTry : list, warehouseSizesToTry : list):
+    def experimentalProtocol(self, timeStepToGoTo : int, numProductsInCatalog : int, numRobotsToTry : list, arrivalInterval : int, truckloadAndCustomerOrderRatesToTry : list, warehouseSizesToTry : list, fileNameToPrintOutputsTo : str):
         """returns a dictionary where the keys are warehouseStats-objects, and the value is a string describing the parameters for that simulation"""
+        
+        #using the parameters that are chosen 
         truckloadRates = truckloadAndCustomerOrderRatesToTry
         customerOrderRates = truckloadAndCustomerOrderRatesToTry
-
-        #trying with everything from 1 robot to numRobots
         robots = numRobotsToTry
-
         warehouseSizes = warehouseSizesToTry
 
         for i in range(len(truckloadAndCustomerOrderRatesToTry)):
@@ -24,14 +26,19 @@ class Optimizer():
             for numberOfRobots in robots:
                 for size in warehouseSizes:
                     xSize = size[0]
+                    if (xSize%6 != 0):
+                        print("dimensioning xSize to be divisible by 6 (rounding downwards), so that all storages are accesible")
+                        xSize -= xSize%6
                     ySize = size[1]
-                    print("Doing", numberOfRobots, "robots,", "truckload/customerOrderRate:", truckloadRate, "/", customerOrderRate, ", xSize:", xSize, "ySize:", ySize)
+                    print("Doing", numberOfRobots, "robots,", "truckload/customerOrderRate:", truckloadRate, "/", customerOrderRate, "per", arrivalInterval ,"timeSteps", "xSize:", xSize, "ySize:", ySize)
                     simulator = Simulator()
-                    wh, whStats = simulator.runSimulation(xSize, ySize, numberOfRobots, numProductsInCatalog, numTimesteps, numTimesteps, truckloadRate,
-                    customerOrderRate, False, False)
-
+                    wh, whStats = simulator.runSimulation(xSize, ySize, numberOfRobots, numProductsInCatalog, timeStepToGoTo, arrivalInterval, truckloadRate, customerOrderRate, False, False)
                     #write info about the experimental protocol
-                    self.allStats[whStats] = f"{numTimesteps} timeSteps, {numberOfRobots} robots, {truckloadRate} truckloadWeight/5000 timesteps, {customerOrderRate} customerOrderWeight/5000 timesteps. Warehouse size: ({xSize}, {ySize}). {numProductsInCatalog} different products"
+                    self.allStats[whStats] = f"{timeStepToGoTo} timeSteps, {numberOfRobots} robots, {truckloadRate} truckloadWeight/{arrivalInterval} timesteps, {customerOrderRate} customerOrderWeight/{arrivalInterval} timesteps. Warehouse size: ({xSize}, {ySize}). {numProductsInCatalog} different products"
+
+        #write the results to file
+        p = Printer()
+        p.printExperimentalProtocolToFile(self.allStats, fileNameToPrintOutputsTo)
 
         return self.allStats
 
