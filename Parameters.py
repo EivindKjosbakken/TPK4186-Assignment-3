@@ -1,7 +1,6 @@
-from cmath import exp
-from math import prod
+#group: 120, name: Eivind Kjosbakken
 
-from numpy import number
+
 from CustomerOrder import CustomerOrder
 from Product import Product
 from Catalog import Catalog
@@ -10,15 +9,14 @@ from Truckload import Truckload
 from Printer import Printer
 import random
 
-random.seed(1)
-#this file is just for generating some values that are useful for simulating the warehouse
+#random.seed(0) #TODO fjerne
 
 
 def generateCatalog(name : str, numberOfProducts : int):
     """returns a catalog, a list with numberOfProducts products that has names and a weight. Weight is between 2-40 inclusive, with 80% chance of being between 2-9 inclusive"""
     if (numberOfProducts < 1 or numberOfProducts > 121):
         raise Exception("Catalog must have more than 1 product and less than 121 products")
-    productNames = [f"product {i}" for i in range(1, numberOfProducts+1)] #120 products in catalog #TODO egt 120 stk
+    productNames = [f"product {i}" for i in range(1, numberOfProducts+1)] 
     catalog = Catalog(name)
     weightChances = []
     a = [300 for i in range(9)] #most products have weight < 10 kg, these lines gives higher chance to have weigth < 10 kg
@@ -118,7 +116,7 @@ def removeFromDict(dictionary, product, amount):
 
 
 
-#functions just for helping some tests: #TODO disse burde nok plasseres et annet sted
+
 def addCustomerOrderToDict(dictionary : dict, customerOrder : CustomerOrder):
     for product, amount in customerOrder.getOrder().items():
         addToDict(dictionary, product.getName(), amount) #by name because diff prod objects gets created, but they have same name

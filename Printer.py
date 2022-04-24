@@ -1,3 +1,5 @@
+#group: 120, name: Eivind Kjosbakken
+
 from Catalog import Catalog
 from Cell import Cell
 from CustomerOrder import CustomerOrder
@@ -9,17 +11,17 @@ class Printer():
     def __init__(self):
         return
 
-
+    
     def printRobotInfo(self, robots : list):
         """prints all useful info about a list of robots"""
         for robot in robots:
-            name, currentCell, targetCell, currentLoad, currentToPickUp, isStoring, isRetrieving, route = robot.getName(), robot.getCurrentCell(), robot.getTargetCell(), robot.getCurrentLoad(), robot.getCurrentToPickUp(), robot.getIsStoring(), robot.getIsRetrieving(), robot.getRoute()
+            name, currentCell, targetCell, currentLoad, currentToPickUp, isStoring, isRetrieving, route, waitTime = robot.getName(), robot.getCurrentCell(), robot.getTargetCell(), robot.getCurrentLoad(), robot.getCurrentToPickUp(), robot.getIsStoring(), robot.getIsRetrieving(), robot.getRoute(), robot.getWaitTime()
             if (targetCell != None):
                 targetCell = targetCell.getCoordinates()
             if (isRetrieving):
-                print(f"After  timestep, robot: {name}, pos: {currentCell.getCoordinates()}, load: {self.getLoadNice(currentLoad)}, picking up: {self.getLoadNice(currentToPickUp)}, targetCell: {targetCell}, and it is retrieving load from a cell ")
+                print(f"After  timestep, robot: {name}, pos: {currentCell.getCoordinates()}, load: {self.getLoadNice(currentLoad)}, picking up: {self.getLoadNice(currentToPickUp)}, targetCell: {targetCell}, and it is retrieving load from a cell (or that was its last action). WaitTime: {waitTime}")
             elif (isStoring):
-                print(f"After  timestep, robot: {name}, pos: {currentCell.getCoordinates()}, load: {self.getLoadNice(currentLoad)}, picking up: {self.getLoadNice(currentToPickUp)}, targetCell: {targetCell}, and it is loading to a storage cell ")
+                print(f"After  timestep, robot: {name}, pos: {currentCell.getCoordinates()}, load: {self.getLoadNice(currentLoad)}, picking up: {self.getLoadNice(currentToPickUp)}, targetCell: {targetCell}, and it is loading to a storage cell (or that was its last action). WaitTime: {waitTime}")
             else:
                 print("Robot: {name} is not yet active")
 
@@ -35,7 +37,9 @@ class Printer():
             prodNameShelf1 = prodShelf1.getName()
         if (isinstance(prodShelf2, Product)):
             prodNameShelf2 = prodShelf2.getName()
-        print(f"Cell with coordinates: {cell.getCoordinates()} | shelf 1: ({prodNameShelf1} : {amountShelf1}) | shelf2: ({prodNameShelf2} : {amountShelf2})")
+        isOccupied = cell.getIsOccupied()
+        isPlannedOccupied = cell.getIsPlannedOccupied()
+        print(f"Cell with coordinates: {cell.getCoordinates()} | shelf 1: ({prodNameShelf1} : {amountShelf1}) | shelf2: ({prodNameShelf2} : {amountShelf2}). IsOccuped: {isOccupied}, isPlannedOccupied: {isPlannedOccupied}")
 
     def printCatalog(self, catalog : Catalog):
         """print out catalog nicely with product names"""
@@ -128,28 +132,70 @@ class Printer():
             print(rowString)      
                 
 
-    def printExperimentalProtocol(self, stats : dict):
+    def printExperimentalProtocol(self, allStats : dict):
         """prints useful info from the experimental protocol implemented (avg time to complete truckload/customerOrder"""
-        if (not isinstance(stats, dict)):
+        if (not isinstance(allStats, dict)):
             print("Must be a dictionary")
             return False
-        for key, value in stats.items():
-            truckloadTime = key.calculateAvgTimeToCompleteTruckload()
-            customerOrderTime = key.calculateAvgTimeToCompleteCustomerOrder()
-            totalCustomerOrderWeight = key.calculateTotalWeightOfCustomerOrders()
-            totalTruckloadWeight = key.calculateTotalWeightOfTruckloads()
-            totalTruckloadsReceived = len(key.getTruckloadArrivalTimes())
-            totalCustomerOrdersReceived = len(key.getCustomerOrderArrivalTimes())
-            totalTruckloadsCompleted = len(key.getTruckloadFinishTimes())
-            totalCustomerOrdersCompleted = len(key.getCustomerOrderFinishTimes())
-
+        for warehouseStatObject, warehouseStatsText in allStats.items():
+            truckloadTime = warehouseStatObject.calculateAvgTimeToCompleteTruckload()
+            customerOrderTime = warehouseStatObject.calculateAvgTimeToCompleteCustomerOrder()
+            totalCustomerOrderWeight = warehouseStatObject.calculateTotalWeightOfCustomerOrders()
+            totalTruckloadWeight = warehouseStatObject.calculateTotalWeightOfTruckloads()
+            totalTruckloadsReceived = len(warehouseStatObject.getTruckloadArrivalTimes())
+            totalCustomerOrdersReceived = len(warehouseStatObject.getCustomerOrderArrivalTimes())
+            totalTruckloadsCompleted = len(warehouseStatObject.getTruckloadFinishTimes())
+            totalCustomerOrdersCompleted = len(warehouseStatObject.getCustomerOrderFinishTimes())
+            
+                
             numTruckloadsNotCompleted = totalTruckloadsReceived - totalTruckloadsCompleted
             numCustomerOrdersNotCompleted  =totalCustomerOrdersReceived - totalCustomerOrdersCompleted
-            print("For experimental protocol: ", value, ":")
-            print(f"avg time to complete truckload (that got completed): {truckloadTime}, completed {totalTruckloadsCompleted} truckloads, while {numTruckloadsNotCompleted} truckloads was received, but not finished. Avg time to complete customerOrder (that got completed): {customerOrderTime}, completed {totalCustomerOrdersCompleted} customerOrders, while {numCustomerOrdersNotCompleted} customerOrders was received, but not completed")
+            print("For experimental protocol: ", warehouseStatsText, ":")
+            print(f"avg time to complete truckload (that got completed): {truckloadTime} ({round(truckloadTime/10,2)} timesteps), completed {totalTruckloadsCompleted} truckloads, while {numTruckloadsNotCompleted} truckloads was received, but not finished. Avg time to complete customerOrder (that got completed): {customerOrderTime} {round(customerOrderTime/10, 2)} timesteps), completed {totalCustomerOrdersCompleted} customerOrders, while {numCustomerOrdersNotCompleted} customerOrders was received, but not completed")
             print(f"Total weight of customerOrders: {totalCustomerOrderWeight}, total weight of truckloads {totalTruckloadWeight}")
+            if (warehouseStatObject.getWasFull()):
+                print("\nDuring the simulation, the warehouse got full with stock, and could not load more products in, or complete a customerOrder. This means too much product came into the warehouse, or there was too few robots, or the warehouse had too few storage cells.")
             if (totalTruckloadsCompleted==0):
                 print("Did not manage to complete any truckloads")
             if (totalCustomerOrdersCompleted==0):
                 print("Did not manage to complete any customerOrders.")
             print("\n")
+
+
+    def printExperimentalProtocolToFile(self, allStats : dict, fileName : str):
+        """prints useful info from the experimental protocol implemented to file (avg time to complete truckload/customerOrder"""
+        try:
+            f = open(fileName, "w")
+        except:
+            print("Could not print experimental protocol to file, since file could not be opened")
+            return None
+
+        if (not isinstance(allStats, dict)):
+            print("Must be a dictionary")
+            return False
+        for warehouseStatObject, warehouseStatsText in allStats.items():
+            truckloadTime = warehouseStatObject.calculateAvgTimeToCompleteTruckload()
+            customerOrderTime = warehouseStatObject.calculateAvgTimeToCompleteCustomerOrder()
+            totalCustomerOrderWeight = warehouseStatObject.calculateTotalWeightOfCustomerOrders()
+            totalTruckloadWeight = warehouseStatObject.calculateTotalWeightOfTruckloads()
+            totalTruckloadsReceived = len(warehouseStatObject.getTruckloadArrivalTimes())
+            totalCustomerOrdersReceived = len(warehouseStatObject.getCustomerOrderArrivalTimes())
+            totalTruckloadsCompleted = len(warehouseStatObject.getTruckloadFinishTimes())
+            totalCustomerOrdersCompleted = len(warehouseStatObject.getCustomerOrderFinishTimes())
+
+            numTruckloadsNotCompleted = totalTruckloadsReceived - totalTruckloadsCompleted
+            numCustomerOrdersNotCompleted  =totalCustomerOrdersReceived - totalCustomerOrdersCompleted
+            f.write("\n______________________________\n")
+            f.write("For experimental protocol: " + warehouseStatsText + ": \n \n")
+            #multiplying timesteps by 10 to get time in seconds
+            f.write(f"-avg time to complete truckload (that got completed): {truckloadTime*10} seconds, completed {totalTruckloadsCompleted} truckloads, while {numTruckloadsNotCompleted} truckloads was received, but not finished. \n-Avg time to complete customerOrder (that got completed): {customerOrderTime*10} seconds, completed {totalCustomerOrdersCompleted} customerOrders, while {numCustomerOrdersNotCompleted} customerOrders was received, but not completed")
+            f.write(f"\n-Total weight of customerOrders: {totalCustomerOrderWeight}, total weight of truckloads {totalTruckloadWeight}")
+            if (warehouseStatObject.getWasFull()):
+                f.write("\n- NBNB: I consider that for this rate of truckloads/customerOrders, warehousesize and number of robots is not satisfactory, need more robots, or bigger warehouse. \n (During the simulation, the warehouse got full with stock, and could not load more products in, or complete a customerOrder. This means too much product came into the warehouse, or there was too few robots, or the warehouse had too few storage cells.)")
+            if (totalTruckloadsCompleted==0):
+                f.write("\n-Note: Did not manage to complete any truckloads")
+            if (totalCustomerOrdersCompleted==0):
+                f.write("\n-Note: Did not manage to complete any customerOrders.")
+            f.write("\n______________________________\n")
+            f.write("\n \n \n")
+        f.close()

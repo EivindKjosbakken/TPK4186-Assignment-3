@@ -1,0 +1,307 @@
+
+______________________________
+For experimental protocol: 150000 timeSteps, 1 robots, 500 truckloadWeight/5000 timesteps, 500 customerOrderWeight/5000 timesteps. Warehouse size: (16, 24). 120 different products: 
+ 
+-avg time to complete truckload (that got completed): 31578.5 seconds, completed 20 truckloads, while 10 truckloads was received, but not finished. 
+-Avg time to complete customerOrder (that got completed): 594764.2857142857 seconds, completed 21 customerOrders, while 129 customerOrders was received, but not completed
+-Total weight of customerOrders: 14930, total weight of truckloads 14990
+-During the simulation, the warehouse got full with stock, and could not load more products in, or complete a customerOrder. This means too much product came into the warehouse, or there was too few robots, or the warehouse had too few storage cells.
+______________________________
+
+ 
+ 
+
+______________________________
+For experimental protocol: 150000 timeSteps, 1 robots, 500 truckloadWeight/5000 timesteps, 500 customerOrderWeight/5000 timesteps. Warehouse size: (24, 30). 120 different products: 
+ 
+-avg time to complete truckload (that got completed): 91812.5 seconds, completed 28 truckloads, while 2 truckloads was received, but not finished. 
+-Avg time to complete customerOrder (that got completed): 826145.7692307692 seconds, completed 26 customerOrders, while 124 customerOrders was received, but not completed
+-Total weight of customerOrders: 14946, total weight of truckloads 14980
+______________________________
+
+ 
+ 
+
+______________________________
+For experimental protocol: 150000 timeSteps, 1 robots, 500 truckloadWeight/5000 timesteps, 500 customerOrderWeight/5000 timesteps. Warehouse size: (30, 30). 120 different products: 
+ 
+-avg time to complete truckload (that got completed): 39520.0 seconds, completed 26 truckloads, while 4 truckloads was received, but not finished. 
+-Avg time to complete customerOrder (that got completed): 1058760.8695652175 seconds, completed 23 customerOrders, while 127 customerOrders was received, but not completed
+-Total weight of customerOrders: 14954, total weight of truckloads 14987
+______________________________
+
+ 
+ 
+
+______________________________
+For experimental protocol: 150000 timeSteps, 2 robots, 500 truckloadWeight/5000 timesteps, 500 customerOrderWeight/5000 timesteps. Warehouse size: (16, 24). 120 different products: 
+ 
+-avg time to complete truckload (that got completed): 16921.666666666668 seconds, completed 18 truckloads, while 12 truckloads was received, but not finished. 
+-Avg time to complete customerOrder (that got completed): 430690.0 seconds, completed 11 customerOrders, while 139 customerOrders was received, but not completed
+-Total weight of customerOrders: 14957, total weight of truckloads 14986
+-During the simulation, the warehouse got full with stock, and could not load more products in, or complete a customerOrder. This means too much product came into the warehouse, or there was too few robots, or the warehouse had too few storage cells.
+______________________________
+
+ 
+ 
+
+______________________________
+For experimental protocol: 150000 timeSteps, 2 robots, 500 truckloadWeight/5000 timesteps, 500 customerOrderWeight/5000 timesteps. Warehouse size: (24, 30). 120 different products: 
+ 
+-avg time to complete truckload (that got completed): 35208.620689655174 seconds, completed 29 truckloads, while 1 truckloads was received, but not finished. 
+-Avg time to complete customerOrder (that got completed): 782465.357142857 seconds, completed 56 customerOrders, while 94 customerOrders was received, but not completed
+-Total weight of customerOrders: 14906, total weight of truckloads 14994
+______________________________
+
+ 
+ 
+
+______________________________
+For experimental protocol: 150000 timeSteps, 2 robots, 500 truckloadWeight/5000 timesteps, 500 customerOrderWeight/5000 timesteps. Warehouse size: (30, 30). 120 different products: 
+ 
+-avg time to complete truckload (that got completed): 31480.0 seconds, completed 29 truckloads, while 1 truckloads was received, but not finished. 
+-Avg time to complete customerOrder (that got completed): 723641.5686274511 seconds, completed 51 customerOrders, while 99 customerOrders was received, but not completed
+-Total weight of customerOrders: 14951, total weight of truckloads 14991
+______________________________
+
+ 
+ 
+
+______________________________
+For experimental protocol: 150000 timeSteps, 5 robots, 500 truckloadWeight/5000 timesteps, 500 customerOrderWeight/5000 timesteps. Warehouse size: (16, 24). 120 different products: 
+ 
+-avg time to complete truckload (that got completed): 5537.142857142857 seconds, completed 14 truckloads, while 16 truckloads was received, but not finished. 
+-Avg time to complete customerOrder (that got completed): 569491.4285714285 seconds, completed 7 customerOrders, while 143 customerOrders was received, but not completed
+-Total weight of customerOrders: 14878, total weight of truckloads 14985
+-During the simulation, the warehouse got full with stock, and could not load more products in, or complete a customerOrder. This means too much product came into the warehouse, or there was too few robots, or the warehouse had too few storage cells.
+______________________________
+
+ 
+ 
+
+______________________________
+For experimental protocol: 150000 timeSteps, 5 robots, 500 truckloadWeight/5000 timesteps, 500 customerOrderWeight/5000 timesteps. Warehouse size: (24, 30). 120 different products: 
+ 
+-avg time to complete truckload (that got completed): 8417.666666666666 seconds, completed 30 truckloads, while 0 truckloads was received, but not finished. 
+-Avg time to complete customerOrder (that got completed): 725222.142857143 seconds, completed 42 customerOrders, while 108 customerOrders was received, but not completed
+-Total weight of customerOrders: 14930, total weight of truckloads 14992
+______________________________
+
+ 
+ 
+
+______________________________
+For experimental protocol: 150000 timeSteps, 5 robots, 500 truckloadWeight/5000 timesteps, 500 customerOrderWeight/5000 timesteps. Warehouse size: (30, 30). 120 different products: 
+ 
+-avg time to complete truckload (that got completed): 11283.666666666666 seconds, completed 30 truckloads, while 0 truckloads was received, but not finished. 
+-Avg time to complete customerOrder (that got completed): 904820.4166666667 seconds, completed 48 customerOrders, while 102 customerOrders was received, but not completed
+-Total weight of customerOrders: 14919, total weight of truckloads 14992
+______________________________
+
+ 
+ 
+
+______________________________
+For experimental protocol: 150000 timeSteps, 1 robots, 1000 truckloadWeight/5000 timesteps, 1000 customerOrderWeight/5000 timesteps. Warehouse size: (16, 24). 120 different products: 
+ 
+-avg time to complete truckload (that got completed): 58164.444444444445 seconds, completed 9 truckloads, while 21 truckloads was received, but not finished. 
+-Avg time to complete customerOrder (that got completed): 324440.0 seconds, completed 5 customerOrders, while 145 customerOrders was received, but not completed
+-Total weight of customerOrders: 29948, total weight of truckloads 29984
+-During the simulation, the warehouse got full with stock, and could not load more products in, or complete a customerOrder. This means too much product came into the warehouse, or there was too few robots, or the warehouse had too few storage cells.
+______________________________
+
+ 
+ 
+
+______________________________
+For experimental protocol: 150000 timeSteps, 1 robots, 1000 truckloadWeight/5000 timesteps, 1000 customerOrderWeight/5000 timesteps. Warehouse size: (24, 30). 120 different products: 
+ 
+-avg time to complete truckload (that got completed): 302065.55555555556 seconds, completed 18 truckloads, while 12 truckloads was received, but not finished. 
+-Avg time to complete customerOrder (that got completed): 698964.827586207 seconds, completed 29 customerOrders, while 121 customerOrders was received, but not completed
+-Total weight of customerOrders: 29932, total weight of truckloads 29986
+______________________________
+
+ 
+ 
+
+______________________________
+For experimental protocol: 150000 timeSteps, 1 robots, 1000 truckloadWeight/5000 timesteps, 1000 customerOrderWeight/5000 timesteps. Warehouse size: (30, 30). 120 different products: 
+ 
+-avg time to complete truckload (that got completed): 367192.6666666667 seconds, completed 15 truckloads, while 15 truckloads was received, but not finished. 
+-Avg time to complete customerOrder (that got completed): 764115.2000000001 seconds, completed 25 customerOrders, while 125 customerOrders was received, but not completed
+-Total weight of customerOrders: 29945, total weight of truckloads 29997
+______________________________
+
+ 
+ 
+
+______________________________
+For experimental protocol: 150000 timeSteps, 2 robots, 1000 truckloadWeight/5000 timesteps, 1000 customerOrderWeight/5000 timesteps. Warehouse size: (16, 24). 120 different products: 
+ 
+-avg time to complete truckload (that got completed): 24225.555555555555 seconds, completed 9 truckloads, while 21 truckloads was received, but not finished. 
+-Avg time to complete customerOrder (that got completed): 246141.42857142858 seconds, completed 7 customerOrders, while 143 customerOrders was received, but not completed
+-Total weight of customerOrders: 29920, total weight of truckloads 29986
+-During the simulation, the warehouse got full with stock, and could not load more products in, or complete a customerOrder. This means too much product came into the warehouse, or there was too few robots, or the warehouse had too few storage cells.
+______________________________
+
+ 
+ 
+
+______________________________
+For experimental protocol: 150000 timeSteps, 2 robots, 1000 truckloadWeight/5000 timesteps, 1000 customerOrderWeight/5000 timesteps. Warehouse size: (24, 30). 120 different products: 
+ 
+-avg time to complete truckload (that got completed): 133702.4 seconds, completed 25 truckloads, while 5 truckloads was received, but not finished. 
+-Avg time to complete customerOrder (that got completed): 622494.423076923 seconds, completed 52 customerOrders, while 98 customerOrders was received, but not completed
+-Total weight of customerOrders: 29912, total weight of truckloads 29972
+______________________________
+
+ 
+ 
+
+______________________________
+For experimental protocol: 150000 timeSteps, 2 robots, 1000 truckloadWeight/5000 timesteps, 1000 customerOrderWeight/5000 timesteps. Warehouse size: (30, 30). 120 different products: 
+ 
+-avg time to complete truckload (that got completed): 85439.58333333334 seconds, completed 24 truckloads, while 6 truckloads was received, but not finished. 
+-Avg time to complete customerOrder (that got completed): 646996.4615384615 seconds, completed 65 customerOrders, while 85 customerOrders was received, but not completed
+-Total weight of customerOrders: 29909, total weight of truckloads 29992
+______________________________
+
+ 
+ 
+
+______________________________
+For experimental protocol: 150000 timeSteps, 5 robots, 1000 truckloadWeight/5000 timesteps, 1000 customerOrderWeight/5000 timesteps. Warehouse size: (16, 24). 120 different products: 
+ 
+-avg time to complete truckload (that got completed): 12725.555555555557 seconds, completed 9 truckloads, while 21 truckloads was received, but not finished. 
+-Avg time to complete customerOrder (that got completed): 309078.3333333333 seconds, completed 12 customerOrders, while 138 customerOrders was received, but not completed
+-Total weight of customerOrders: 29942, total weight of truckloads 29978
+-During the simulation, the warehouse got full with stock, and could not load more products in, or complete a customerOrder. This means too much product came into the warehouse, or there was too few robots, or the warehouse had too few storage cells.
+______________________________
+
+ 
+ 
+
+______________________________
+For experimental protocol: 150000 timeSteps, 5 robots, 1000 truckloadWeight/5000 timesteps, 1000 customerOrderWeight/5000 timesteps. Warehouse size: (24, 30). 120 different products: 
+ 
+-avg time to complete truckload (that got completed): 17671.379310344826 seconds, completed 29 truckloads, while 1 truckloads was received, but not finished. 
+-Avg time to complete customerOrder (that got completed): 626609.7142857143 seconds, completed 70 customerOrders, while 80 customerOrders was received, but not completed
+-Total weight of customerOrders: 29866, total weight of truckloads 29972
+______________________________
+
+ 
+ 
+
+______________________________
+For experimental protocol: 150000 timeSteps, 5 robots, 1000 truckloadWeight/5000 timesteps, 1000 customerOrderWeight/5000 timesteps. Warehouse size: (30, 30). 120 different products: 
+ 
+-avg time to complete truckload (that got completed): 17364.8275862069 seconds, completed 29 truckloads, while 1 truckloads was received, but not finished. 
+-Avg time to complete customerOrder (that got completed): 651799.7727272727 seconds, completed 44 customerOrders, while 106 customerOrders was received, but not completed
+-Total weight of customerOrders: 29946, total weight of truckloads 29984
+______________________________
+
+ 
+ 
+
+______________________________
+For experimental protocol: 150000 timeSteps, 1 robots, 3000 truckloadWeight/5000 timesteps, 3000 customerOrderWeight/5000 timesteps. Warehouse size: (16, 24). 120 different products: 
+ 
+-avg time to complete truckload (that got completed): 104553.33333333334 seconds, completed 3 truckloads, while 27 truckloads was received, but not finished. 
+-Avg time to complete customerOrder (that got completed): 262866.6666666667 seconds, completed 3 customerOrders, while 147 customerOrders was received, but not completed
+-Total weight of customerOrders: 89953, total weight of truckloads 89979
+-During the simulation, the warehouse got full with stock, and could not load more products in, or complete a customerOrder. This means too much product came into the warehouse, or there was too few robots, or the warehouse had too few storage cells.
+______________________________
+
+ 
+ 
+
+______________________________
+For experimental protocol: 150000 timeSteps, 1 robots, 3000 truckloadWeight/5000 timesteps, 3000 customerOrderWeight/5000 timesteps. Warehouse size: (24, 30). 120 different products: 
+ 
+-avg time to complete truckload (that got completed): 580628.5714285715 seconds, completed 7 truckloads, while 23 truckloads was received, but not finished. 
+-Avg time to complete customerOrder (that got completed): 788062.0 seconds, completed 15 customerOrders, while 135 customerOrders was received, but not completed
+-Total weight of customerOrders: 89958, total weight of truckloads 89989
+______________________________
+
+ 
+ 
+
+______________________________
+For experimental protocol: 150000 timeSteps, 1 robots, 3000 truckloadWeight/5000 timesteps, 3000 customerOrderWeight/5000 timesteps. Warehouse size: (30, 30). 120 different products: 
+ 
+-avg time to complete truckload (that got completed): 625678.5714285715 seconds, completed 7 truckloads, while 23 truckloads was received, but not finished. 
+-Avg time to complete customerOrder (that got completed): 756306.9230769231 seconds, completed 13 customerOrders, while 137 customerOrders was received, but not completed
+-Total weight of customerOrders: 89962, total weight of truckloads 89995
+______________________________
+
+ 
+ 
+
+______________________________
+For experimental protocol: 150000 timeSteps, 2 robots, 3000 truckloadWeight/5000 timesteps, 3000 customerOrderWeight/5000 timesteps. Warehouse size: (16, 24). 120 different products: 
+ 
+-avg time to complete truckload (that got completed): 79550.0 seconds, completed 4 truckloads, while 26 truckloads was received, but not finished. 
+-Avg time to complete customerOrder (that got completed): 223560.0 seconds, completed 9 customerOrders, while 141 customerOrders was received, but not completed
+-Total weight of customerOrders: 89912, total weight of truckloads 89983
+-During the simulation, the warehouse got full with stock, and could not load more products in, or complete a customerOrder. This means too much product came into the warehouse, or there was too few robots, or the warehouse had too few storage cells.
+______________________________
+
+ 
+ 
+
+______________________________
+For experimental protocol: 150000 timeSteps, 2 robots, 3000 truckloadWeight/5000 timesteps, 3000 customerOrderWeight/5000 timesteps. Warehouse size: (24, 30). 120 different products: 
+ 
+-avg time to complete truckload (that got completed): 419756.1538461538 seconds, completed 13 truckloads, while 17 truckloads was received, but not finished. 
+-Avg time to complete customerOrder (that got completed): 643266.4864864865 seconds, completed 37 customerOrders, while 113 customerOrders was received, but not completed
+-Total weight of customerOrders: 89961, total weight of truckloads 89992
+______________________________
+
+ 
+ 
+
+______________________________
+For experimental protocol: 150000 timeSteps, 2 robots, 3000 truckloadWeight/5000 timesteps, 3000 customerOrderWeight/5000 timesteps. Warehouse size: (30, 30). 120 different products: 
+ 
+-avg time to complete truckload (that got completed): 359945.8333333334 seconds, completed 12 truckloads, while 18 truckloads was received, but not finished. 
+-Avg time to complete customerOrder (that got completed): 692234.6875 seconds, completed 32 customerOrders, while 118 customerOrders was received, but not completed
+-Total weight of customerOrders: 89946, total weight of truckloads 89985
+______________________________
+
+ 
+ 
+
+______________________________
+For experimental protocol: 150000 timeSteps, 5 robots, 3000 truckloadWeight/5000 timesteps, 3000 customerOrderWeight/5000 timesteps. Warehouse size: (16, 24). 120 different products: 
+ 
+-avg time to complete truckload (that got completed): 19683.333333333332 seconds, completed 3 truckloads, while 27 truckloads was received, but not finished. 
+-Avg time to complete customerOrder (that got completed): 137162.0 seconds, completed 5 customerOrders, while 145 customerOrders was received, but not completed
+-Total weight of customerOrders: 89890, total weight of truckloads 89968
+-During the simulation, the warehouse got full with stock, and could not load more products in, or complete a customerOrder. This means too much product came into the warehouse, or there was too few robots, or the warehouse had too few storage cells.
+______________________________
+
+ 
+ 
+
+______________________________
+For experimental protocol: 150000 timeSteps, 5 robots, 3000 truckloadWeight/5000 timesteps, 3000 customerOrderWeight/5000 timesteps. Warehouse size: (24, 30). 120 different products: 
+ 
+-avg time to complete truckload (that got completed): 51920.0 seconds, completed 22 truckloads, while 8 truckloads was received, but not finished. 
+-Avg time to complete customerOrder (that got completed): 386183.78787878784 seconds, completed 66 customerOrders, while 84 customerOrders was received, but not completed
+-Total weight of customerOrders: 89935, total weight of truckloads 89992
+-During the simulation, the warehouse got full with stock, and could not load more products in, or complete a customerOrder. This means too much product came into the warehouse, or there was too few robots, or the warehouse had too few storage cells.
+______________________________
+
+ 
+ 
+
+______________________________
+For experimental protocol: 150000 timeSteps, 5 robots, 3000 truckloadWeight/5000 timesteps, 3000 customerOrderWeight/5000 timesteps. Warehouse size: (30, 30). 120 different products: 
+ 
+-avg time to complete truckload (that got completed): 86117.40740740742 seconds, completed 27 truckloads, while 3 truckloads was received, but not finished. 
+-Avg time to complete customerOrder (that got completed): 452509.62025316455 seconds, completed 79 customerOrders, while 71 customerOrders was received, but not completed
+-Total weight of customerOrders: 89922, total weight of truckloads 89982
+______________________________
+
+ 
+ 

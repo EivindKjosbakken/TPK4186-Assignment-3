@@ -1,3 +1,5 @@
+#group: 120, name: Eivind Kjosbakken
+
 import math
 from Product import Product
 import random
@@ -42,7 +44,6 @@ class Truckload():
         """returns a random product, and an amount so its less than or equal to 40"""    
         for i in range(len(self.load)):
             product, amount = random.choice(list(self.load.items()))
-        #for product, amount in self.load.items(): #TODO fjerne denne om alt funker fint
             if (amount==0):
                 continue
             amountToGet = math.floor(40/product.getWeight())
@@ -52,16 +53,10 @@ class Truckload():
             return (product, amount)
         return (None, 0)
 
-    def getTotalWeight(self):
-        """returns total weight of the truckload"""
-        totalWeight = 0
-        for productObject, amount in self.load.items():
-            totalWeight += (productObject.getWeight() * amount)
-        return totalWeight
              
     def addProduct(self, product : Product):
         """add a single product to the truckload, returns True if product was added"""
-        if ( (self.getTotalWeight() + product.getWeight()) > self.maxCapacity):
+        if ( (self.calculateTotalWeight() + product.getWeight()) > self.maxCapacity):
             return False 
         if (isinstance(product, Product)):
             if (product in self.load.keys()):
@@ -87,8 +82,9 @@ class Truckload():
                 return False
         return False
     
-    def calculateTotalWeight(self): #TODO skal vel fjernes, er en lik en over
+    def calculateTotalWeight(self):
         totalWeight = 0
         for product, amount in self.load.items():
             totalWeight += (product.getWeight() * amount)
         return totalWeight
+    

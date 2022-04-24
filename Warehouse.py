@@ -1,8 +1,8 @@
+#group: 120, name: Eivind Kjosbakken
 
-import copy
-from tracemalloc import start
+
+
 from turtle import st
-from zoneinfo import available_timezones
 from Cell import Cell
 from CustomerOrder import CustomerOrder
 from Printer import Printer
@@ -133,6 +133,21 @@ class Warehouse():
                         allProducts[productName] = amount
         return allProducts
 
+    def getIsAllRobotsInStartCell(self):
+        for robot in self.robots:
+            if (robot.getCurrentCell() != self.getStartCell()):
+                return False
+        return True
+
+    def getIsAllShelvesOccupied(self):
+        """returns True if all cells in the warehouse has product and an amount > 0 in them"""
+        for cell in self.getAllStorageCells():
+            product1, amount1 = cell.getProductShelf1(), cell.getAmountShelf1()
+            product2, amount2 = cell.getProductShelf2(), cell.getAmountShelf2()
+            if (product1 == None or amount1 == 0 or product2 == None or amount2 ==0):
+                return False   
+        return True
+
     def addBackToTruckload(self, product : Product, amount : int):
         """to add back to current truckload, happens if a robot returns with stock after trying to place it in a storage cell"""
         for i in range(amount):
@@ -143,11 +158,6 @@ class Warehouse():
     def addCustomerOrder(self, customerOrder : CustomerOrder):
         self.customerOrders.append(customerOrder)
 
-    def getIsAllRobotsInStartCell(self):
-        for robot in self.robots:
-            if (robot.getCurrentCell() != self.getStartCell()):
-                return False
-        return True
 
 
 #handle the next timeStep of the warehouse
@@ -161,22 +171,27 @@ class Warehouse():
             self.currentCustomerOrder = self.customerOrders[0]    
 
         self.addAndCompleteTruckloadsAndCustomerOrders(shouldPrint, warehouseStats)
-
+        
         #just wait if nothing is happening:
         if (self.currentTruckload == None and self.currentCustomerOrder == None and self.getIsAllRobotsInStartCell()):
             return True
 
-        isPickingUp = False
+        isPickingUp, couldPlace = False, False
         if (self.currentCustomerOrder != None):
             isPickingUp = self.pickUpCustomerOrder() 
         if (not isPickingUp and self.currentTruckload != None): #if an order could not be picked up
             couldPlace = self.placeLoadInCell() 
-            if (not couldPlace):
-                pass #TODO -> some counter here so that it shows how many times warehouse was full 
 
         #let all robots do 1 move:
+        oneRobotMoved = False
         for robot in self.robots:
-            robot.move()
+            didMove = robot.move()
+            if (didMove):
+                oneRobotMoved = True
+ 
+        #if this if statement goes through, it means the warehouse is full (cant load more truckloads in, and dont have enough products to complete the current customerOrder)
+        if (not isPickingUp and not couldPlace and not oneRobotMoved and self.currentTruckload != None and self.currentCustomerOrder != None and self.getIsAllShelvesOccupied()): 
+            warehouseStats.setWasFull(True)
 
         #if cells was occupied, they are not occupied the next time step 
         self.changeIsOccupied()
@@ -184,7 +199,7 @@ class Warehouse():
         if (shouldPrint):
             p = Printer()
             p.printRobotInfo(self.robots)
-            #p.printTruckload(self.currentTruckload) #TODO evt printe
+            p.printTruckload(self.currentTruckload) 
             p.printCustomerOrder(self.currentCustomerOrder)
             p.printProductsInWarehouse(self)
      
@@ -202,6 +217,7 @@ class Warehouse():
                 if (len(self.truckloads)>0):
                     self.currentTruckload = self.truckloads[0]
         if (self.currentCustomerOrder != None):
+            #TODO sjekk om dette er good ? 
             if (len(self.currentCustomerOrder.getOrder()) == 0 and self.currentCustomerOrder != None): #if customer order is completed
                 if (shouldPrint):   
                     print("FILLED CUSTOMER ORDER!")
@@ -227,15 +243,16 @@ class Warehouse():
                 return False
             self.currentTruckload.removeProducts(product, amount) #remove the products the robot is picking up, from the truckload
             robot.storeLoad(cellToGoTo, load)
+        return False #TODO endra
 
     def pickUpCustomerOrder(self):
         """Function for robot to pick up a customer order, returns True if it found an order it can pick up, False if not"""
         availableRobots = self.getAvailableRobots()
-        canCompleteOrder = self.currentCustomerOrder.hasOrder(self.getAllProductsAndAmountsInWarehouse()) #TODO starter ikke på customerOrder før den kan completes, fikse det?
+        canCompleteOrder = self.currentCustomerOrder.hasOrder(self.getAllProductsAndAmountsInWarehouse()) 
 
         if (len(availableRobots) > 0 and canCompleteOrder):
             robot = availableRobots[0]
-            load = self.getMax40FromOrder(self.currentCustomerOrder)
+            load = self.currentCustomerOrder.getMax40FromOrder(self)
             if (load == None):
                 return False
             cellToGoTo = self.locateCellWithLoad(load)
@@ -245,6 +262,7 @@ class Warehouse():
             return True
         return False
 
+ 
     def getAvailableRobots(self):
         """returns all available robots, aka those that are in endCell, are not waiting (loading/unloading)"""
         availableRobots = []
@@ -285,7 +303,7 @@ class Warehouse():
 
 #helper functions to pick up products from warehouse
     def locateCellWithLoad(self, load):
-        """returns a cell which has the products that a robot is going to carry"""
+        """returns a cell which has the products that a robot is going to carry to fill a customerOrder"""
         product, amount = load
       
         for storageCell in self.getAllStorageCells():
@@ -308,29 +326,6 @@ class Warehouse():
                 amountInCell += amount2
             if (amountInCell >= amount): #if cell has enough of product I am searching for
                 return storageCell
-        return None
-
-    #TODO skal denne være i customerOrder kanskje?
-    def getMax40FromOrder(self, customerOrder : CustomerOrder):
-        """returns a (product, amount) with product and the amount, where total weight <= 40 also avoids filling up customerorder twice (by getting same products as other robots are already getting) """
-        productToCarry = None
-        amountToCarry = 0
-        totalWeight = 0
-        currentlyGettingPickedUp = self.getAllProductsGettingPickedUp()
-        for product, amount in customerOrder.getOrder().items():
-            if (product in currentlyGettingPickedUp.keys()):
-                amount -= currentlyGettingPickedUp[product]
-            if (amount<=0): #if the rest of the product is already getting picked up by other robots
-                continue
- 
-            productToCarry = product
-            productWeight = product.getWeight()
-            for i in range(amount):
-                if (totalWeight + productWeight > 40):
-                    return (productToCarry, amountToCarry)
-                totalWeight += productWeight
-                amountToCarry+=1
-            return (productToCarry, amountToCarry) #only want to run 1 iteration since robot can only carry one type of product at a time
         return None
 
     def getAllProductsGettingPickedUp(self):
@@ -356,7 +351,7 @@ class Warehouse():
         return allProducts
 
     def fillOrderWithLoad(self, load):
-        """fill the current Customer order with a load, just removes the load from the customer order"""
+        """fill the current Customer order with a load (just removes the load from the customer order)"""
         product, amount = load
         for i in range(amount):
             self.currentCustomerOrder.removeFromOrder(product)
@@ -364,7 +359,7 @@ class Warehouse():
 
 #helper functions for loading shelves into warehouse
     def findCell(self, product : Product, amount : int):
-        """returns an available storage cell for the product to go to"""
+        """returns an available storage cell for the product from a Truckload to go to"""
         allStorageCells = self.getAllStorageCells()
 
         for storageCell in allStorageCells:
@@ -381,15 +376,12 @@ class Warehouse():
             amountShelf1, amountShelf2 = self.getAmountYouCanPutIntoEachShelfOfCell(product, storageCell)
             if (amountShelf1 >= amount):    
                 return storageCell
-
             if (amountShelf2 >= amount):
                 return storageCell
-
         return False
 
     def getAmountYouCanPutIntoEachShelfOfCell(self, product : Product, cell : Cell):
         """returns (amountShelf1, amountShelf2), the amounts each shelf of a shelf, can fit of a specific product. Does not set the state of the shelves"""
-    
         productWeight = product.getWeight()
         amountShelf1 = 0
         amountShelf2 = 0
@@ -424,7 +416,7 @@ class Warehouse():
             cellSize = 2
         elif (xSize + ySize > 150):
             cellSize = 7
-        elif (xSize + ySize > 100):
+        elif (xSize + ySize > 75):
             cellSize = cellSize//3
         elif (xSize + ySize > 50):
             cellSize = cellSize//2
@@ -448,6 +440,7 @@ class Warehouse():
                 cell = Cell("end", 0, y)
                 xc = x*cellSize
                 yc = y*cellSize
+
             for x in range(1, xSize+1): 
                 if (y==ySize//2) and (x<(xSize)): 
                     cell = Cell("moveRight", x, y)
@@ -511,7 +504,12 @@ class Warehouse():
             self.cells.append(row)
             zones.append(tkinterRow)
 
-        #this handles adding the start and and cell at the middle of the warehouse, and to the left
+        rootWindow, canvas, zones = self.addStartAndEndCellToWarehouse(xSize, ySize, cellSize, canvas, rootWindow, zones)
+        return rootWindow, canvas, zones
+    
+    #TODO endrer:
+    def addStartAndEndCellToWarehouse(self, xSize : int, ySize : int, cellSize : int, canvas : Canvas, rootWindow, zones):
+        """this handles adding the start and and cell at the middle of the warehouse, and to the left"""
         for rowNumber in range(1, len(self.cells)+1):
             cell = Cell("load", 0, rowNumber)
             fill = "blue"
@@ -541,7 +539,7 @@ class Warehouse():
             self.cells[rowNumber-1].insert(0, cell)
             xc = 0
             yc = rowNumber*cellSize
-            zone = canvas.create_rectangle(xc, yc, xc+cellSize, yc+cellSize, fill = fill)
+            zone = canvas.create_rectangle(xc, yc, xc+cellSize, yc+cellSize, fill = fill) #TODO fjerne zones?
             zones[rowNumber-1].append(cell)
 
         frame = Frame(rootWindow)

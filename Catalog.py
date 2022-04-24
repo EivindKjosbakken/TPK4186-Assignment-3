@@ -1,4 +1,4 @@
-
+#group: 120, name: Eivind Kjosbakken
 
 from Product import Product
 

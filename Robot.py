@@ -1,5 +1,5 @@
+#group: 120, name: Eivind Kjosbakken
 
-from tracemalloc import start
 from Cell import Cell
 from Product import Product
 from Warehouse import Warehouse
@@ -116,7 +116,9 @@ class Robot():
 #methods for robot to move
     def move(self):
         """when a new timestep, a robot must move, it wants to move to the next cell in its trajectory, but if it collides with another robot, it must wait"""
-        shouldMove = self.moveChecks()
+        
+        shouldMove = self.moveChecks() #check if robot should move
+       
         if (not shouldMove):
             return False
 
@@ -273,12 +275,14 @@ class Robot():
             raise Exception("something is wrong in unloadRobot")
 
     def removeCurrentLoad(self, product : Product,  amount : int):
-        """removes an amount from current load"""
+        """removes an amount from current load of a robot"""
         currentAmount = self.currentLoad[1]
         if (amount>currentAmount):
             print("Something wrong in removeCurrentLoad")
             return None
         newAmount = currentAmount-amount
+        if (newAmount == 0): #if the amount a robot has of a product is 0, then it doesn't have a product
+            product = None 
         self.currentLoad = (product, newAmount)
 
     def calcWeightOfLoad(self, load):
